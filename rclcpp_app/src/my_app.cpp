@@ -10,6 +10,9 @@
 #include "custom_interfaces/msg/message.hpp"
 #include "thread_utilities.hpp"
 
+static std::random_device rd;
+static std::mt19937 gen(rd());
+
 using std::placeholders::_1;
 using namespace std::chrono_literals;
 using namespace my_app;
@@ -30,7 +33,7 @@ private:
 	    const size_t n = timestamp[0].size();
 
 	    for (size_t i = 0; i < n; i++) {
-	        bool printZero = i == 0; // print the first element of the first line even if it's 0
+	        bool printZero = (i == 0); // print the first element of the first line even if it's 0
 	        std::string line = "";
 	        line += "frame " + std::to_string(i) + ": ";
 	        for (size_t j = 0; j < m; j++) {
@@ -45,14 +48,14 @@ private:
 	}
 
 protected:
+	// min_time and max_time are in miliseconds
 	void busy_wait(int min_time, int max_time) 
 	{
 		// Use the high_resolution_clock to get a precise timepoint
 		std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
 
 		// Use the random_device to seed the random number generator
-		std::random_device rd;
-		std::mt19937 gen(rd());
+		
 		std::uniform_int_distribution<> dist(min_time, max_time);
 
 		// Calculate the random wait time
@@ -95,9 +98,9 @@ private:
 			first_run = 0;
 		}
 		//message.data = "Hello" + std::to_string(count++);
-		message.header.frame_id = std::to_string(count++);
-		message.header.stamp = start_time;
-		timestamp.at(0).at(std::stoi(message.header.frame_id)) = (now - start_time).nanoseconds()/1000;
+		message.frame_id = count++;
+		message.stamp = start_time.nanoseconds();
+		timestamp.at(0).at(message.frame_id) = (now - start_time).nanoseconds()/1000;
 		//RCLCPP_INFO(this->get_logger(), "Publishing: '%s' at %f", message.header.frame_id.c_str(), t);
 		publisher1->publish(message);
 	}
@@ -105,19 +108,19 @@ private:
 	void sub1_callback(const custom_interfaces::msg::Message & msg)
   	{
   		rclcpp::Time now = this->now();
-  		timestamp.at(1).at(std::stoi(msg.header.frame_id)) = (now - start_time).nanoseconds()/1000;
+  		timestamp.at(1).at(msg.frame_id) = (now - start_time).nanoseconds()/1000;
     	//RCLCPP_INFO(this->get_logger(), "I heard: '%s' at %f", msg.header.frame_id.c_str(), t);
     	//msg.header.stamp = now - start_time;
     	busy_wait(100,300);
     	publisher2->publish(msg);
     	now = this->now();
-    	timestamp.at(2).at(std::stoi(msg.header.frame_id)) = (now - start_time).nanoseconds()/1000;
+    	timestamp.at(2).at(msg.frame_id) = (now - start_time).nanoseconds()/1000;
   	}
 
   	void sub2_callback(const custom_interfaces::msg::Message & msg)
   	{
   		rclcpp::Time now = this->now();
-  		timestamp.at(3).at(std::stoi(msg.header.frame_id)) = (now - start_time).nanoseconds()/1000;
+  		timestamp.at(3).at(msg.frame_id) = (now - start_time).nanoseconds()/1000;
     	//RCLCPP_INFO(this->get_logger(), "I heard: '%s' at %f", msg.header.frame_id.c_str(), t);
   	}
 
@@ -147,11 +150,10 @@ private:
 	void sub1_callback(const custom_interfaces::msg::Message & msg)
   	{
   		rclcpp::Time now = this->now();
-  		start_time = msg.header.stamp;
-  		timestamp.at(0).at(std::stoi(msg.header.frame_id)) = (now - start_time).nanoseconds()/1000;
+  		timestamp.at(0).at(msg.frame_id) = (now.nanoseconds() - msg.stamp)/1000;
     	//RCLCPP_INFO(this->get_logger(), "I heard: '%s' at %f", msg.header.frame_id.c_str(), t);
     	//msg.header.stamp = now - start_time;
-    	busy_wait(100,300);
+    	busy_wait(100,150);
   	}
 
 	rclcpp::Subscription<custom_interfaces::msg::Message>::SharedPtr subscriber1;
