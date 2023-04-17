@@ -2,17 +2,23 @@
 Changelog for package rclc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-3.0.9 (2023-03-22)
+4.0.2 (2023-03-22)
 ------------------
-* Added build status of bloom-releases for Humble distribution (#291)
-* [rolling] updated ros-tooling versions (#289)
-* github action: updated os-version to ubuntu-22.04 (backport #295) (#296)
-* Added documentation (#301)
-* Drop build dependency on std_msgs (#314)
-* Updated ros-tooling/setup-ros@0.4.2 and ros-tooling/action-ros-ci@0.2.7 (#318)
-* Removed build status for Galactic in README (EOL November 2022) (#321)
-* Update documentation about number_of_handles (#326)
-* executor.h: Fix a few docs typos (#338)
+* Drop build dependency on std_msgs (backport #314) (#315)
+* Updated ros-tooling/setup-ros@0.4.2 and ros-tooling/action-ros-ci@0.2.7 (#318) (#320)
+* Removed build status for Galactic in README (EOL November 2022) (#321) (#322)
+* Update documentation about number_of_handles (#326) (#327)
+
+4.0.1 (2022-07-20)
+------------------
+* updated documentation bloom build status table (#291) (#292)
+* updated os-version to ubuntu-22.04 (#295)
+* [rolling] updated ros-tooling versions (backport #289) (#297)
+* improved doxygen-generated API documentation (#301) (#302)
+
+4.0.0 (2022-04-28)
+------------------
+* updated version for Humble release
 
 3.0.8 (2022-04-14)
 ------------------

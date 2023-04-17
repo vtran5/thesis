@@ -6,28 +6,119 @@
 #include <rclc/rclc.h>
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
+#include <sched.h>
 
-rcl_publisher_t node1_publisher1;
-rcl_publisher_t node1_publisher2;
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc); return 1;}}
+#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Continuing.\n",__LINE__,(int)temp_rc);}}
+
+#define EXPERIMENT_DURATION 10000 //ms
+
+#define NODE1_PUBLISHER_NUMBER 2
+#define NODE1_SUBSCRIBER_NUMBER 2
+#define NODE1_TIMER_NUMBER 1
+
+#define NODE2_PUBLISHER_NUMBER 0
+#define NODE2_SUBSCRIBER_NUMBER 1
+
+#define TOPIC_NUMBER 2
+
+rcl_publisher_t node1_publisher[NODE1_PUBLISHER_NUMBER];
+rcl_subscription_t node1_subscriber[NODE1_SUBSCRIBER_NUMBER];
+rcl_timer_t node1_timer[NODE1_TIMER_NUMBER];
+
+//rcl_publisher_t node2_publisher[NODE1_PUBLISHER_NUMBER];
+rcl_subscription_t node2_subscriber[NODE1_SUBSCRIBER_NUMBER];
+
+const char * topic_name[TOPIC_NUMBER];
 custom_interfaces__msg__Message pub_msg;
+//custom_interfaces__msg__Message pub_msg2;
 custom_interfaces__msg__Message sub_msg1;
 custom_interfaces__msg__Message sub_msg2;
+custom_interfaces__msg__Message sub_msg3;
 rclc_support_t support;
 rcl_time_point_value_t start_time;
-uint8_t first_run;
-int64_t count;
+volatile uint8_t first_run;
+volatile int64_t count;
+volatile bool exit_flag = false;
+struct arg_spin_period {
+  uint64_t period;
+  rclc_executor_t * executor;
+};
 //rcl_time_point_value_t timestamp[4][100] = {{0}};
 
+// Wrapper function for pthread compatibility
+void *rclc_executor_spin_wrapper(void *arg)
+{
+  rclc_executor_t * executor = (rclc_executor_t *) arg;
+  rcl_ret_t ret = RCL_RET_OK;
+  while (!exit_flag) {
+    ret = rclc_executor_spin_some(executor, executor->timeout_ns);
+    if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
+      printf("Executor spin failed\n");
+    }
+  }
+}
+
+void *rclc_executor_spin_period_wrapper(void *arg)
+{
+  struct arg_spin_period *arguments = arg;
+  rclc_executor_t * executor = arguments->executor;
+  const uint64_t period = arguments->period;
+  rcl_ret_t ret = RCL_RET_OK;
+  while (!exit_flag) {
+    ret = rclc_executor_spin_one_period(executor, period);
+    if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
+      printf("Executor spin failed\n");
+    }
+  }
+}
+
+// Function to create and configure thread
+void thread_create(pthread_t thread_id, int policy, int priority, void *(*function)(void *), void * arg)
+{
+    struct sched_param param;
+    int ret;
+    pthread_attr_t attr;
+
+    ret = pthread_attr_init (&attr);
+    ret += pthread_attr_setinheritsched(&attr,PTHREAD_EXPLICIT_SCHED);
+    ret += pthread_attr_setschedpolicy(&attr, policy);
+    ret += pthread_attr_getschedparam (&attr, &param);
+    param.sched_priority = priority;
+    ret += pthread_attr_setschedparam (&attr, &param);
+    ret += pthread_create(&thread_id, &attr, function, arg);
+    if(ret!=0)
+      printf("Create thread %d failed\n", thread_id);
+    else
+      printf("Create thread %d\n", thread_id);
+}
 
 // return value in nanoseconds
 rcl_time_point_value_t rclc_now(rclc_support_t * support)
 {
 	rcl_time_point_value_t now = 0;
-	rcl_ret_t rc = rcl_clock_get_now(&support->clock, &now);
-   	if (rc != RCL_RET_OK) {
-    	printf("rcl_clock_get_now: Error getting clock\n");
-  	}
-  	return now;
+	RCSOFTCHECK(rcl_clock_get_now(&support->clock, &now));
+  return now;
+}
+
+/* sleep_ms(): Sleep for the requested number of milliseconds. */
+int sleep_ms(int msec)
+{
+    struct timespec ts;
+    int res;
+
+    if (msec < 0)
+    {
+        return -1;
+    }
+
+    ts.tv_sec = msec / 1000;
+    ts.tv_nsec = (msec % 1000) * 1000000;
+
+    res = nanosleep(&ts, NULL);
+
+    return res;
 }
 
 void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][dim1])
@@ -51,6 +142,7 @@ void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][
     }
 }
 
+// this function waits a random amount of time without suspending 
 // min_time and max_time are in miliseconds
 void busy_wait(int min_time, int max_time, rclc_support_t * support_)
 {
@@ -63,7 +155,6 @@ void busy_wait(int min_time, int max_time, rclc_support_t * support_)
 /***************************** CALLBACKS ***********************************/
 void node1_timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
-	rcl_ret_t rc;
 	rcl_time_point_value_t now = rclc_now(&support);
 	if (first_run)
 	{
@@ -78,12 +169,8 @@ void node1_timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 	if (timer != NULL) {
 		printf("Timer: Timer start\n");
     	//printf("Timer: time since last call %ld\n", (int) last_call_time);
-    	rc = rcl_publish(&node1_publisher1, &pub_msg, NULL);
-    	if (rc == RCL_RET_OK) {
-      		printf("Published message %ld at time %ld \n", pub_msg.frame_id, now-start_time);
-    	} else {
-      		printf("timer_callback: Error publishing message %ld\n", pub_msg.frame_id);
-    	}
+    RCSOFTCHECK(rcl_publish(&node1_publisher[0], &pub_msg, NULL));
+    printf("Published message %ld at time %ld \n", pub_msg.frame_id, now-start_time);
   	} else {
     	printf("timer_callback Error: timer parameter is NULL\n");
   	}
@@ -99,15 +186,11 @@ void node1_subscriber1_callback(const void * msgin)
   		now = rclc_now(&support);
     	printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, now-start_time);
   	}
-  	busy_wait(100,300, &support);
+  busy_wait(100,300, &support);
 	rcl_ret_t rc;
-	rc = rcl_publish(&node1_publisher2, &msg, NULL);
+	RCSOFTCHECK(rcl_publish(&node1_publisher[1], msg, NULL));
 	now = rclc_now(&support);
-    if (rc == RCL_RET_OK) {
-      	printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
-    } else {
-      	printf("node1_sub1_callback: Error publishing message %ld\n", msg->frame_id);
-    }
+  printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
 }
 
 void node1_subscriber2_callback(const void * msgin)
@@ -121,131 +204,164 @@ void node1_subscriber2_callback(const void * msgin)
   }
 }
 
+void node2_subscriber1_callback(const void * msgin)
+{
+  const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
+  if (msg == NULL) {
+    printf("Callback: msg NULL\n");
+  } else {
+  	rcl_time_point_value_t now = rclc_now(&support);
+    printf("Node2_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, now);
+  }
+  busy_wait(100,150,&support);
+}
+
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-	rcl_allocator_t allocator = rcl_get_default_allocator();
+	  rcl_allocator_t allocator = rcl_get_default_allocator();
   	rcl_ret_t rc;
   	first_run = 1;
   	count = 0;
   	srand(time(NULL));
 
     // create init_options
-    rc = rclc_support_init(&support, argc, argv, &allocator);
-    if (rc != RCL_RET_OK) {
-      printf("Error rclc_support_init.\n");
-      return -1;
-    }  
+    RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
 
     // create rcl_node
     rcl_node_t node1 = rcl_get_zero_initialized_node();
-    rc = rclc_node_init_default(&node1, "node_1", "rclc_app", &support);
-    if (rc != RCL_RET_OK) {
-      printf("Error in rclc_node_init_default\n");
-      return -1;
-    }  	
+    RCCHECK(rclc_node_init_default(&node1, "node_1", "rclc_app", &support));
+
+    rcl_node_t node2 = rcl_get_zero_initialized_node();
+    RCCHECK(rclc_node_init_default(&node2, "node_2", "rclc_app", &support));		
 	
     // create a publisher to publish topic 'topic1' with type std_msg::msg::String
     // node1_publisher1 is global, so that the callback can access this publisher.
-    const char * topic_name1 = "topic1";
-    const char * topic_name2 = "topic2";
+    topic_name[0] = "topic1";
+    topic_name[1] = "topic2";
     const rosidl_message_type_support_t * my_type_support =
       ROSIDL_GET_MSG_TYPE_SUPPORT(custom_interfaces, msg, Message);  
-
-    rc = rclc_publisher_init_default(&node1_publisher1, &node1, my_type_support, topic_name1);
-    if (RCL_RET_OK != rc) {
-      printf("Error in rclc_publisher_init_default %s.\n", topic_name1);
-      return -1;
-    }
-
-    rc = rclc_publisher_init_default(&node1_publisher2, &node1, my_type_support, topic_name2);
-    if (RCL_RET_OK != rc) {
-      printf("Error in rclc_publisher_init_default %s.\n", topic_name2);
-      return -1;
+    int i;
+    for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
+    {
+      RCCHECK(rclc_publisher_init_default(&node1_publisher[i], &node1, my_type_support, topic_name[i]));    
     }
 
     // create a timer, which will call the publisher with period=`timer_timeout` ms in the 'node1_timer_callback'
-    rcl_timer_t node1_timer = rcl_get_zero_initialized_timer();
     const unsigned int timer_timeout = 500;
-    rc = rclc_timer_init_default(&node1_timer, &support, RCL_MS_TO_NS(timer_timeout), node1_timer_callback);
-    if (rc != RCL_RET_OK) {
-      printf("Error in rcl_timer_init_default.\n");
-      return -1;
-    } else {
-      printf("Created timer with timeout %ld ms.\n", timer_timeout);
+    for (i = 0; i < NODE1_TIMER_NUMBER; i++)
+    {
+      node1_timer[i] = rcl_get_zero_initialized_timer();
+      RCCHECK(rclc_timer_init_default(&node1_timer[i], &support, RCL_MS_TO_NS(timer_timeout), node1_timer_callback));
+
     }
 
     // assign message to publisher
     custom_interfaces__msg__Message__init(&pub_msg);
 
     // create subscription
-    rcl_subscription_t node1_subscriber1 = rcl_get_zero_initialized_subscription();
-    rc = rclc_subscription_init_default(&node1_subscriber1, &node1, my_type_support, topic_name1);
-    if (rc != RCL_RET_OK) {
-      printf("Failed to create subscriber %s.\n", topic_name1);
-      return -1;
-    } else {
-      printf("Created subscriber %s:\n", topic_name1);
-    }	
+    for (i = 0; i < NODE1_SUBSCRIBER_NUMBER; i++)
+    {
+      node1_subscriber[i] = rcl_get_zero_initialized_subscription();
+      RCCHECK(rclc_subscription_init_default(&node1_subscriber[i], &node1, my_type_support, topic_name[i]));
+      printf("Created subscriber %s:\n", topic_name[i]);
+    }
 
-    rcl_subscription_t node1_subscriber2 = rcl_get_zero_initialized_subscription();
-    rc = rclc_subscription_init_default(&node1_subscriber2, &node1, my_type_support, topic_name2);
-    if (rc != RCL_RET_OK) {
-      printf("Failed to create subscriber %s.\n", topic_name2);
-      return -1;
-    } else {
-      printf("Created subscriber %s:\n", topic_name2);
-    }	
+    for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
+    {
+      node2_subscriber[i] = rcl_get_zero_initialized_subscription();
+      RCCHECK(rclc_subscription_init_default(&node2_subscriber[i], &node2, my_type_support, topic_name[i]));
+      printf("Created subscriber %s:\n", topic_name[i]);
+    }
+
     // one string message for subscriber
     custom_interfaces__msg__Message__init(&sub_msg1);
     custom_interfaces__msg__Message__init(&sub_msg2);
+    custom_interfaces__msg__Message__init(&sub_msg3);
 
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of RCL Executor
     ////////////////////////////////////////////////////////////////////////////
+    const uint64_t timeout_ns = 100000000;
     rclc_executor_t executor;
     executor = rclc_executor_get_zero_initialized_executor();
-
+    
     unsigned int num_handles = 1 + 2; // 1 timer + 2 subs
     printf("Debug: number of DDS handles: %u\n", num_handles);
-    rclc_executor_init(&executor, &support.context, num_handles, &allocator);  
+    RCCHECK(rclc_executor_init(&executor, &support.context, num_handles, &allocator));
 
     // add subscription to executor
-    rc = rclc_executor_add_subscription(
-      &executor, &node1_subscriber1, &sub_msg1, &node1_subscriber1_callback,
-      ON_NEW_DATA);
-    rc += rclc_executor_add_subscription(
-      &executor, &node1_subscriber2, &sub_msg2, &node1_subscriber2_callback,
-      ON_NEW_DATA);
-    if (rc != RCL_RET_OK) {
-      printf("Error in rclc_executor_add_subscription. \n");
-    }  
+    RCCHECK(rclc_executor_add_subscription(
+      &executor, &node1_subscriber[0], &sub_msg1, &node1_subscriber1_callback,
+      ON_NEW_DATA));
+    RCCHECK(rclc_executor_add_subscription(
+      &executor, &node1_subscriber[1], &sub_msg2, &node1_subscriber2_callback,
+      ON_NEW_DATA));
 
-    rclc_executor_add_timer(&executor, &node1_timer);
-    if (rc != RCL_RET_OK) {
-      printf("Error in rclc_executor_add_timer.\n");
-    }  
+    RCCHECK(rclc_executor_add_timer(&executor, &node1_timer[0]));
 
-    // Start Executor
-    rclc_executor_spin(&executor);  
+    RCCHECK(rclc_executor_set_timeout(&executor,timeout_ns));
 
-    // clean up (never called in this example)
+    rclc_executor_t executor2;
+	  executor2 = rclc_executor_get_zero_initialized_executor();
+    RCCHECK(rclc_executor_init(&executor2, &support.context, num_handles, &allocator)); 
+	  RCCHECK(rclc_executor_add_subscription(
+      &executor2, &node2_subscriber[0], &sub_msg3, &node2_subscriber1_callback,
+      ON_NEW_DATA));
+
+    RCCHECK(rclc_executor_set_timeout(&executor2,timeout_ns));
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Configuration of Linux threads
+    ////////////////////////////////////////////////////////////////////////////
+    pthread_t thread1, thread2;
+    int policy = SCHED_FIFO;
+    int ret;
+
+    thread_create(thread1, policy, 10, rclc_executor_spin_wrapper, &executor);
+    thread_create(thread2, policy, 49, rclc_executor_spin_wrapper, &executor2);
+
+    printf("Running experiment from now on for %ds\n", EXPERIMENT_DURATION);
+    sleep_ms(EXPERIMENT_DURATION);
+    exit_flag = true;
+    printf("Stop experiment\n");
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    // clean up 
     rc = rclc_executor_fini(&executor);
-    rc += rcl_publisher_fini(&node1_publisher1, &node1);
-    rc += rcl_publisher_fini(&node1_publisher2, &node1);
-    rc += rcl_timer_fini(&node1_timer);
-    rc += rcl_subscription_fini(&node1_subscriber1, &node1);
-    rc += rcl_subscription_fini(&node1_subscriber2, &node1);
-    rc += rcl_node_fini(&node1);
-    rc += rclc_support_fini(&support);  
+    for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
+    {
+      RCCHECK(rcl_publisher_fini(&node1_publisher[i], &node1));
+    }
+    for (i = 0; i < NODE1_SUBSCRIBER_NUMBER; i++)
+    {
+      RCCHECK(rcl_subscription_fini(&node1_subscriber[i], &node1));
+    }
+    for (i = 0; i < NODE1_TIMER_NUMBER; i++)
+    {
+      RCCHECK(rcl_timer_fini(&node1_timer[i]));
+    }
+    RCCHECK(rcl_node_fini(&node1));
+
+    RCCHECK(rclc_executor_fini(&executor2));
+    for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
+    {
+      RCCHECK(rcl_subscription_fini(&node2_subscriber[i], &node2));
+    }
+    RCCHECK(rcl_node_fini(&node2));
+    RCCHECK(rclc_support_fini(&support));  
 
     custom_interfaces__msg__Message__fini(&pub_msg);
     custom_interfaces__msg__Message__fini(&sub_msg1);  
-    custom_interfaces__msg__Message__fini(&sub_msg2);  
+    custom_interfaces__msg__Message__fini(&sub_msg2); 
+    custom_interfaces__msg__Message__fini(&sub_msg3);  
+    
 
-    if (rc != RCL_RET_OK) {
-      printf("Error while cleaning up!\n");
-      return -1;
-    }
+    
+    // Start Executor
+    //rclc_executor_spin(&executor);  
 	return 0;
 }
