@@ -24,8 +24,16 @@ find_package(custom_interfaces REQUIRED)
 find_package(rclc_parameter REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(mycapp src/my_app.c)
-ament_target_dependencies(mycapp rcl rclc custom_interfaces)
+include_directories(include)
+
+add_executable(exp1 src/experiment1.c src/utilities.c)
+ament_target_dependencies(exp1 rcl rclc custom_interfaces)
+
+add_executable(exp2 src/experiment2.c src/utilities.c)
+ament_target_dependencies(exp2 rcl rclc custom_interfaces)
+
+add_executable(exp3 src/experiment3.c src/utilities.c)
+ament_target_dependencies(exp3 rcl rclc custom_interfaces)
 
 add_executable(mytest src/test.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
@@ -48,10 +56,19 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+
+
 install(TARGETS
-  mycapp
+  exp1
   mytest
+  exp2
+  exp3
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
 ament_package()

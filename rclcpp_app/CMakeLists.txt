@@ -21,13 +21,24 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
 include_directories(include)
-add_executable(mycppapp src/my_app.cpp)
-ament_target_dependencies(mycppapp rclcpp custom_interfaces)
+
+add_executable(exp1 src/experiment1.cpp src/my_node_utilities.cpp)
+ament_target_dependencies(exp1 rclcpp custom_interfaces)
+
+add_executable(exp2 src/experiment2.cpp src/my_node_utilities.cpp)
+ament_target_dependencies(exp2 rclcpp custom_interfaces)
+
+add_executable(exp3 src/experiment3.cpp src/my_node_utilities.cpp)
+ament_target_dependencies(exp3 rclcpp custom_interfaces)
 
 install(TARGETS
-  mycppapp
+  exp1
+  exp2
+  exp3
   DESTINATION lib/${PROJECT_NAME})
+
 install(
   DIRECTORY include/
   DESTINATION include

@@ -43,7 +43,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-namespace my_app
+namespace my_thread_utilities
 {
 
 /// Retrieves the value of the given seconds parameter in std::chrono nanoseconds.
