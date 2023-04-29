@@ -269,6 +269,19 @@ inline double calc_std_deviation(const std::vector<double> & v)
   return std::sqrt(sum_squares / v.size());
 }
 
+inline void parse_arguments(int argc, char const *argv[], unsigned int &timer_period, unsigned int &experiment_duration) {
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-tp") == 0 && i + 1 < argc) {
+            timer_period = std::atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-ed") == 0 && i + 1 < argc) {
+            experiment_duration = std::atoi(argv[++i]);
+        } else {
+            std::cerr << "Invalid argument: " << argv[i] << std::endl;
+            exit(1);
+        }
+    }
+}
+
 }  // namespace my_app
 
 #endif  // THREAD_UTILITIES_HPP_

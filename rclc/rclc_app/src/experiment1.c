@@ -18,7 +18,7 @@
 #define TOPIC_NUMBER 1
 
 #define LOGGER_DIM0 4
-#define LOGGER_DIM1 200
+
 const char * topic_name[TOPIC_NUMBER];
 
 // struct to store node variables
@@ -69,8 +69,7 @@ volatile rcl_time_point_value_t start_time;
 my_node1_t node1;
 my_node2_t node2;
 
-
-rcl_time_point_value_t timestamp[LOGGER_DIM0][LOGGER_DIM1] = {{0}};
+rcl_time_point_value_t *timestamp[LOGGER_DIM0];
 
 /***************************** CALLBACKS ***********************************/
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -143,6 +142,10 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
     exit_flag = false;
 
+    const unsigned int timer_timeout[NODE1_TIMER_NUMBER] = {500};
+    int logger_dim1 =  (EXPERIMENT_DURATION/min_period(NODE1_TIMER_NUMBER, timer_timeout)) + 1;
+    init_timestamp(LOGGER_DIM0, logger_dim1, timestamp);
+    
     // create init_options
     RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
 
@@ -160,7 +163,7 @@ int main(int argc, char const *argv[])
     }
 
     // create a timer, which will call the publisher with period=`timer_timeout` ms in the 'node1_timer_callback'
-    const unsigned int timer_timeout[NODE1_TIMER_NUMBER] = {500};
+    
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
     {
       node1.timer[i] = rcl_get_zero_initialized_timer();
@@ -233,7 +236,8 @@ int main(int argc, char const *argv[])
 
     RCCHECK(rclc_support_fini(&support));  
 
-    print_timestamp(LOGGER_DIM0,LOGGER_DIM1, timestamp);
+    print_timestamp(LOGGER_DIM0,logger_dim1, timestamp);
+    fini_timestamp(LOGGER_DIM0, timestamp);
  
     return 0;
 }

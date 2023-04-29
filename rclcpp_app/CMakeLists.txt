@@ -33,10 +33,18 @@ ament_target_dependencies(exp2 rclcpp custom_interfaces)
 add_executable(exp3 src/experiment3.cpp src/my_node_utilities.cpp)
 ament_target_dependencies(exp3 rclcpp custom_interfaces)
 
+add_executable(exp4 src/experiment4.cpp src/my_node_utilities.cpp)
+ament_target_dependencies(exp4 rclcpp custom_interfaces)
+
+add_executable(exp4_1 src/experiment4_1.cpp src/my_node_utilities.cpp)
+ament_target_dependencies(exp4_1 rclcpp custom_interfaces)
+
 install(TARGETS
   exp1
   exp2
   exp3
+  exp4
+  exp4_1
   DESTINATION lib/${PROJECT_NAME})
 
 install(

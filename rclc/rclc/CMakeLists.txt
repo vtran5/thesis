@@ -45,6 +45,7 @@ else()
   find_package(rosidl_runtime_c REQUIRED)
 endif()
 
+add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
 #################################################
 # create library
 #################################################

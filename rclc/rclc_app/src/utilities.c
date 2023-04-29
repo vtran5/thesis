@@ -11,7 +11,6 @@ void *rclc_executor_spin_wrapper(void *arg)
       printf("Executor spin failed\n");
     }
   }
-  printf("Executor stops\n");
   return 0;
 }
 
@@ -27,7 +26,6 @@ void *rclc_executor_spin_period_wrapper(void *arg)
       printf("Executor spin failed\n");
     }
   }
-  printf("Executor stops\n");
   return 0;
 }
 
@@ -114,6 +112,7 @@ void busy_wait_random(int min_time, int max_time)
   busy_wait(duration);
 }
 
+/*
 void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][dim1])
 {
 	  char line[20000] = "";
@@ -144,4 +143,88 @@ void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][
         printf("%s", line);
     }  
 }
+*/
 
+void init_timestamp(int dim0, int dim1, rcl_time_point_value_t *timestamp[dim0])
+{
+    int i, j;
+
+    for (i = 0; i < dim0; i++)
+    {
+        timestamp[i] = (rcl_time_point_value_t*) malloc(dim1*sizeof(rcl_time_point_value_t));
+    }
+
+    for (i = 0; i < dim0; i++)
+    {
+        for (j = 0; j < dim1; j++)
+        {
+            timestamp[i][j] = 0;
+        }
+    }
+}
+
+void fini_timestamp(int dim0, rcl_time_point_value_t *timestamp[dim0])
+{
+    for (int i = 0; i < dim0; i++)
+      free(timestamp[i]);
+}
+
+void print_timestamp(int dim0, int dim1, rcl_time_point_value_t *timestamp[dim0])
+{
+    char line[20000] = "";
+    uint8_t end_of_file = 0;
+    for (int i = 0; i < dim1; i++)
+    {
+        sprintf(line, "%d ", i);
+        for (int j = 0; j < dim0; j++)
+        {
+            if (j == 0 && timestamp[j][i] == 0)
+            {
+                int sum = 0;
+                for (int k = 1; k < dim0; k++)
+                    sum += timestamp[k][i];
+                if(sum == 0)
+                {
+                    end_of_file = 1;
+                    break;
+                }
+            }
+            char temp[32];
+            sprintf(temp, "%ld ", timestamp[j][i]);
+            strcat(line, temp);
+        }
+        strcat(line, "\n");
+        if (end_of_file)
+          break;
+        printf("%s", line);
+    }  
+}
+
+unsigned int min_period(int size, const unsigned int array[size])
+{
+  unsigned int min = 0;
+  for (int i = 0; i < size; i++)
+  {
+    if (min == 0 || min > array[i])
+      min = array[i];
+  }
+  return min;
+}
+
+void parse_arguments(int argc, char const *argv[],unsigned int *executor_period, unsigned int *timer_period, unsigned int *experiment_duration, bool * let) 
+{
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-ep") == 0 && i + 1 < argc) {
+            *executor_period = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-tp") == 0 && i + 1 < argc) {
+            *timer_period = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-ed") == 0 && i + 1 < argc) {
+            *experiment_duration = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-let") == 0 && i + 1 < argc) {
+            *let = (strcmp(argv[++i], "true")) ? true : false;
+        } else {
+            printf("Invalid argument: %s\n", argv[i]);
+            exit(1);
+        }
+    }
+}

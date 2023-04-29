@@ -19,16 +19,17 @@ void MyNode::print_timestamp(std::vector<std::vector<int64_t>>& timestamp)
     const size_t m = timestamp.size();
     const size_t n = timestamp[0].size();
     bool end_of_file = false;
+    std::string node_name(MyNode::get_name());
     for (size_t i = 0; i < n; i++) {
         std::string line = "";
-        line += "frame " + std::to_string(i) + ": ";
+        line += node_name + " " + std::to_string(i) + " ";
         for (size_t j = 0; j < m; j++) {
             if (j == 0 && timestamp[j][i] == 0)
             {
             	int sum = 0;
             	for (size_t k = 0; k < m; k++)
             		sum += timestamp[k][i];
-            	if (sum == 0)
+            	if (sum == 0 && i > 0)
             	{
             		end_of_file = true;
             		break;
@@ -39,7 +40,7 @@ void MyNode::print_timestamp(std::vector<std::vector<int64_t>>& timestamp)
         if(end_of_file)
         	break;
         line += "\n";
-        RCLCPP_INFO(this->get_logger(), line.c_str());
+        std::cout << line << std::flush;
     }
 }
 

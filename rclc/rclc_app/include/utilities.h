@@ -109,6 +109,43 @@ void busy_wait(int duration);
  * \param[in] dim1 is the length of each array in timestamp
  * \param[in] timestamp is the 2D array that needs to be printed
  */
-void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][dim1]);
+void print_timestamp(int dim0, int dim1, rcl_time_point_value_t *timestamp[dim0]);
+
+/**
+ *  Allocate memory and initialize timestamp array to 0
+ *
+ * \param[in] dim0 is the number of arrays in timestamp
+ * \param[in] dim1 is the length of each array in timestamp
+ * \param[in] timestamp is the pointer to the 2D array
+ */
+void init_timestamp(int dim0, int dim1, rcl_time_point_value_t *timestamp[dim0]);
+
+/**
+ *  Free memory of the 2D array
+ *
+ * \param[in] dim0 is the number of arrays in timestamp
+ * \param[in] timestamp is the pointer to the 2D array
+ */
+void fini_timestamp(int dim0, rcl_time_point_value_t *timestamp[dim0]);
+
+/**
+ *  Find the minimum value in an array
+ *
+ * \param[in] size is the size of the array
+ * \param[in] array is the array that contains element
+ */
+unsigned int min_period(int size, const unsigned int array[size]);
+
+/**
+ *  Parse the command line arguments
+ *
+ * \param[in] argc is the number of command line arguments
+ * \param[in] argv is the array storing the arguments
+ * \param[out] executor_period is the executor period
+ * \param[out] timer_period is the timer_period
+ * \param[out] experiment_duration is the experiment duration
+ * \param[out] let indicates if the executor will use LET semantics
+ */
+void parse_arguments(int argc, char const *argv[], unsigned int *executor_period, unsigned int *timer_period, unsigned int *experiment_duration, bool *let);
 
 #endif
