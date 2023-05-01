@@ -43,6 +43,9 @@ ament_target_dependencies(exp4 rcl rclc custom_interfaces)
 add_executable(exp4_1 src/experiment4_1.c src/utilities.c)
 ament_target_dependencies(exp4_1 rcl rclc custom_interfaces)
 
+add_executable(exp4_2 src/experiment4_2.c src/utilities.c)
+ament_target_dependencies(exp4_2 rcl rclc custom_interfaces)
+
 add_executable(mytest src/test.c src/utilities.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
 
@@ -73,6 +76,7 @@ install(TARGETS
   exp3
   exp4
   exp4_1
+  exp4_2
   DESTINATION lib/${PROJECT_NAME}
 )
 
