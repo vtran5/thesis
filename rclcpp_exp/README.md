@@ -6,4 +6,5 @@ This folder contains the experiments to test the performance of the rclcpp execu
 5. exp_multi_thread_single_core.cpp: This experiment demonstrates the unpredictability of the C++ executor as the end-to-end latency jitter is very high.
 
 In experiment 4,5, the user can input the experience duration with -ed, and the timer period with -tp. For example, the following set the experiment duration to 10000 ms, and timer period to 100 ms:
-'ros2 run rclcpp_exp exp4 -ed 10000 -tp 100'
+		
+		ros2 run rclcpp_exp exp4 -ed 10000 -tp 100
