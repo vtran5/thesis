@@ -22,6 +22,8 @@
 #include "./action_client_internal.h"
 #include "./action_server_internal.h"
 
+#include "rclc/publisher.h"
+
 // Include backport of function 'rcl_wait_set_is_valid' introduced in Foxy
 // in case of building for Dashing and Eloquent. This pre-processor macro
 // is defined in CMakeLists.txt.
@@ -56,6 +58,7 @@ rcl_ret_t
 _rclc_let_scheduling(rclc_executor_t * executor, rcl_wait_set_t * wait_set);
 */
 
+static rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor);
 // rationale: user must create an executor with:
 // executor = rclc_executor_get_zero_initialized_executor();
 // then handles==NULL or not (e.g. properly initialized)
@@ -89,7 +92,10 @@ rclc_executor_get_zero_initialized_executor()
     .timeout_ns = 0,
     .invocation_time = 0,
     .trigger_function = NULL,
-    .trigger_object = NULL
+    .trigger_object = NULL,
+    .let_handles = NULL,
+    .max_let_handles = 0,
+    .let_index = 0
   };
   return null_executor;
 }
@@ -186,7 +192,6 @@ rclc_executor_fini(rclc_executor_t * executor)
     executor->max_handles = 0;
     executor->index = 0;
     rclc_executor_handle_counters_zero_init(&executor->info);
-
     // free memory of wait_set if it has been initialized
     // calling it with un-initialized wait_set will fail.
     if (rcl_wait_set_is_valid(&executor->wait_set)) {
@@ -2021,6 +2026,12 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
     rclc_sleep_ms(sleep_time / 1000000);
   }
   executor->invocation_time += period;
+
+  /********************* LET Implementation ************************/
+  if (executor->data_comm_semantics == LET)
+  {
+    ret = _rclc_let_scheduling_output(executor);
+  }
   return ret;
 }
 
@@ -2118,4 +2129,117 @@ bool rclc_executor_trigger_always(rclc_executor_handle_t * handles, unsigned int
   RCLC_UNUSED(size);
   RCLC_UNUSED(obj);
   return true;
+}
+
+/********************* LET Implementation ************************/
+
+rcl_ret_t
+rclc_executor_let_init(
+  rclc_executor_t * executor,
+  const size_t number_of_let_handles)
+{
+  RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor is NULL", return RCL_RET_INVALID_ARGUMENT);
+
+  rcl_ret_t ret = RCL_RET_OK;
+
+  executor->max_let_handles = number_of_let_handles;
+  executor->let_index = 0;
+
+  // allocate memory for the array
+  executor->let_handles =
+    executor->allocator->allocate(
+    (number_of_let_handles * sizeof(rclc_executor_let_handle_t)),
+    executor->allocator->state);
+
+  if (NULL == executor->let_handles) {
+    RCL_SET_ERROR_MSG("Could not allocate memory for 'let_handles'.");
+    return RCL_RET_BAD_ALLOC;
+  }
+
+  // initialize let_handle
+  for (size_t i = 0; i < number_of_let_handles; i++) {
+    rclc_executor_let_handle_init(&executor->let_handles[i]);
+  }
+
+  return ret;
+}
+
+static
+bool
+_rclc_executor_let_is_valid(rclc_executor_t * executor)
+{
+  RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor pointer is invalid", return false);
+  RCL_CHECK_FOR_NULL_WITH_MSG(
+    executor->let_handles, "let handle pointer is invalid", return false);
+  RCL_CHECK_FOR_NULL_WITH_MSG(
+    executor->allocator, "allocator pointer is invalid", return false);
+  if (executor->max_let_handles == 0) {
+    return false;
+  }
+  return true;
+}
+
+rcl_ret_t
+rclc_executor_let_fini(rclc_executor_t * executor)
+{
+  if (_rclc_executor_let_is_valid(executor)) {
+    executor->allocator->deallocate(executor->let_handles, executor->allocator->state);
+    executor->let_handles = NULL;
+    executor->max_let_handles = 0;
+    executor->let_index = 0;
+  } else {
+    // Repeated calls to fini or calling fini on a zero initialized executor is ok
+  }
+  return RCL_RET_OK;
+}
+
+rcl_ret_t
+rclc_executor_add_publisher_LET(
+  rclc_executor_t * executor,
+  rclc_publisher_t * publisher)
+{
+  RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
+  rcl_ret_t ret = RCL_RET_OK;
+  // array bound check
+  if (executor->let_index >= executor->max_let_handles) {
+    rcl_ret_t ret = RCL_RET_ERROR;
+    RCL_SET_ERROR_MSG("Buffer overflow of 'executor->handles'. Increase 'max_handles'");
+    return ret;
+  }
+  // assign data fields
+  executor->let_handles[executor->let_index].type = RCLC_PUBLISHER;
+  executor->let_handles[executor->let_index].publisher = publisher;
+
+  // increase index of handle array
+  executor->let_index++;
+
+  RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Added a publisher.");
+  return ret;
+}
+
+rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor)
+{
+  rcl_ret_t rc = RCL_RET_OK;
+  for (size_t i = 0; i < executor->let_index; i++)
+  {
+    switch (executor->let_handles[i].type)
+    {
+      case RCLC_PUBLISHER:
+        rc = rclc_LET_output(executor->let_handles[i].publisher);
+        if (rc != RCL_RET_OK)
+        {
+          RCUTILS_LOG_DEBUG_NAMED(
+            ROS_PACKAGE_NAME, "Error: unable to publish let output: %d",
+            executor->let_handles[i].type);
+        }
+        break;
+      default:
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME, "Error: unknown let handle type: %d",
+          executor->let_handles[i].type);
+        return RCL_RET_ERROR;
+    }
+  }
+  return rc;
 }

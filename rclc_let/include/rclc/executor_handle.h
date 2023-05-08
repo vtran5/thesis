@@ -26,6 +26,7 @@ extern "C"
 
 #include <rclc/action_client.h>
 #include <rclc/action_server.h>
+#include <rclc/publisher.h>
 
 /// TODO (jst3si) Where is this defined? - in my build environment this variable is not set.
 // #define ROS_PACKAGE_NAME "rclc"
@@ -296,6 +297,40 @@ rclc_executor_handle_print(rclc_executor_handle_t * handle);
 RCLC_PUBLIC
 void *
 rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle);
+
+/********************* LET Implementation ************************/
+
+/// Enumeration for publisher, server, client, etc that will send messages
+typedef enum
+{
+  RCLC_PUBLISHER,
+  // RCLC_SERVICE,
+  // RCLC_CLIENT,
+  // RCLC_ACTION_CLIENT,
+  // RCLC_ACTION_SERVER,
+  RCLC_LET_NONE
+} rclc_executor_let_handle_type_t;
+
+typedef void (* rclc_subscription_let_callback_t) (const void *, void *);
+
+/// Container for handles that will send messages
+typedef struct
+{
+  /// Type of handle
+  rclc_executor_let_handle_type_t type;
+  union {
+    rclc_publisher_t * publisher;
+    rcl_client_t * client;
+    rcl_service_t * service;
+    rclc_action_client_t * action_client;
+    rclc_action_server_t * action_server;
+  };
+} rclc_executor_let_handle_t;
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_init(rclc_executor_let_handle_t * handle);
+
 
 #if __cplusplus
 }

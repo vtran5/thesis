@@ -57,7 +57,7 @@ typedef enum
 typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
 
 /// Container for RCLC-Executor
-typedef struct
+typedef struct rclc_executor_s
 {
   /// Context (to get information if ROS is up-and-running)
   rcl_context_t * context;
@@ -83,6 +83,12 @@ typedef struct
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
+  /// list of publishers/action/server/etc that the executor will call
+  rclc_executor_let_handle_t * let_handles;
+  /// Index to the next free element in array handles
+  size_t let_index;
+  /// Maximum size of array 'let_handles'
+  size_t max_let_handles;
 } rclc_executor_t;
 
 /**
@@ -980,6 +986,24 @@ rclc_executor_trigger_one(
   rclc_executor_handle_t * handles,
   unsigned int size,
   void * obj);
+
+/********************* LET Implementation ************************/
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_init(
+  rclc_executor_t * executor,
+  const size_t number_of_let_handles);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_fini(rclc_executor_t * executor);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_publisher_LET(
+  rclc_executor_t * executor,
+  rclc_publisher_t * publisher);
 
 #if __cplusplus
 }

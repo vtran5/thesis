@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(rclc)
+project(rclc_let)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -45,7 +45,7 @@ else()
   find_package(rosidl_runtime_c REQUIRED)
 endif()
 
-#add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
+add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
 #################################################
 # create library
 #################################################
@@ -64,7 +64,9 @@ add_library(${PROJECT_NAME}
   src/rclc/executor_handle.c
   src/rclc/executor.c
   src/rclc/sleep.c
+  src/rclc/buffer.c
 )
+
 if("${rcl_VERSION}" VERSION_LESS "1.0.0")
   target_sources(${PROJECT_NAME}
     PRIVATE src/rclc/rcl_wait_set_is_valid_backport.c)
@@ -124,6 +126,7 @@ endif()
 #################################################
 # gtest
 #################################################
+#set(BUILD_TESTING OFF)
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)

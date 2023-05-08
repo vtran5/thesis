@@ -157,3 +157,13 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle)
 
   return ptr;
 }
+
+rcl_ret_t
+rclc_executor_let_handle_init(
+  rclc_executor_let_handle_t * handle)
+{
+  RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
+  handle->type = RCLC_LET_NONE;
+  handle->publisher = NULL;
+  return RCL_RET_OK;
+}

@@ -27,6 +27,14 @@ extern "C"
 #include <rcl/allocator.h>
 #include <rclc/types.h>
 #include "rclc/visibility_control.h"
+#include "rclc/buffer.h"
+
+typedef struct rclc_publisher_s
+{
+  rcl_publisher_t rcl_publisher;
+  rclc_circular_queue_t message_buffer;
+} rclc_publisher_t;
+
 
 /**
  *  Creates an rcl publisher.
@@ -49,10 +57,12 @@ extern "C"
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init_default(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  const int message_size,
+  const int buffer_capacity);
 
 /**
  *  Creates an rcl publisher with quality-of-service option best effort
@@ -75,10 +85,12 @@ rclc_publisher_init_default(
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init_best_effort(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  const int message_size,
+  const int buffer_capacity);
 
 /**
  *  Creates an rcl publisher with defined QoS
@@ -102,11 +114,28 @@ rclc_publisher_init_best_effort(
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
+  const int message_size,
+  const int buffer_capacity,
   const rmw_qos_profile_t * qos_profile);
+
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publish_LET(
+  rclc_publisher_t * publisher,
+  const void * ros_message);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_LET_output(rclc_publisher_t * publisher);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node);
 
 #if __cplusplus
 }
