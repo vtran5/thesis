@@ -14,14 +14,18 @@ input_file = sys.argv[1]
 max_fields = 0
 with open(input_file, 'r') as f:
     for line in f:
-        fields = len(line.strip().split(' '))
+        fields = len(line.split(' '))
         max_fields = max(max_fields, fields)
 
-# Read the file using pandas with the maximum number of fields
-df = pd.read_csv(input_file, sep=' ', header=None, usecols=range(max_fields), engine='python')
+column_names = [i for i in range(0, max_fields)]
 
-# Drop columns that contain NaN
-df.dropna(axis=1, inplace=True)
+# Read the file using pandas with the maximum number of fields
+df = pd.read_csv(input_file, sep=' ', header=None, names=column_names, engine='python')
+
+df = df[df.iloc[:, 0] == 'Frame']
+df = df.dropna(axis=1)
+df = df.reset_index(drop=True)
+df = df.drop(df.columns[0], axis=1)
 
 column_count = df.shape[1]
 column_names = ['frame'] + [str(i) for i in range(1, column_count - 1)] + ['latency']

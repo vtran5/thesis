@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>rclc_exp</name>
+  <version>0.0.0</version>
+  <description>My C executor application</description>
+  <maintainer email="minh-vu.tran@alten.nl">oem</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>rcl</build_depend>
+  <build_depend>rclc</build_depend>
+  <build_depend>rclc_let</build_depend>
+  <build_depend>rclc_lifecycle</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>lifecycle_msgs</build_depend>
+
+
+  <exec_depend>rcl</exec_depend>
+  <exec_depend>rclc</exec_depend>
+  <exec_depend>rclc_let</exec_depend>
+  <exec_depend>rclc_lifecycle</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
+
+
+  <depend>rclc_parameter</depend>
+  <depend>custom_interfaces</depend>
+  <depend>example_interfaces</depend>
+  
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
