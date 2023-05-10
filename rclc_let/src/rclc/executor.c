@@ -99,7 +99,10 @@ rclc_executor_get_zero_initialized_executor()
     .max_let_handles = 0,
     .let_index = 0,
     .mutex = PTHREAD_MUTEX_INITIALIZER,
-    .exec_period = PTHREAD_COND_INITIALIZER
+    .exec_period = PTHREAD_COND_INITIALIZER,
+    .mutex_output = PTHREAD_MUTEX_INITIALIZER,
+    .let_output_done = PTHREAD_COND_INITIALIZER,
+    .output_done = true
   };
   return null_executor;
 }
@@ -1730,20 +1733,9 @@ _rclc_let_scheduling(rclc_executor_t * executor)
   rcl_ret_t rc = RCL_RET_OK;
 
   // logical execution time
-  // 1. read all input
+  // 1. read all input (in a separate thread)
   // 2. process
-  // 3. write data (*) data is written not at the end of all callbacks, but it will not be
-  //    processed by the callbacks 'in this round' because all input data is read in the
-  //    beginning and the incoming messages were copied.
-
-  // step 0: check for available input data from DDS queue
-  // complexity: O(n) where n denotes the number of handles
-  for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set);
-    if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
-      return rc;
-    }
-  }
+  // 3. write data (in a separate thread)
 
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
@@ -1751,14 +1743,6 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       executor->handles, executor->max_handles,
       executor->trigger_object))
   {
-    // step 1: read input data
-    for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
-      if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
-        return rc;
-      }
-    }
-
     // step 2:  process (execute)
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_execute(&executor->handles[i]);
@@ -1814,161 +1798,37 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "spin_some");
 
-  if (!rcl_context_is_valid(executor->context)) {
-    PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
-    return RCL_RET_ERROR;
-  }
-
-  rclc_executor_prepare(executor);
-
-  // set rmw fields to NULL
-  rc = rcl_wait_set_clear(&executor->wait_set);
-  if (rc != RCL_RET_OK) {
-    PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
-    return rc;
-  }
-
-  // (jst3si) put in a sub-function - for improved readability
-  // add handles to wait_set
-  for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "wait_set_add_* %d", executor->handles[i].type);
-    switch (executor->handles[i].type) {
-      case RCLC_SUBSCRIPTION:
-      case RCLC_SUBSCRIPTION_WITH_CONTEXT:
-        // add subscription to wait_set and save index
-        rc = rcl_wait_set_add_subscription(
-          &executor->wait_set, executor->handles[i].subscription,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME,
-            "Subscription added to wait_set_subscription[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_subscription);
-          return rc;
-        }
-        break;
-
-      case RCLC_TIMER:
-        // case RCLC_TIMER_WITH_CONTEXT:
-        // add timer to wait_set and save index
-        rc = rcl_wait_set_add_timer(
-          &executor->wait_set, executor->handles[i].timer,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME, "Timer added to wait_set_timers[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_timer);
-          return rc;
-        }
-        break;
-
-      case RCLC_SERVICE:
-      case RCLC_SERVICE_WITH_REQUEST_ID:
-      case RCLC_SERVICE_WITH_CONTEXT:
-        // add service to wait_set and save index
-        rc = rcl_wait_set_add_service(
-          &executor->wait_set, executor->handles[i].service,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME, "Service added to wait_set_service[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_service);
-          return rc;
-        }
-        break;
-
-
-      case RCLC_CLIENT:
-      case RCLC_CLIENT_WITH_REQUEST_ID:
-        // case RCLC_CLIENT_WITH_CONTEXT:
-        // add client to wait_set and save index
-        rc = rcl_wait_set_add_client(
-          &executor->wait_set, executor->handles[i].client,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME, "Client added to wait_set_client[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_client);
-          return rc;
-        }
-        break;
-
-      case RCLC_GUARD_CONDITION:
-        // case RCLC_GUARD_CONDITION_WITH_CONTEXT:
-        // add guard_condition to wait_set and save index
-        rc = rcl_wait_set_add_guard_condition(
-          &executor->wait_set, executor->handles[i].gc,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME, "Guard_condition added to wait_set_client[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_guard_condition);
-          return rc;
-        }
-        break;
-
-      case RCLC_ACTION_CLIENT:
-        // add action client to wait_set and save index
-        rc = rcl_action_wait_set_add_action_client(
-          &executor->wait_set, &executor->handles[i].action_client->rcl_handle,
-          &executor->handles[i].index, NULL);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME,
-            "Action client added to wait_set_action_clients[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_action_client);
-          return rc;
-        }
-        break;
-
-      case RCLC_ACTION_SERVER:
-        // add action server to wait_set and save index
-        rc = rcl_action_wait_set_add_action_server(
-          &executor->wait_set, &executor->handles[i].action_server->rcl_handle,
-          &executor->handles[i].index);
-        if (rc == RCL_RET_OK) {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME,
-            "Action server added to wait_set_action_servers[%ld]",
-            executor->handles[i].index);
-        } else {
-          PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_action_server);
-          return rc;
-        }
-        break;
-
-      default:
-        RCUTILS_LOG_DEBUG_NAMED(
-          ROS_PACKAGE_NAME, "Error: unknown handle type: %d",
-          executor->handles[i].type);
-        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_unknown_handle);
-        return RCL_RET_ERROR;
-    }
-  }
-
-  // wait up to 'timeout_ns' to receive notification about which handles reveived
-  // new data from DDS queue.
-  rc = rcl_wait(&executor->wait_set, timeout_ns);
-  RCLC_UNUSED(rc);
-
   // based on semantics process input data
   switch (executor->data_comm_semantics) {
     case LET:
       rc = _rclc_let_scheduling(executor);
       break;
     case RCLCPP_EXECUTOR:
+      if (!rcl_context_is_valid(executor->context)) {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
+        return RCL_RET_ERROR;
+      }
+
+      rclc_executor_prepare(executor);
+
+      // set rmw fields to NULL
+      rc = rcl_wait_set_clear(&executor->wait_set);
+      if (rc != RCL_RET_OK) {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
+        return rc;
+      }
+
+      // add handles to wait_set
+      rc = _rclc_add_handles_to_waitset(executor);
+      if (rc != RCL_RET_OK) {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
+        return rc;
+      }
+
+      // wait up to 'timeout_ns' to receive notification about which handles reveived
+      // new data from DDS queue.
+      rc = rcl_wait(&executor->wait_set, timeout_ns);
+      RCLC_UNUSED(rc);
       rc = _rclc_default_scheduling(executor);
       break;
     default:
@@ -2014,14 +1874,25 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
   rcutils_time_point_value_t end_time_point;
   rcutils_duration_value_t sleep_time;
 
-  pthread_mutex_lock(&executor->mutex);
-  if (executor->invocation_time == 0) {
-    ret = rcutils_system_time_now(&executor->invocation_time);
-    RCLC_UNUSED(ret);
+  if (executor->data_comm_semantics == LET)
+  {
+    pthread_mutex_lock(&executor->mutex);
+    if (executor->invocation_time == 0) {
+      ret = rcutils_system_time_now(&executor->invocation_time);
+      RCLC_UNUSED(ret);
+    }
+    executor->invocation_time += period;
+    pthread_cond_signal(&executor->exec_period);
+    pthread_mutex_unlock(&executor->mutex);
   }
-  executor->invocation_time += period;
-  pthread_cond_signal(&executor->exec_period);
-  pthread_mutex_unlock(&executor->mutex);
+  else 
+  {
+    if (executor->invocation_time == 0) {
+      ret = rcutils_system_time_now(&executor->invocation_time);
+      RCLC_UNUSED(ret);
+    }
+    executor->invocation_time += period;    
+  }
 
   ret = rclc_executor_spin_some(executor, executor->timeout_ns);
   if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -2043,8 +1914,15 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id = 0;
-  _rclc_thread_create(&thread_id, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+  if (executor->data_comm_semantics == LET)
+  {
+    pthread_t thread_id_output = 0;
+    pthread_t thread_id_input = 0;
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
+    executor->timeout_ns = 0;
+  }
+
   while (true) {
     ret = rclc_executor_spin_one_period(executor, period);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -2053,7 +1931,8 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
     }
   }
   // never get here
-  pthread_cancel(thread_id);
+  if (executor->data_comm_semantics == LET)
+    pthread_cancel(thread_id);
   return RCL_RET_OK;
 }
 
@@ -2062,8 +1941,14 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id = 0;
-  _rclc_thread_create(&thread_id, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+
+  if (executor->data_comm_semantics == LET)
+  {
+    pthread_t thread_id = 0;
+    _rclc_thread_create(&thread_id, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+    executor->timeout_ns = 0;
+  }
+
   rcutils_time_point_value_t now;
   while (!(*exit_flag)) {
     ret = rcutils_steady_time_now(&now);
@@ -2074,8 +1959,9 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
       return ret;
     }
   }
-  // never get here
-  pthread_cancel(thread_id);
+
+  if (executor->data_comm_semantics == LET)
+    pthread_cancel(thread_id);
   return RCL_RET_OK;
 }
 
@@ -2174,6 +2060,9 @@ rclc_executor_let_init(
   executor->let_index = 0;
   pthread_cond_init(&(executor->exec_period), NULL);
   pthread_mutex_init(&(executor->mutex), NULL);
+  pthread_cond_init(&(executor->let_output_done), NULL);
+  pthread_mutex_init(&(executor->mutex_output), NULL);
+  executor->output_done = true;
   // allocate memory for the array
   executor->let_handles =
     executor->allocator->allocate(
@@ -2218,6 +2107,8 @@ rclc_executor_let_fini(rclc_executor_t * executor)
     executor->let_index = 0;
     pthread_mutex_destroy(&(executor->mutex));
     pthread_cond_destroy(&(executor->exec_period));
+    pthread_mutex_destroy(&(executor->mutex_output));
+    pthread_cond_destroy(&(executor->let_output_done));
   } else {
     // Repeated calls to fini or calling fini on a zero initialized executor is ok
   }
@@ -2276,6 +2167,61 @@ rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor)
   return rc;
 }
 
+rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
+{
+  rcl_ret_t rc = RCL_RET_OK;
+
+  if (!rcl_context_is_valid(executor->context)) {
+    PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
+    return RCL_RET_ERROR;
+  }
+
+  rclc_executor_prepare(executor);
+
+  // set rmw fields to NULL
+  rc = rcl_wait_set_clear(&executor->wait_set);
+  if (rc != RCL_RET_OK) {
+    PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
+    return rc;
+  }
+
+  // add handles to wait_set
+  rc = _rclc_add_handles_to_waitset(executor);
+  if (rc != RCL_RET_OK) {
+    PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
+    return rc;
+  }
+
+  // wait up to 'timeout_ns' to receive notification about which handles reveived
+  // new data from DDS queue.
+  rc = rcl_wait(&executor->wait_set, executor->timeout_ns);
+  RCLC_UNUSED(rc);
+
+  // step 0: check for available input data from DDS queue
+  // complexity: O(n) where n denotes the number of handles
+  for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
+    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set);
+    if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
+      return rc;
+    }
+  }
+
+  // if the trigger condition is fullfilled, fetch data and execute
+  // complexity: O(n) where n denotes the number of handles
+  if (executor->trigger_function(
+      executor->handles, executor->max_handles,
+      executor->trigger_object))
+  {
+    // step 1: read input data
+    for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
+      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
+      if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
+        return rc;
+      }
+    }
+  }
+}
+
 void * _rclc_let_scheduling_output_wrapper(void * arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
@@ -2285,33 +2231,61 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
   rcutils_time_point_value_t prev_invocation_time = executor->invocation_time;
   while(true)
   {
-    // Wait for the invocation_time to be updated in rclc_executor_spin_one_period()
-    pthread_mutex_lock(&executor->mutex);
-    while (executor->invocation_time == prev_invocation_time)
-    {
-      pthread_cond_wait(&executor->exec_period, &executor->mutex);
-    }
-    prev_invocation_time = executor->invocation_time;
-    pthread_mutex_unlock(&executor->mutex);
-    
-    // Sleep to the end of the period
-    ret = rcutils_system_time_now(&end_time_point);
-    sleep_time = executor->invocation_time - end_time_point;
-    if (sleep_time > 0) {
-      rclc_sleep_ms(sleep_time / 1000000);
-    }
-
-    // Publish output
     if (executor->data_comm_semantics == LET)
     {
+      // Wait for the invocation_time to be updated in rclc_executor_spin_one_period()
+      pthread_mutex_lock(&executor->mutex);
+      while (executor->invocation_time == prev_invocation_time)
+      {
+        pthread_cond_wait(&executor->exec_period, &executor->mutex);
+      }
+      prev_invocation_time = executor->invocation_time;
+      pthread_mutex_unlock(&executor->mutex);
+      
+      // Sleep to the end of the period
+      ret = rcutils_system_time_now(&end_time_point);
+      sleep_time = executor->invocation_time - end_time_point;
+      if (sleep_time > 0) {
+        rclc_sleep_ms(sleep_time / 1000000);
+      }
+
+      // Publish output
       ret = _rclc_let_scheduling_output(executor);
+      if (ret != RCL_RET_OK)
+        printf("Publish output failed \n"); 
+      
+      pthread_mutex_lock(&executor->mutex_output);
+      executor->output_done = true;
+      pthread_cond_signal(&executor->let_output_done);
+      pthread_mutex_unlock(&executor->mutex_output);
     }
-    if (ret != RCL_RET_OK)
-      printf("Publish output failed \n");
   }
 
   return 0;
+}
 
+void * _rclc_let_scheduling_input_wrapper(void * arg)
+{
+  rclc_executor_t * executor = (rclc_executor_t *) arg;
+  rcl_ret_t ret = RCL_RET_OK;
+  while(true)
+  {
+    if (executor->data_comm_semantics == LET)
+    {
+      // Wait for the LET output write is done
+      pthread_mutex_lock(&executor->mutex_output);
+      while (!executor->output_done)
+      {
+        pthread_cond_wait(&executor->let_output_done, &executor->mutex_output);
+      }
+      executor->output_done = false;
+      pthread_mutex_unlock(&executor->mutex_output);
+           
+      ret = _rclc_let_scheduling_input(executor);
+      if (ret != RCL_RET_OK)
+        printf("Reading input failed \n");
+    }
+  }
 }
 
 void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
@@ -2335,4 +2309,131 @@ void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu
     ret += pthread_create(thread_id, &attr, function, arg);
     if(ret!=0)
       printf("Create thread %lu failed\n", *thread_id);
+}
+
+rcl_ret_t _rclc_add_handles_to_waitset(rclc_executor_t * executor)
+{
+  rcl_ret_t rc = RCL_RET_OK;
+  for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
+  RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "wait_set_add_* %d", executor->handles[i].type);
+  switch (executor->handles[i].type) {
+    case RCLC_SUBSCRIPTION:
+    case RCLC_SUBSCRIPTION_WITH_CONTEXT:
+      // add subscription to wait_set and save index
+      rc = rcl_wait_set_add_subscription(
+        &executor->wait_set, executor->handles[i].subscription,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME,
+          "Subscription added to wait_set_subscription[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_subscription);
+        return rc;
+      }
+      break;
+    case RCLC_TIMER:
+      // case RCLC_TIMER_WITH_CONTEXT:
+      // add timer to wait_set and save index
+      rc = rcl_wait_set_add_timer(
+        &executor->wait_set, executor->handles[i].timer,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME, "Timer added to wait_set_timers[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_timer);
+        return rc;
+      }
+      break;
+    case RCLC_SERVICE:
+    case RCLC_SERVICE_WITH_REQUEST_ID:
+    case RCLC_SERVICE_WITH_CONTEXT:
+      // add service to wait_set and save index
+      rc = rcl_wait_set_add_service(
+        &executor->wait_set, executor->handles[i].service,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME, "Service added to wait_set_service[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_service);
+        return rc;
+      }
+      break;
+    case RCLC_CLIENT:
+    case RCLC_CLIENT_WITH_REQUEST_ID:
+      // case RCLC_CLIENT_WITH_CONTEXT:
+      // add client to wait_set and save index
+      rc = rcl_wait_set_add_client(
+        &executor->wait_set, executor->handles[i].client,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME, "Client added to wait_set_client[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_client);
+        return rc;
+      }
+      break;
+    case RCLC_GUARD_CONDITION:
+      // case RCLC_GUARD_CONDITION_WITH_CONTEXT:
+      // add guard_condition to wait_set and save index
+      rc = rcl_wait_set_add_guard_condition(
+        &executor->wait_set, executor->handles[i].gc,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME, "Guard_condition added to wait_set_client[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_guard_condition);
+        return rc;
+      }
+      break;
+    case RCLC_ACTION_CLIENT:
+      // add action client to wait_set and save index
+      rc = rcl_action_wait_set_add_action_client(
+        &executor->wait_set, &executor->handles[i].action_client->rcl_handle,
+        &executor->handles[i].index, NULL);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME,
+          "Action client added to wait_set_action_clients[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_action_client);
+        return rc;
+      }
+      break;
+    case RCLC_ACTION_SERVER:
+      // add action server to wait_set and save index
+      rc = rcl_action_wait_set_add_action_server(
+        &executor->wait_set, &executor->handles[i].action_server->rcl_handle,
+        &executor->handles[i].index);
+      if (rc == RCL_RET_OK) {
+        RCUTILS_LOG_DEBUG_NAMED(
+          ROS_PACKAGE_NAME,
+          "Action server added to wait_set_action_servers[%ld]",
+          executor->handles[i].index);
+      } else {
+        PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_action_server);
+        return rc;
+      }
+      break;
+    default:
+      RCUTILS_LOG_DEBUG_NAMED(
+        ROS_PACKAGE_NAME, "Error: unknown handle type: %d",
+        executor->handles[i].type);
+      PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_add_unknown_handle);
+      return RCL_RET_ERROR;
+  }
+  return rc;
+}
+
+
 }

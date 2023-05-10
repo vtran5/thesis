@@ -100,10 +100,16 @@ typedef struct rclc_executor_s
   size_t let_index;
   /// Maximum size of array 'let_handles'
   size_t max_let_handles;
-  /// Condition variables for LET scheduling
+  /// Condition variables for LET scheduling output
   pthread_cond_t exec_period;
-  /// Mutex for LET scheduling
+  /// Mutex for LET scheduling output
   pthread_mutex_t mutex;
+  /// Condition variables for LET scheduling input
+  pthread_cond_t let_output_done;
+  /// Mutex for LET scheduling input
+  pthread_mutex_t mutex_output;
+  /// Variable to signal that the let output write has finished
+  bool output_done;
 } rclc_executor_t;
 
 /**
