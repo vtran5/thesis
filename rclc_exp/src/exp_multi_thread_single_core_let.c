@@ -378,11 +378,14 @@ int main(int argc, char const *argv[])
         RCCHECK(rclc_executor_set_semantics(&executor4, RCLCPP_EXECUTOR));      
     }
 
-    printf("ExecutorID Executor1 %d\n", &executor1);
-    printf("ExecutorID Executor2 %d\n", &executor2);
-    printf("ExecutorID Executor3 %d\n", &executor3);
-    printf("ExecutorID Executor4 %d\n", &executor4);
+    printf("ExecutorID Executor1 %lu\n", (unsigned long) &executor1);
+    printf("ExecutorID Executor2 %lu\n", (unsigned long) &executor2);
+    printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
+    printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
 
+    printf("PublisherID Executor1 %lu\n", (unsigned long) &node1.publisher[0]);
+    printf("PublisherID Executor2 %lu\n", (unsigned long) &node2.publisher[0]);
+    printf("PublisherID Executor3 %lu\n", (unsigned long) &node3.publisher[0]);
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
     ////////////////////////////////////////////////////////////////////////////
@@ -398,10 +401,13 @@ int main(int argc, char const *argv[])
         struct arg_spin_period ex2 = {executor_period*1000*1000, &executor2, &support};
         struct arg_spin_period ex3 = {executor_period*1000*1000, &executor3, &support};
         struct arg_spin_period ex4 = {executor_period*1000*1000, &executor4, &support};
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_wrapper, &ex1);
-        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_wrapper, &ex2);
-        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_wrapper, &ex3);
-        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_period_wrapper, &ex4);
+        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
+        sleep_ms(2);
+        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);
+        sleep_ms(2);
+        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_with_exit_wrapper, &ex3);
+        sleep_ms(2);
+        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_period_with_exit_wrapper, &ex4);
     }
     else
     {

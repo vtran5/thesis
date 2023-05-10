@@ -31,7 +31,6 @@
 #include "rclc/rcl_wait_set_is_valid_backport.h"
 #endif
 
-
 // default timeout for rcl_wait() is 1000ms
 #define DEFAULT_WAIT_TIMEOUT_NS 1000000000
 
@@ -59,6 +58,9 @@ _rclc_let_scheduling(rclc_executor_t * executor, rcl_wait_set_t * wait_set);
 */
 
 static rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor);
+void * _rclc_let_scheduling_output_wrapper(void * arg);
+void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg);
+
 // rationale: user must create an executor with:
 // executor = rclc_executor_get_zero_initialized_executor();
 // then handles==NULL or not (e.g. properly initialized)
@@ -95,7 +97,9 @@ rclc_executor_get_zero_initialized_executor()
     .trigger_object = NULL,
     .let_handles = NULL,
     .max_let_handles = 0,
-    .let_index = 0
+    .let_index = 0,
+    .mutex = PTHREAD_MUTEX_INITIALIZER,
+    .exec_period = PTHREAD_COND_INITIALIZER
   };
   return null_executor;
 }
@@ -2010,10 +2014,15 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
   rcutils_time_point_value_t end_time_point;
   rcutils_duration_value_t sleep_time;
 
+  pthread_mutex_lock(&executor->mutex);
   if (executor->invocation_time == 0) {
     ret = rcutils_system_time_now(&executor->invocation_time);
     RCLC_UNUSED(ret);
   }
+  executor->invocation_time += period;
+  pthread_cond_signal(&executor->exec_period);
+  pthread_mutex_unlock(&executor->mutex);
+
   ret = rclc_executor_spin_some(executor, executor->timeout_ns);
   if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
     RCL_SET_ERROR_MSG("rclc_executor_spin_some error");
@@ -2021,17 +2030,11 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
   }
   // sleep UNTIL next invocation time point = invocation_time + period
   ret = rcutils_system_time_now(&end_time_point);
-  sleep_time = (executor->invocation_time + period) - end_time_point;
+  sleep_time = executor->invocation_time - end_time_point;
   if (sleep_time > 0) {
     rclc_sleep_ms(sleep_time / 1000000);
   }
-  executor->invocation_time += period;
 
-  /********************* LET Implementation ************************/
-  if (executor->data_comm_semantics == LET)
-  {
-    ret = _rclc_let_scheduling_output(executor);
-  }
   return ret;
 }
 
@@ -2040,6 +2043,8 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
+  pthread_t thread_id = 0;
+  _rclc_thread_create(&thread_id, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
   while (true) {
     ret = rclc_executor_spin_one_period(executor, period);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -2048,6 +2053,29 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
     }
   }
   // never get here
+  pthread_cancel(thread_id);
+  return RCL_RET_OK;
+}
+
+rcl_ret_t
+rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period, volatile bool * exit_flag)
+{
+  RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
+  rcl_ret_t ret;
+  pthread_t thread_id = 0;
+  _rclc_thread_create(&thread_id, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+  rcutils_time_point_value_t now;
+  while (!(*exit_flag)) {
+    ret = rcutils_steady_time_now(&now);
+    printf("Executor %lu %ld\n", (unsigned long) executor, now);
+    ret = rclc_executor_spin_one_period(executor, period);
+    if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
+      RCL_SET_ERROR_MSG("rclc_executor_spin_one_period error");
+      return ret;
+    }
+  }
+  // never get here
+  pthread_cancel(thread_id);
   return RCL_RET_OK;
 }
 
@@ -2144,7 +2172,8 @@ rclc_executor_let_init(
 
   executor->max_let_handles = number_of_let_handles;
   executor->let_index = 0;
-
+  pthread_cond_init(&(executor->exec_period), NULL);
+  pthread_mutex_init(&(executor->mutex), NULL);
   // allocate memory for the array
   executor->let_handles =
     executor->allocator->allocate(
@@ -2187,6 +2216,8 @@ rclc_executor_let_fini(rclc_executor_t * executor)
     executor->let_handles = NULL;
     executor->max_let_handles = 0;
     executor->let_index = 0;
+    pthread_mutex_destroy(&(executor->mutex));
+    pthread_cond_destroy(&(executor->exec_period));
   } else {
     // Repeated calls to fini or calling fini on a zero initialized executor is ok
   }
@@ -2221,6 +2252,7 @@ rclc_executor_add_publisher_LET(
 rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor)
 {
   rcl_ret_t rc = RCL_RET_OK;
+  
   for (size_t i = 0; i < executor->let_index; i++)
   {
     switch (executor->let_handles[i].type)
@@ -2242,4 +2274,65 @@ rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor)
     }
   }
   return rc;
+}
+
+void * _rclc_let_scheduling_output_wrapper(void * arg)
+{
+  rclc_executor_t * executor = (rclc_executor_t *) arg;
+  rcl_ret_t ret = RCL_RET_OK;
+  rcutils_time_point_value_t end_time_point;
+  rcutils_duration_value_t sleep_time;
+  rcutils_time_point_value_t prev_invocation_time = executor->invocation_time;
+  while(true)
+  {
+    // Wait for the invocation_time to be updated in rclc_executor_spin_one_period()
+    pthread_mutex_lock(&executor->mutex);
+    while (executor->invocation_time == prev_invocation_time)
+    {
+      pthread_cond_wait(&executor->exec_period, &executor->mutex);
+    }
+    prev_invocation_time = executor->invocation_time;
+    pthread_mutex_unlock(&executor->mutex);
+    
+    // Sleep to the end of the period
+    ret = rcutils_system_time_now(&end_time_point);
+    sleep_time = executor->invocation_time - end_time_point;
+    if (sleep_time > 0) {
+      rclc_sleep_ms(sleep_time / 1000000);
+    }
+
+    // Publish output
+    if (executor->data_comm_semantics == LET)
+    {
+      ret = _rclc_let_scheduling_output(executor);
+    }
+    if (ret != RCL_RET_OK)
+      printf("Publish output failed \n");
+  }
+
+  return 0;
+
+}
+
+void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
+{
+    struct sched_param param;
+    int ret;
+    pthread_attr_t attr;
+
+    ret = pthread_attr_init (&attr);
+    ret += pthread_attr_setinheritsched(&attr,PTHREAD_EXPLICIT_SCHED);
+    ret += pthread_attr_setschedpolicy(&attr, policy);
+    ret += pthread_attr_getschedparam (&attr, &param);
+    param.sched_priority = priority;
+    ret += pthread_attr_setschedparam (&attr, &param);
+    if (cpu_id >= 0) {
+      cpu_set_t cpuset;
+      CPU_ZERO(&cpuset);
+      CPU_SET(cpu_id, &cpuset);
+      ret += pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+    }
+    ret += pthread_create(thread_id, &attr, function, arg);
+    if(ret!=0)
+      printf("Create thread %lu failed\n", *thread_id);
 }

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 #include "rclc/publisher.h"
-
+#include <rcutils/time.h>
 #include <rcl/error_handling.h>
 #include <rcutils/logging_macros.h>
 #include <rmw/qos_profiles.h>
@@ -101,8 +101,11 @@ rcl_ret_t
 rclc_LET_output(rclc_publisher_t * publisher)
 {
   rcl_ret_t ret = RCL_RET_OK;
+  rcutils_time_point_value_t now;
   while(!rclc_is_empty_circular_queue(&(publisher->message_buffer)))
   {
+    ret = rcutils_steady_time_now(&now);
+    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     unsigned char array[publisher->message_buffer.elem_size];
     rclc_dequeue(&(publisher->message_buffer), array);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);

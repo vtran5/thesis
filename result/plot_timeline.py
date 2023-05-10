@@ -37,10 +37,33 @@ executor_map = executorID.set_index('ExecutorID')['ExecutorName'].to_dict()
 executor_map = {int(key): value for key, value in executor_map.items()}
 executor_map = {str(key): value for key, value in executor_map.items()}
 
+publisherID = df[df.iloc[:, 0] == 'PublisherID']
+publisherID = publisherID.dropna(axis=1)
+publisherID = publisherID.drop(df.columns[0], axis=1)
+pubID_col_names = ['PublisherName', 'publisherID']
+publisherID.columns = pubID_col_names
+
+publisher_map = publisherID.set_index('publisherID')['PublisherName'].to_dict()
+publisher_map = {int(key): value for key, value in publisher_map.items()}
+publisher_map = {str(key): value for key, value in publisher_map.items()}
+
+publisher = df[df.iloc[:, 0] == 'Publisher']
+publisher = publisher.dropna(axis=1)
+pub_col_names = ['Publisher','ExecutorID','Time']
+publisher.columns = pub_col_names
+
+publisher['Time'] = pd.to_numeric(publisher['Time'])
+publisher['Time'] = (publisher['Time'] - start_time)/1000000
+publisher['ExecutorID'] = publisher['ExecutorID'].replace(publisher_map)
+publisher = publisher.drop(publisher.columns[0], axis=1)
+publisher = publisher.round(1)
+
 executor = df[df.iloc[:, 0] == 'Executor']
 executor = executor.dropna(axis=1)
 ex_col_names = ['Executor','ExecutorID','Time']
 executor.columns = ex_col_names
+
+executor['Time'] = pd.to_numeric(executor['Time'])
 executor['Time'] = (executor['Time'] - start_time)/1000000
 executor['ExecutorID'] = executor['ExecutorID'].replace(executor_map)
 executor = executor.drop(executor.columns[0], axis=1)
@@ -58,9 +81,10 @@ data.columns = column_names
 
 # get a random start index
 start_index = data.sample(n=1).index[0]
-
+#start_index = 0
 # get the 3 consecutive rows starting from the random start index
-data = data.iloc[start_index:start_index+3]
+data = data.iloc[start_index:start_index+4]
+data.iloc[:, 1:] = data.iloc[:, 1:].astype(float)
 data.iloc[:, 1:] = data.iloc[:, 1:] / 1000
 data = data.round(1)
 
@@ -74,7 +98,7 @@ data = data.drop(data.columns[0], axis=1)
 min_time = data.min().min()
 max_time = data.max().max()
 filtered_executor = executor[(executor['Time'] >= min_time) & (executor['Time'] <= max_time)]
-
+filtered_publisher = publisher[(publisher['Time'] >= min_time) & (publisher['Time'] <= max_time)]
 # Plotting function
 def plot_timeline(data, input_file):
     fig, ax = plt.subplots(4, figsize=(10, 6), sharex=True)
@@ -87,6 +111,10 @@ def plot_timeline(data, input_file):
         node_times = filtered_executor[filtered_executor['ExecutorID'] == node]['Time']
         for time in node_times:
             ax[i].axvline(time, color='k', linestyle='--', linewidth=1)
+
+        pub_times = filtered_publisher[filtered_publisher['ExecutorID'] == node]['Time']
+        for time in pub_times:
+            ax[i].axvline(time, color='cyan', linestyle='-.', linewidth=2)
 
         if node == 'Executor1':
             for val in data['1']:

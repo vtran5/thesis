@@ -353,10 +353,10 @@ int main(int argc, char const *argv[])
         RCCHECK(rclc_executor_set_semantics(&executor3, RCLCPP_EXECUTOR));
         RCCHECK(rclc_executor_set_semantics(&executor4, RCLCPP_EXECUTOR));      
     }
-    printf("ExecutorID Executor1 %d\n", &executor1);
-    printf("ExecutorID Executor2 %d\n", &executor2);
-    printf("ExecutorID Executor3 %d\n", &executor3);
-    printf("ExecutorID Executor4 %d\n", &executor4);
+    printf("ExecutorID Executor1 %lu\n", (unsigned long) &executor1);
+    printf("ExecutorID Executor2 %lu\n", (unsigned long) &executor2);
+    printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
+    printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
 
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
@@ -381,9 +381,9 @@ int main(int argc, char const *argv[])
     else
     {
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);
-        thread_create(&thread1, policy, 48, 0, rclc_executor_spin_wrapper, &executor2);
-        thread_create(&thread1, policy, 47, 0, rclc_executor_spin_wrapper, &executor3);
-        thread_create(&thread1, policy, 46, 0, rclc_executor_spin_wrapper, &executor4);
+        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_wrapper, &executor2);
+        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_wrapper, &executor3);
+        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_wrapper, &executor4);
     }
 
     //thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);

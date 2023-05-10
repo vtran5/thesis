@@ -21,9 +21,10 @@ void *rclc_executor_spin_period_wrapper(void *arg)
   rclc_support_t * support = arguments->support;
   const uint64_t period = arguments->period;
   rcl_ret_t ret = RCL_RET_OK;
+  rcl_time_point_value_t now;
   while (!exit_flag) {
-    rcl_time_point_value_t now = rclc_now(support);
-    printf("Executor %d %ld\n", executor, now);
+    now = rclc_now(support);
+    printf("Executor %lu %ld\n", (unsigned long) executor, now);
     ret = rclc_executor_spin_one_period(executor, period);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
       printf("Executor spin failed %d\n", ret);
@@ -31,6 +32,22 @@ void *rclc_executor_spin_period_wrapper(void *arg)
   }
   return 0;
 }
+
+#ifdef RCLC_LET
+void *rclc_executor_spin_period_with_exit_wrapper(void *arg)
+{
+  struct arg_spin_period *arguments = arg;
+  rclc_executor_t * executor = arguments->executor;
+  rclc_support_t * support = arguments->support;
+  const uint64_t period = arguments->period;
+  rcl_ret_t ret = RCL_RET_OK;
+  ret = rclc_executor_spin_period_with_exit(executor, period, &exit_flag);
+  if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
+    printf("Executor spin failed %d\n", ret);
+  }
+  return 0;
+}
+#endif
 
 void thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
 {

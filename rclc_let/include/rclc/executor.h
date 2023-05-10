@@ -21,6 +21,14 @@ extern "C"
 {
 #endif
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#ifndef RCLC_LET
+#define RCLC_LET
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -34,6 +42,9 @@ extern "C"
 
 #include "rclc/action_client.h"
 #include "rclc/action_server.h"
+
+#include <pthread.h>
+#include <sched.h>
 
 /*! \file executor.h
     \brief The RCLC-Executor provides an Executor based on RCL in which all callbacks are
@@ -89,6 +100,10 @@ typedef struct rclc_executor_s
   size_t let_index;
   /// Maximum size of array 'let_handles'
   size_t max_let_handles;
+  /// Condition variables for LET scheduling
+  pthread_cond_t exec_period;
+  /// Mutex for LET scheduling
+  pthread_mutex_t mutex;
 } rclc_executor_t;
 
 /**
@@ -831,6 +846,32 @@ rcl_ret_t
 rclc_executor_spin_period(
   rclc_executor_t * executor,
   const uint64_t period);
+
+/**
+ *  The spin_period function with exit condition.
+ *  It calls {@link rclc_executor_spin_some()} as long as rcl_is_context_is_valid() returns true.
+ *
+ *  Memory is dynamically allocated within rcl-layer, when DDS queue is accessed with rcl_wait_set_init()
+ *  (in spin_some function)
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | Yes
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ *
+ * \param [inout] executor pointer to initialized executor
+ * \param [in] period in nanoseconds
+ * \param [in] exit_flag set to true to exit
+ * \return `RCL_RET_OK` if spin operation was successful
+ * \return `RCL_RET_INVALID_ARGUMENT` if executor is a null pointer
+ * \return `RCL_RET_ERROR` if any other error occured
+ */
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period, volatile bool * exit_flag);
 
 /**
  * The reason for splitting up the rclc_executor_spin_period function, is only to write a
