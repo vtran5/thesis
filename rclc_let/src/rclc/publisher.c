@@ -89,6 +89,15 @@ rclc_publisher_init(
 }
 
 rcl_ret_t
+rclc_publish_default(
+  rclc_publisher_t * publisher,
+  const void * ros_message)
+{
+  rcl_ret_t ret = rcl_publish(&(publisher->rcl_publisher), ros_message, NULL);
+  return ret;
+}
+
+rcl_ret_t
 rclc_publish_LET(
   rclc_publisher_t * publisher,
   const void * ros_message)

@@ -58,6 +58,28 @@ publisher['ExecutorID'] = publisher['ExecutorID'].replace(publisher_map)
 publisher = publisher.drop(publisher.columns[0], axis=1)
 publisher = publisher.round(1)
 
+listener = df[df.iloc[:, 0] == 'Listener']
+listener = listener.dropna(axis=1)
+lis_col_names = ['Listener','ExecutorID','Time']
+listener.columns = lis_col_names
+
+listener['Time'] = pd.to_numeric(listener['Time'])
+listener['Time'] = (listener['Time'] - start_time)/1000000
+listener['ExecutorID'] = listener['ExecutorID'].replace(executor_map)
+listener = listener.drop(listener.columns[0], axis=1)
+listener = listener.round(1)
+
+writer = df[df.iloc[:, 0] == 'Writer']
+writer = writer.dropna(axis=1)
+lis_col_names = ['Writer','ExecutorID','Time']
+writer.columns = lis_col_names
+
+writer['Time'] = pd.to_numeric(writer['Time'])
+writer['Time'] = (writer['Time'] - start_time)/1000000
+writer['ExecutorID'] = writer['ExecutorID'].replace(executor_map)
+writer = writer.drop(writer.columns[0], axis=1)
+writer = writer.round(1)
+
 executor = df[df.iloc[:, 0] == 'Executor']
 executor = executor.dropna(axis=1)
 ex_col_names = ['Executor','ExecutorID','Time']
@@ -99,6 +121,8 @@ min_time = data.min().min()
 max_time = data.max().max()
 filtered_executor = executor[(executor['Time'] >= min_time) & (executor['Time'] <= max_time)]
 filtered_publisher = publisher[(publisher['Time'] >= min_time) & (publisher['Time'] <= max_time)]
+filtered_listener = listener[(listener['Time'] >= min_time) & (listener['Time'] <= max_time)]
+filtered_writer = writer[(writer['Time'] >= min_time) & (writer['Time'] <= max_time)]
 # Plotting function
 def plot_timeline(data, input_file):
     fig, ax = plt.subplots(4, figsize=(10, 6), sharex=True)
@@ -115,6 +139,10 @@ def plot_timeline(data, input_file):
         pub_times = filtered_publisher[filtered_publisher['ExecutorID'] == node]['Time']
         for time in pub_times:
             ax[i].axvline(time, color='cyan', linestyle='-.', linewidth=2)
+
+        lis_times = filtered_listener[filtered_listener['ExecutorID'] == node]['Time']
+        for time in lis_times:
+            ax[i].axvline(time, color='magenta', linestyle=':', linewidth=2)
 
         if node == 'Executor1':
             for val in data['1']:

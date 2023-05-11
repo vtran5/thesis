@@ -122,6 +122,11 @@ rclc_publisher_init(
   const int buffer_capacity,
   const rmw_qos_profile_t * qos_profile);
 
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publish_default(
+  rclc_publisher_t * publisher,
+  const void * ros_message);
 
 RCLC_PUBLIC
 rcl_ret_t

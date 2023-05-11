@@ -137,7 +137,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   //printf("Timer: Timer start\n");
   timestamp[0][pub_msg.frame_id] = (now - start_time)/1000;
   RCSOFTCHECK(rclc_publish_LET(&node1.publisher[0], &pub_msg));
-  //printf("Timer1: Published message %ld at time %ld \n", pub_msg.frame_id, now-start_time);
+  printf("Timer1: Published message %ld at time %ld \n", pub_msg.frame_id, now);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -150,12 +150,12 @@ void node2_subscriber1_callback(const void * msgin)
   }
   now = rclc_now(&support);
   timestamp[1][msg->frame_id] = (now - msg->stamp)/1000;
-  //printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[1][msg->frame_id]);
+  printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, now);
   busy_wait_random(5, 15);
   now = rclc_now(&support);
   timestamp[2][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rclc_publish_LET(&node2.publisher[0], msg));
-  //printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
+  printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, now);
 }
 
 void node3_subscriber1_callback(const void * msgin)
@@ -168,7 +168,7 @@ void node3_subscriber1_callback(const void * msgin)
   }
   now = rclc_now(&support);
   timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
-  //printf("Node1_Sub2_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[2][msg->frame_id]);
+  printf("Node1_Sub2_Callback: I heard: %ld at time %ld\n", msg->frame_id, now);
   busy_wait_random(5, 20);
   now = rclc_now(&support);
   timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  

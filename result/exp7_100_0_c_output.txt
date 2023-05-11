@@ -1,0 +1,108 @@
+ExecutorID Executor1 140733979624000
+ExecutorID Executor2 140733979624464
+ExecutorID Executor3 140733979624928
+ExecutorID Executor4 140733979625392
+PublisherID Executor1 94161492545792
+PublisherID Executor2 94161492545872
+PublisherID Executor3 94161492545968
+StartTime 5424848522582
+Timer1: Published message 0 at time 5424848522582 
+Node1_Sub1_Callback: I heard: 0 at time 5424848603358
+Node1_Sub1_Callback: Published message 0 at time 5424860649137
+Node1_Sub2_Callback: I heard: 0 at time 5424860696882
+Timer1: Published message 1 at time 5424948494384 
+Node1_Sub1_Callback: I heard: 1 at time 5424948516675
+Node1_Sub1_Callback: Published message 1 at time 5424957829285
+Node1_Sub2_Callback: I heard: 1 at time 5424957846857
+Timer1: Published message 2 at time 5425048530457 
+Node1_Sub1_Callback: I heard: 2 at time 5425048588320
+Node1_Sub1_Callback: Published message 2 at time 5425061835184
+Node1_Sub2_Callback: I heard: 2 at time 5425061856405
+Timer1: Published message 3 at time 5425148490813 
+Node1_Sub1_Callback: I heard: 3 at time 5425148514137
+Node1_Sub1_Callback: Published message 3 at time 5425155683962
+Node1_Sub2_Callback: I heard: 3 at time 5425155701436
+Timer1: Published message 4 at time 5425248494381 
+Node1_Sub1_Callback: I heard: 4 at time 5425248515188
+Node1_Sub1_Callback: Published message 4 at time 5425255450584
+Node1_Sub2_Callback: I heard: 4 at time 5425255467087
+Timer1: Published message 5 at time 5425348496267 
+Node1_Sub1_Callback: I heard: 5 at time 5425348517198
+Node1_Sub1_Callback: Published message 5 at time 5425356911574
+Node1_Sub2_Callback: I heard: 5 at time 5425356927725
+Timer1: Published message 6 at time 5425448496586 
+Node1_Sub1_Callback: I heard: 6 at time 5425448515288
+Node1_Sub1_Callback: Published message 6 at time 5425459628805
+Node1_Sub2_Callback: I heard: 6 at time 5425459644853
+Timer1: Published message 7 at time 5425548506484 
+Node1_Sub1_Callback: I heard: 7 at time 5425548579455
+Node1_Sub1_Callback: Published message 7 at time 5425562615478
+Node1_Sub2_Callback: I heard: 7 at time 5425562652880
+Timer1: Published message 8 at time 5425648511649 
+Node1_Sub1_Callback: I heard: 8 at time 5425648585717
+Node1_Sub1_Callback: Published message 8 at time 5425662073540
+Node1_Sub2_Callback: I heard: 8 at time 5425662110924
+Timer1: Published message 9 at time 5425748529951 
+Node1_Sub1_Callback: I heard: 9 at time 5425748596863
+Node1_Sub1_Callback: Published message 9 at time 5425763250475
+Node1_Sub2_Callback: I heard: 9 at time 5425763332403
+Timer1: Published message 10 at time 5425848529074 
+Node1_Sub1_Callback: I heard: 10 at time 5425848592938
+Node1_Sub1_Callback: Published message 10 at time 5425855979990
+Node1_Sub2_Callback: I heard: 10 at time 5425856000238
+Timer1: Published message 11 at time 5425948503005 
+Node1_Sub1_Callback: I heard: 11 at time 5425948526876
+Node1_Sub1_Callback: Published message 11 at time 5425958253354
+Node1_Sub2_Callback: I heard: 11 at time 5425958270255
+Timer1: Published message 12 at time 5426048505847 
+Node1_Sub1_Callback: I heard: 12 at time 5426048529349
+Node1_Sub1_Callback: Published message 12 at time 5426062677668
+Node1_Sub2_Callback: I heard: 12 at time 5426062694515
+Timer1: Published message 13 at time 5426148508799 
+Node1_Sub1_Callback: I heard: 13 at time 5426148527529
+Node1_Sub1_Callback: Published message 13 at time 5426160338206
+Node1_Sub2_Callback: I heard: 13 at time 5426160354611
+Timer1: Published message 14 at time 5426248499346 
+Node1_Sub1_Callback: I heard: 14 at time 5426248552338
+Node1_Sub1_Callback: Published message 14 at time 5426255699870
+Node1_Sub2_Callback: I heard: 14 at time 5426255718831
+Timer1: Published message 15 at time 5426348511994 
+Node1_Sub1_Callback: I heard: 15 at time 5426348530408
+Node1_Sub1_Callback: Published message 15 at time 5426352564815
+Node1_Sub2_Callback: I heard: 15 at time 5426352580842
+Timer1: Published message 16 at time 5426448515001 
+Node1_Sub1_Callback: I heard: 16 at time 5426448535431
+Node1_Sub1_Callback: Published message 16 at time 5426454035944
+Node1_Sub2_Callback: I heard: 16 at time 5426454052042
+Timer1: Published message 17 at time 5426548519589 
+Node1_Sub1_Callback: I heard: 17 at time 5426548588203
+Node1_Sub1_Callback: Published message 17 at time 5426552953872
+Node1_Sub2_Callback: I heard: 17 at time 5426552985192
+Timer1: Published message 18 at time 5426648520469 
+Node1_Sub1_Callback: I heard: 18 at time 5426648540795
+Node1_Sub1_Callback: Published message 18 at time 5426659792951
+Node1_Sub2_Callback: I heard: 18 at time 5426659822906
+Timer1: Published message 19 at time 5426748523662 
+Node1_Sub1_Callback: I heard: 19 at time 5426748587449
+Node1_Sub1_Callback: Published message 19 at time 5426756584017
+Node1_Sub2_Callback: I heard: 19 at time 5426756650536
+Frame 0 0 80 12126 12174 24662 24710 
+Frame 1 99971 22 9334 9352 25057 25074 
+Frame 2 200007 57 13304 13325 26980 26998 
+Frame 3 299968 23 7193 7210 22058 22074 
+Frame 4 399971 20 6956 6972 14109 14124 
+Frame 5 499973 20 8415 8431 25731 25746 
+Frame 6 599974 18 11132 11148 21733 21748 
+Frame 7 699983 72 14108 14146 30086 30117 
+Frame 8 799989 74 13561 13599 27333 27367 
+Frame 9 900007 66 14720 14802 28500 28579 
+Frame 10 1000006 63 7450 7471 23195 23212 
+Frame 11 1099980 23 9750 9767 25645 25661 
+Frame 12 1199983 23 14171 14188 20621 20641 
+Frame 13 1299986 18 11829 11845 27509 27524 
+Frame 14 1399976 52 7200 7219 12837 12854 
+Frame 15 1499989 18 4052 4068 16076 16091 
+Frame 16 1599992 20 5520 5537 14052 14067 
+Frame 17 1699997 68 4434 4465 17777 17794 
+Frame 18 1799997 20 11272 11302 22772 22789 
+Frame 19 1900001 63 8060 8126 21739 21779 
