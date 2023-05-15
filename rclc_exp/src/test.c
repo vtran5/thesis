@@ -274,7 +274,7 @@ int main(int argc, char const *argv[])
     pthread_t thread1 = 0;
     int policy = SCHED_FIFO;
 
-    struct arg_spin_period ex1 = {200*1000*1000, &executor1};
+    struct arg_spin_period ex1 = {200*1000*1000, &executor1, &support};
     //struct arg_spin_period ex2 = {500*1000*1000, &executor2};
     thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_wrapper, &ex1);
     //thread_create(&thread2, policy, 49, rclc_executor_spin_period_wrapper, &ex2);

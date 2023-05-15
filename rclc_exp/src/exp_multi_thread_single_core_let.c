@@ -137,7 +137,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   //printf("Timer: Timer start\n");
   timestamp[0][pub_msg.frame_id] = (now - start_time)/1000;
   RCSOFTCHECK(rclc_publish_LET(&node1.publisher[0], &pub_msg));
-  //printf("Timer1: Published message %ld at time %ld \n", pub_msg.frame_id, now-start_time);
+  //printf("Timer1: Published message %ld at time %ld \n", pub_msg.frame_id, now);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -150,12 +150,12 @@ void node2_subscriber1_callback(const void * msgin)
   }
   now = rclc_now(&support);
   timestamp[1][msg->frame_id] = (now - msg->stamp)/1000;
-  //printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[1][msg->frame_id]);
+  //printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, now);
   busy_wait_random(5, 15);
   now = rclc_now(&support);
   timestamp[2][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rclc_publish_LET(&node2.publisher[0], msg));
-  //printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
+  //printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, now);
 }
 
 void node3_subscriber1_callback(const void * msgin)
@@ -168,7 +168,7 @@ void node3_subscriber1_callback(const void * msgin)
   }
   now = rclc_now(&support);
   timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
-  //printf("Node1_Sub2_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[2][msg->frame_id]);
+  //printf("Node1_Sub2_Callback: I heard: %ld at time %ld\n", msg->frame_id, now);
   busy_wait_random(5, 20);
   now = rclc_now(&support);
   timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  
@@ -378,10 +378,14 @@ int main(int argc, char const *argv[])
         RCCHECK(rclc_executor_set_semantics(&executor4, RCLCPP_EXECUTOR));      
     }
 
-    printf("ExecutorID Executor1 %d\n", &executor1);
-    printf("ExecutorID Executor2 %d\n", &executor2);
-    printf("ExecutorID Executor3 %d\n", &executor3);
-    printf("ExecutorID Executor4 %d\n", &executor4);
+    printf("ExecutorID Executor1 %lu\n", (unsigned long) &executor1);
+    printf("ExecutorID Executor2 %lu\n", (unsigned long) &executor2);
+    printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
+    printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
+
+    printf("PublisherID Executor1 %lu\n", (unsigned long) &node1.publisher[0]);
+    printf("PublisherID Executor2 %lu\n", (unsigned long) &node2.publisher[0]);
+    printf("PublisherID Executor3 %lu\n", (unsigned long) &node3.publisher[0]);
 
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
@@ -398,17 +402,17 @@ int main(int argc, char const *argv[])
         struct arg_spin_period ex2 = {executor_period*1000*1000, &executor2, &support};
         struct arg_spin_period ex3 = {executor_period*1000*1000, &executor3, &support};
         struct arg_spin_period ex4 = {executor_period*1000*1000, &executor4, &support};
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_wrapper, &ex1);
-        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_wrapper, &ex2);
-        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_wrapper, &ex3);
-        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_period_wrapper, &ex4);
+        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
+        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);
+        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_with_exit_wrapper, &ex3);
+        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_period_with_exit_wrapper, &ex4);
     }
     else
     {
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor2);
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor3);
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor4);
+        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_wrapper, &executor2);
+        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_wrapper, &executor3);
+        thread_create(&thread4, policy, 46, 0, rclc_executor_spin_wrapper, &executor4);
     }
 
     //thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);

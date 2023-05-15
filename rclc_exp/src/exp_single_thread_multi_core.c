@@ -354,7 +354,10 @@ int main(int argc, char const *argv[])
         RCCHECK(rclc_executor_set_semantics(&executor4, RCLCPP_EXECUTOR));      
     }
 
-
+    printf("ExecutorID Executor1 %lu\n", (unsigned long) &executor1);
+    printf("ExecutorID Executor2 %lu\n", (unsigned long) &executor2);
+    printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
+    printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
     ////////////////////////////////////////////////////////////////////////////

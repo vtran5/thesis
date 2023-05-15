@@ -37,6 +37,16 @@ void *rclc_executor_spin_wrapper(void *arg);
  */
 void *rclc_executor_spin_period_wrapper(void *arg);
 
+#ifdef RCLC_LET
+/**
+ *  pthread_create-compatible wrapper function of rclc_executor_spin_period_with_exit.
+ *
+ * \param[inout] arg is the passing argument from pthread_create, 
+ * should be a pointer to a struct arg_spin_period
+ */
+void *rclc_executor_spin_period_with_exit_wrapper(void *arg);
+#endif
+
 /**
  *  Creates and configures a thread
  *
