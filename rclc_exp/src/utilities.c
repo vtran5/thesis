@@ -3,9 +3,14 @@
 volatile bool exit_flag = false;
 void *rclc_executor_spin_wrapper(void *arg)
 {
-  rclc_executor_t * executor = (rclc_executor_t *) arg;
+  struct arg_spin *arguments = arg;
+  rclc_executor_t * executor = arguments->executor;
+  rclc_support_t * support = arguments->support;
   rcl_ret_t ret = RCL_RET_OK;
+  rcl_time_point_value_t now;
   while (!exit_flag) {
+    now = rclc_now(support);
+    //printf("Spin at time %ld\n", now/1000000);
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
       printf("Executor spin failed\n");

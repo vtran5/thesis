@@ -28,7 +28,7 @@ def find_start_time(df):
     start_time = float(start_time_df.iloc[0, 1])
     return start_time
 
-def process_dataframe(df, keyword, keyword_map=None, start_time=None):
+def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=False):
     filtered_df = df[df.iloc[:, 0] == keyword]
     filtered_df = filtered_df.dropna(axis=1)
 
@@ -41,7 +41,13 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None):
         filtered_df.columns = column_names
 
     else:
-        col_names = ['Keyword', 'ExecutorID', 'Time']
+        if frame_id:
+            assert filtered_df.shape[1] == 4, "DataFrame doesn't have the correct number of columns (4)"
+            col_names = ['Keyword', 'ExecutorID','FrameID', 'Time']
+        else:
+            assert filtered_df.shape[1] == 3, "DataFrame doesn't have the correct number of columns (3)"
+            col_names = ['Keyword', 'ExecutorID', 'Time']
+
         filtered_df.columns = col_names
         if start_time is not None:
             filtered_df['Time'] = pd.to_numeric(filtered_df['Time'])
@@ -51,7 +57,9 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None):
         filtered_df = filtered_df.drop(filtered_df.columns[0], axis=1)
         filtered_df = filtered_df.round(1)
 
+    filtered_df = filtered_df.reset_index(drop=True)
     return filtered_df
+
 
 def get_filtered_times(df, min_time, max_time):
     return df[(df['Time'] >= min_time) & (df['Time'] <= max_time)]

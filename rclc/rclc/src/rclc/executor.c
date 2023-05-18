@@ -1691,11 +1691,13 @@ _rclc_default_scheduling(rclc_executor_t * executor)
       return rc;
     }
   }
+
   // if the trigger condition is fullfilled, fetch data and execute
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
       executor->trigger_object))
   {
+
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
@@ -1704,6 +1706,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
       {
         return rc;
       }
+
       rc = _rclc_execute(&executor->handles[i]);
       if (rc != RCL_RET_OK) {
         return rc;
@@ -1726,7 +1729,6 @@ _rclc_let_scheduling(rclc_executor_t * executor)
   // 3. write data (*) data is written not at the end of all callbacks, but it will not be
   //    processed by the callbacks 'in this round' because all input data is read in the
   //    beginning and the incoming messages were copied.
-
   // step 0: check for available input data from DDS queue
   // complexity: O(n) where n denotes the number of handles
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
@@ -1735,13 +1737,13 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       return rc;
     }
   }
-
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
       executor->trigger_object))
   {
+    printf("Checkpoint8\n");
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
@@ -1749,7 +1751,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
         return rc;
       }
     }
-
+        printf("Checkpoint9\n");
     // step 2:  process (execute)
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_execute(&executor->handles[i]);
@@ -1809,16 +1811,13 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
     PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
     return RCL_RET_ERROR;
   }
-
   rclc_executor_prepare(executor);
-
   // set rmw fields to NULL
   rc = rcl_wait_set_clear(&executor->wait_set);
   if (rc != RCL_RET_OK) {
     PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_wait_set_clear);
     return rc;
   }
-
   // (jst3si) put in a sub-function - for improved readability
   // add handles to wait_set
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
@@ -1948,12 +1947,10 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
         return RCL_RET_ERROR;
     }
   }
-
   // wait up to 'timeout_ns' to receive notification about which handles reveived
   // new data from DDS queue.
   rc = rcl_wait(&executor->wait_set, timeout_ns);
   RCLC_UNUSED(rc);
-
   // based on semantics process input data
   switch (executor->data_comm_semantics) {
     case LET:
@@ -1966,7 +1963,6 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       PRINT_RCLC_ERROR(rclc_executor_spin_some, unknown_semantics);
       return RCL_RET_ERROR;
   }
-
   return rc;
 }
 

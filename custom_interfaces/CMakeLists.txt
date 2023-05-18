@@ -16,6 +16,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Message.msg"
+  "srv/Service.srv"
   DEPENDENCIES std_msgs # Add packages that above messages depend on
 )
 

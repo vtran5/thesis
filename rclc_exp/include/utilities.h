@@ -20,6 +20,10 @@ struct arg_spin_period {
   rclc_support_t * support;
 };
 
+struct arg_spin {
+  rclc_executor_t * executor;
+  rclc_support_t * support;
+};
 
 /**
  *  pthread_create-compatible wrapper function of rclc_executor_spin.

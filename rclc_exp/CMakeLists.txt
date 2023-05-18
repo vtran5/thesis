@@ -29,13 +29,13 @@ include_directories(include)
 
 add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
 
-add_executable(exp1 src/exp_cb_execute_order.c src/utilities.c)
+add_executable(exp1 src/exp_sequential_always.c src/utilities.c)
 ament_target_dependencies(exp1 rcl rclc custom_interfaces)
 
 add_executable(exp2 src/exp_trigger_all.c src/utilities.c)
 ament_target_dependencies(exp2 rcl rclc custom_interfaces)
 
-add_executable(exp3 src/experiment3.c src/utilities.c)
+add_executable(exp3 src/exp_let_qos.c src/utilities.c)
 ament_target_dependencies(exp3 rcl rclc custom_interfaces)
 
 add_executable(exp4 src/exp_single_thread_single_core.c src/utilities.c)
@@ -47,8 +47,8 @@ ament_target_dependencies(exp5 rcl rclc custom_interfaces)
 add_executable(exp6 src/exp_single_thread_multi_core.c src/utilities.c)
 ament_target_dependencies(exp6 rcl rclc custom_interfaces)
 
-add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
-ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
+#add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
+#ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 
 add_executable(mytest src/test.c src/utilities.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
@@ -81,7 +81,7 @@ install(TARGETS
   exp4
   exp5
   exp6
-  exp7
+#  exp7
   DESTINATION lib/${PROJECT_NAME}
 )
 
