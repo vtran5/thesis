@@ -26,6 +26,16 @@ extern "C"
 #include <rcl/allocator.h>
 #include <rcl/time.h>
 
+/* defines the semantics of data communication
+   RCLCPP_EXECUTOR - same semantics as in the rclcpp Executor ROS2(Eloquent)
+   LET             - logical execution time
+*/
+typedef enum
+{
+  RCLCPP_EXECUTOR,
+  LET
+} rclc_executor_semantics_t;
+
 typedef struct
 {
   rcl_context_t context;

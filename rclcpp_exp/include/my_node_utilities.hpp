@@ -18,5 +18,6 @@ protected:
 	void busy_wait_random(std::chrono::milliseconds min_time, std::chrono::milliseconds max_time);
 	void busy_wait(std::chrono::milliseconds duration);
 	std::vector<std::vector<int64_t>> timestamp;
+	std::string stat;
 };
 #endif

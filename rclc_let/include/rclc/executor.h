@@ -51,16 +51,6 @@ extern "C"
     processed in a user-defined order.
 */
 
-/* defines the semantics of data communication
-   RCLCPP_EXECUTOR - same semantics as in the rclcpp Executor ROS2(Eloquent)
-   LET             - logical execution time
-*/
-typedef enum
-{
-  RCLCPP_EXECUTOR,
-  LET
-} rclc_executor_semantics_t;
-
 /// Type definition for trigger function. With the parameters:
 /// - array of executor_handles
 /// - size of array

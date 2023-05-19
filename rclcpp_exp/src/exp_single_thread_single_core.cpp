@@ -145,8 +145,11 @@ int main(int argc, char const *argv[])
 {
 	unsigned int timer_period = 100;
 	unsigned int experiment_duration = 10000;
+	std::chrono::milliseconds executor_period = 100ms;
+	bool periodic = true;
+	//bool exit_flag = false;
 
-	parse_arguments(argc, argv, timer_period, experiment_duration);
+	parse_arguments(argc, argv, timer_period, experiment_duration, executor_period, periodic);
 
 	rclcpp::init(argc, argv);
 	

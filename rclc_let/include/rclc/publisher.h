@@ -29,6 +29,7 @@ extern "C"
 #include "rclc/visibility_control.h"
 #include "rclc/buffer.h"
 
+
 typedef struct rclc_publisher_s
 {
   rcl_publisher_t rcl_publisher;
@@ -124,15 +125,11 @@ rclc_publisher_init(
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_publish_default(
+rclc_publish(
   rclc_publisher_t * publisher,
-  const void * ros_message);
-
-RCLC_PUBLIC
-rcl_ret_t
-rclc_publish_LET(
-  rclc_publisher_t * publisher,
-  const void * ros_message);
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation,
+  rclc_executor_semantics_t semantics);
 
 RCLC_PUBLIC
 rcl_ret_t

@@ -7,11 +7,14 @@ static std::mt19937 gen(rd());
 
 using namespace my_thread_utilities;
 
-MyNode::MyNode(std::string node_name) : Node(node_name){};
+MyNode::MyNode(std::string node_name) : Node(node_name){
+	stat = "";
+};
 
 void MyNode::print_statistics()
 {
-	print_timestamp(timestamp);
+	std::cout << MyNode::stat << std::flush;
+	//print_timestamp(timestamp);
 }
 
 void MyNode::print_timestamp(std::vector<std::vector<int64_t>>& timestamp) 

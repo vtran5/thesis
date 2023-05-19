@@ -1,49 +1,62 @@
 import sys
 import pandas as pd
-import plot_utils as pu
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import os
+import plot_utils as pu
+import numpy as np
 
 if len(sys.argv) != 2:
     print("Usage: python plot.py <input_file>")
     sys.exit(1)
 
 input_file = sys.argv[1]
+
+# Read the file line by line and determine the maximum number of fields
 df = pu.read_input_file(input_file)
 
 start_time = pu.find_start_time(df)
 
-executor_map = pu.find_map(df, 'Executor')
-publisher_map = pu.find_map(df, 'Publisher')
+subscriber_map = pu.find_map(df, 'Subscriber')
+timer_map = pu.find_map(df, 'Timer')
 
-publisher = pu.process_dataframe(df, 'Publisher', publisher_map, start_time)
-listener = pu.process_dataframe(df, 'Listener', executor_map, start_time)
-writer = pu.process_dataframe(df, 'Writer', executor_map, start_time)
-executor = pu.process_dataframe(df, 'Executor', executor_map, start_time)
-data = pu.process_dataframe(df, 'Frame')
+subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
+timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
 
-# get a random start index
-start_index = data.sample(n=1).index[0]
+
+# Get 20 random consecutive rows from sub dataframe
+start_index = timer.sample(n=1).index[0]
 #start_index = 0
 # get the 3 consecutive rows starting from the random start index
-data = data.iloc[start_index:start_index+4]
-data.iloc[:, 1:] = data.iloc[:, 1:].astype(float)
-data.iloc[:, 1:] = data.iloc[:, 1:] / 1000
-data = data.round(1)
+filtered_timer = timer.iloc[start_index:start_index+10]
 
-# Adjust the DataFrame values
-for col in ['2', '3', '4', '5', 'latency']:
-    data[col] = data['1'] + data[col]
+# Find min and max time from these random rows
+min_time = np.min(filtered_timer['Time'])
+max_time = np.max(filtered_timer['Time'])
+filtered_subscriber = pu.get_filtered_times(subscriber, min_time, max_time)
+executor2 = ['Subscriber1']
+executor3 = ['Subscriber2']
+executor4 = ['Subscriber3']
+filtered_subscriber2 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor2)]
+filtered_subscriber3 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor3)]
+filtered_subscriber4 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor4)]
 
-# Get the executor, publisher, listener and writer values during the random duration
-data = data.apply(pd.to_numeric, errors='coerce')
-data = data.drop(data.columns[0], axis=1)
-min_time = data.min().min()
-max_time = data.max().max()
-filtered_executor = pu.get_filtered_times(executor, min_time, max_time)
-filtered_publisher = pu.get_filtered_times(publisher, min_time, max_time)
-filtered_listener = pu.get_filtered_times(listener, min_time, max_time)
-filtered_writer = pu.get_filtered_times(writer, min_time, max_time)
+fig, axs = plt.subplots(4, sharex=False)
 
-# Save the figure with the same name as the input file and a '.png' extension
+pu.plot_filtered_data(axs[0], filtered_timer, 'Timer1', '--', 'k')
+axs[0].set_title('Executor 1')
+pu.plot_filtered_data(axs[1], filtered_subscriber2, 'Subscriber1', '--', 'cyan')
+axs[1].set_title('Executor 2')
+pu.plot_filtered_data(axs[2], filtered_subscriber3, 'Subscriber2', '--', 'magenta')
+axs[2].set_title('Executor 3')
+pu.plot_filtered_data(axs[3], filtered_subscriber4, 'Subscriber3', '--', 'yellow')
+axs[3].set_title('Executor 4')
+
+for ax in axs:
+    ax.set_xlim(left=min_time-20)
+    ax.set_xlim(right=max_time+20)
+
+fig.subplots_adjust(hspace = 0.5)
 figure_name = os.path.splitext(input_file)[0] + '_timeline.png'
-pu.plot_timeline(data, figure_name, filtered_executor, filtered_publisher, filtered_listener, filtered_writer)
+plt.savefig(figure_name)
+plt.show()

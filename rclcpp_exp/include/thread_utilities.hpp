@@ -42,6 +42,7 @@
 #endif
 
 #include <rclcpp/rclcpp.hpp>
+using namespace std::chrono_literals;
 
 namespace my_thread_utilities
 {
@@ -269,12 +270,17 @@ inline double calc_std_deviation(const std::vector<double> & v)
   return std::sqrt(sum_squares / v.size());
 }
 
-inline void parse_arguments(int argc, char const *argv[], unsigned int &timer_period, unsigned int &experiment_duration) {
+inline void parse_arguments(int argc, char const *argv[], unsigned int &timer_period,
+  unsigned int &experiment_duration, std::chrono::milliseconds &executor_period, bool &periodic) {
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-tp") == 0 && i + 1 < argc) {
             timer_period = std::atoi(argv[++i]);
         } else if (strcmp(argv[i], "-ed") == 0 && i + 1 < argc) {
             experiment_duration = std::atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-ep") == 0 && i + 1 < argc) {
+            executor_period = std::atoi(argv[++i]) * 1ms;
+        } else if (strcmp(argv[i], "-per") == 0 && i + 1 < argc) {
+            periodic = (strcmp(argv[++i], "true") == 0) ? true : false;
         } else {
             std::cerr << "Invalid argument: " << argv[i] << std::endl;
             exit(1);
@@ -282,6 +288,37 @@ inline void parse_arguments(int argc, char const *argv[], unsigned int &timer_pe
     }
 }
 
+inline std::chrono::milliseconds get_time()
+{
+  auto now = std::chrono::steady_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+  return duration;
+}
+inline void spin_period(std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor, std::chrono::milliseconds period, bool * exit_flag)
+{
+  std::chrono::milliseconds invoke_time = 0ms;
+  std::chrono::milliseconds now = 0ms;
+  std::chrono::milliseconds sleep_time = 0ms;
+  //std::cout << "exit_flag = " << *exit_flag << std::endl;
+  while (!(*exit_flag))
+  {
+    if(invoke_time == 0ms)
+      invoke_time = get_time();
+    executor->spin_some();
+    //std::cout << "invoke_time = " << invoke_time.count() << "\n";
+    now = get_time();
+    //std::cout << "now = " << now.count() << "\n";
+    sleep_time = (invoke_time + period) - now;
+    //std::cout << "sleep_time = " << sleep_time.count() << "\n";
+    if (sleep_time > 0ms)
+    {
+      //std::cout << "Sleep for " << sleep_time.count() << "\n";
+      std::this_thread::sleep_for(sleep_time);
+    }
+    invoke_time += period;
+  }
+  //std::cout << "exit_flag = " << *exit_flag << std::endl;
+}
 }  // namespace my_app
 
 #endif  // THREAD_UTILITIES_HPP_

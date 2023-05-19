@@ -1,6 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-
 import math
 
 def read_input_file(input_file):
@@ -29,7 +28,7 @@ def find_start_time(df):
     start_time = float(start_time_df.iloc[0, 1])
     return start_time
 
-def process_dataframe(df, keyword, keyword_map=None, start_time=None):
+def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=False):
     filtered_df = df[df.iloc[:, 0] == keyword]
     filtered_df = filtered_df.dropna(axis=1)
 
@@ -42,7 +41,13 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None):
         filtered_df.columns = column_names
 
     else:
-        col_names = ['Keyword', 'ExecutorID', 'Time']
+        if frame_id:
+            assert filtered_df.shape[1] == 4, "DataFrame doesn't have the correct number of columns (4)"
+            col_names = ['Keyword', 'ExecutorID','FrameID', 'Time']
+        else:
+            assert filtered_df.shape[1] == 3, "DataFrame doesn't have the correct number of columns (3)"
+            col_names = ['Keyword', 'ExecutorID', 'Time']
+
         filtered_df.columns = col_names
         if start_time is not None:
             filtered_df['Time'] = pd.to_numeric(filtered_df['Time'])
@@ -52,7 +57,9 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None):
         filtered_df = filtered_df.drop(filtered_df.columns[0], axis=1)
         filtered_df = filtered_df.round(1)
 
+    filtered_df = filtered_df.reset_index(drop=True)
     return filtered_df
+
 
 def get_filtered_times(df, min_time, max_time):
     return df[(df['Time'] >= min_time) & (df['Time'] <= max_time)]
@@ -61,6 +68,10 @@ def plot_filtered_data(ax, filtered_data, node, linestyle, color):
     times = filtered_data[filtered_data['ExecutorID'] == node]['Time']
     for time in times:
         ax.axvline(time, color=color, linestyle=linestyle, linewidth=2)
+    ax.set_xticks(times.round())
+    ax.tick_params(axis='x', labelbottom=True)
+    for label in ax.get_xticklabels():
+        label.set_rotation(30)
 
 def plot_timeline(data, figure_name, filtered_executor=None, filtered_publisher=None, filtered_listener=None, filtered_writer=None):
     fig, ax = plt.subplots(4, figsize=(10, 6), sharex=True)
@@ -105,7 +116,6 @@ def plot_timeline(data, figure_name, filtered_executor=None, filtered_publisher=
     plt.show()
 
 def calculate_latency_range(df):
-    df['latency'] = df['latency'] / 1000
     median_latency = df['latency'].median()
     min_latency = df['latency'].min()
     max_latency = df['latency'].max()
@@ -124,7 +134,7 @@ def calculate_latency_range(df):
 
 
 def plot_latency(df, median_latency, lower_bound, upper_bound, equal_percentage, figure_name):
-    df.plot.scatter(x='frame', y='latency')
+    plt.scatter(df['frame'], df['latency'])
     plt.axhline(median_latency, color='r', linestyle='--', label='Median latency')
     plt.axhline(lower_bound, color='g', linestyle=':', label=f'±{equal_percentage * 100:.0f}% from median')
     plt.axhline(upper_bound, color='g', linestyle=':',)

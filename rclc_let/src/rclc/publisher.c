@@ -89,20 +89,42 @@ rclc_publisher_init(
 }
 
 rcl_ret_t
-rclc_publish_default(
+_rclc_publish_default(
   rclc_publisher_t * publisher,
-  const void * ros_message)
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation)
 {
-  rcl_ret_t ret = rcl_publish(&(publisher->rcl_publisher), ros_message, NULL);
+  rcl_ret_t ret = rcl_publish(&(publisher->rcl_publisher), ros_message, allocation);
   return ret;
 }
 
 rcl_ret_t
-rclc_publish_LET(
+_rclc_publish_LET(
   rclc_publisher_t * publisher,
-  const void * ros_message)
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation)
 {
+  RCLC_UNUSED(allocation);
   rcl_ret_t ret = rclc_enqueue(&(publisher->message_buffer), ros_message);
+  return ret;
+}
+
+rcl_ret_t
+rclc_publish(
+  rclc_publisher_t * publisher,
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation,
+  rclc_executor_semantics_t semantics)
+{
+  rcl_ret_t ret = RCL_RET_OK;
+  if (semantics == LET)
+  {
+    ret = _rclc_publish_LET(publisher, ros_message, allocation);
+  }
+  else if (semantics == RCLCPP_EXECUTOR)
+  {
+    ret = _rclc_publish_default(publisher, ros_message, allocation);
+  }
   return ret;
 }
 
