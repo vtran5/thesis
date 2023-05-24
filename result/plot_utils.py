@@ -28,6 +28,12 @@ def find_start_time(df):
     start_time = float(start_time_df.iloc[0, 1])
     return start_time
 
+def find_program_start_time(df):
+    start_time_df = df[df.iloc[:, 0] == 'StartProgram']
+    start_time_df = start_time_df.dropna(axis=1)
+    start_time = float(start_time_df.iloc[0, 1])
+    return start_time
+
 def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=False):
     filtered_df = df[df.iloc[:, 0] == keyword]
     filtered_df = filtered_df.dropna(axis=1)
@@ -64,14 +70,18 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
 def get_filtered_times(df, min_time, max_time):
     return df[(df['Time'] >= min_time) & (df['Time'] <= max_time)]
 
-def plot_filtered_data(ax, filtered_data, node, linestyle, color):
-    times = filtered_data[filtered_data['ExecutorID'] == node]['Time']
-    for time in times:
+def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False):
+    subset = filtered_data[filtered_data['ExecutorID'] == node]
+    times = subset['Time']
+    frameIDs = subset['FrameID'] if frame_id else ["" for _ in range(len(times))]
+    for time, frameID in zip(times, frameIDs):
         ax.axvline(time, color=color, linestyle=linestyle, linewidth=2)
+        ax.text(time, 1, '{}'.format(frameID), verticalalignment='center')
     ax.set_xticks(times.round())
     ax.tick_params(axis='x', labelbottom=True)
     for label in ax.get_xticklabels():
         label.set_rotation(30)
+
 
 def plot_timeline(data, figure_name, filtered_executor=None, filtered_publisher=None, filtered_listener=None, filtered_writer=None):
     fig, ax = plt.subplots(4, figsize=(10, 6), sharex=True)
@@ -135,10 +145,14 @@ def calculate_latency_range(df):
 
 def plot_latency(df, median_latency, lower_bound, upper_bound, equal_percentage, figure_name):
     plt.scatter(df['frame'], df['latency'])
-    plt.axhline(median_latency, color='r', linestyle='--', label='Median latency')
-    plt.axhline(lower_bound, color='g', linestyle=':', label=f'±{equal_percentage * 100:.0f}% from median')
+    plt.axhline(median_latency, color='r', linestyle='--', label=f"Median latency: {median_latency:.2f}")
+    plt.axhline(lower_bound, color='g', linestyle=':', label=f"Range from median (±{equal_percentage * 100:.0f}%): {lower_bound:.2f} - {upper_bound:.2f}")
     plt.axhline(upper_bound, color='g', linestyle=':',)
-    plt.legend()
+    plt.ylabel('End-to-end latency (ms)')
+    plt.xlabel('Chain number')
+    plt.ylim(bottom=0)
+    plt.ylim(top=200)
+    plt.legend(loc='lower left')
 
     plt.savefig(figure_name)
     plt.show()
