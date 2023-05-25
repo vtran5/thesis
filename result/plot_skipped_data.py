@@ -20,7 +20,7 @@ start_program_time = (start_program_time - start_time)/1000000
 
 subscriber_map = pu.find_map(df, 'Subscriber')
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
-subscriber3 = subscriber[subscriber.iloc[:, 0] == 'Subscriber3']
+subscriber3 = subscriber[subscriber.iloc[:, 1] == 'Subscriber3']
 subscriber3['FrameID_difference'] = subscriber3['FrameID'].diff()
 subscriber3 = subscriber3.dropna()
 

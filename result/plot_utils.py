@@ -60,7 +60,7 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
             filtered_df['Time'] = (filtered_df['Time'] - start_time) / 1000000
         if keyword_map is not None:
             filtered_df['ExecutorID'] = filtered_df['ExecutorID'].replace(keyword_map)
-        filtered_df = filtered_df.drop(filtered_df.columns[0], axis=1)
+        #filtered_df = filtered_df.drop(filtered_df.columns[0], axis=1)
         filtered_df = filtered_df.round(1)
 
     filtered_df = filtered_df.reset_index(drop=True)
@@ -74,13 +74,23 @@ def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False
     subset = filtered_data[filtered_data['ExecutorID'] == node]
     times = subset['Time']
     frameIDs = subset['FrameID'] if frame_id else ["" for _ in range(len(times))]
+
+    vertical_position = {'Subscriber': 0, 'Timer': 0.2, 'Executor': 0.4, 'Publisher': 0.6, 'Listener': 0.8}
+    value = vertical_position[filtered_data.iloc[0, 0]]  # Get the value from the first column
+
     for time, frameID in zip(times, frameIDs):
-        ax.axvline(time, color=color, linestyle=linestyle, linewidth=2)
-        ax.text(time, 1, '{}'.format(frameID), verticalalignment='center')
+        ax.axvline(time, color=color, linestyle=linestyle, linewidth=2, ymin=value, ymax=value + 0.2)
+        if frame_id:  # Add this check
+            ax.text(time, 1, '{}'.format(int(frameID)), verticalalignment='center')  # Cast to int here
+        else:
+            ax.text(time, 1, frameID, verticalalignment='center')
+
     ax.set_xticks(times.round())
     ax.tick_params(axis='x', labelbottom=True)
     for label in ax.get_xticklabels():
         label.set_rotation(30)
+
+
 
 
 def plot_timeline(data, figure_name, filtered_executor=None, filtered_publisher=None, filtered_listener=None, filtered_writer=None):

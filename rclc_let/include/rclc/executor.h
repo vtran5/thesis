@@ -94,12 +94,6 @@ typedef struct rclc_executor_s
   pthread_cond_t exec_period;
   /// Mutex for LET scheduling
   pthread_mutex_t mutex;
-  /// Condition variables for LET scheduling output
-  pthread_cond_t let_output_done;
-  /// Mutex for LET scheduling output
-  pthread_mutex_t mutex_output;
-  /// Variable to signal that the let output write has finished
-  bool output_done;
   /// Condition variables for LET scheduling input
   pthread_cond_t let_input_done;
   /// Mutex for LET scheduling input

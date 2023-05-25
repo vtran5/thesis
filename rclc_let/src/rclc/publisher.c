@@ -117,12 +117,15 @@ rclc_publish(
   rclc_executor_semantics_t semantics)
 {
   rcl_ret_t ret = RCL_RET_OK;
+  rcutils_time_point_value_t now;
   if (semantics == LET)
   {
     ret = _rclc_publish_LET(publisher, ros_message, allocation);
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
+    ret = rcutils_steady_time_now(&now);
+    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;

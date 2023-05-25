@@ -58,8 +58,7 @@ _rclc_let_scheduling(rclc_executor_t * executor, rcl_wait_set_t * wait_set);
 */
 
 static rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor);
-static void * _rclc_let_scheduling_output_wrapper(void * arg);
-static void * _rclc_let_scheduling_input_wrapper(void * arg);
+static void * _rclc_let_scheduling_wrapper(void * arg);
 static rcl_ret_t _rclc_add_handles_to_waitset(rclc_executor_t * executor);
 void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg);
 
@@ -102,11 +101,8 @@ rclc_executor_get_zero_initialized_executor()
     .let_index = 0,
     .mutex = PTHREAD_MUTEX_INITIALIZER,
     .exec_period = PTHREAD_COND_INITIALIZER,
-    .mutex_output = PTHREAD_MUTEX_INITIALIZER,
-    .let_output_done = PTHREAD_COND_INITIALIZER,
     .mutex_input = PTHREAD_MUTEX_INITIALIZER,
     .let_input_done = PTHREAD_COND_INITIALIZER,
-    .output_done = true,
     .input_done = false
   };
   return null_executor;
@@ -1834,6 +1830,9 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       // new data from DDS queue.
       rc = rcl_wait(&executor->wait_set, timeout_ns);
       RCLC_UNUSED(rc);
+      rcutils_time_point_value_t now;
+      rc = rcutils_steady_time_now(&now);
+      printf("Listener %lu %ld\n", (unsigned long) executor, now);
       rc = _rclc_default_scheduling(executor);
       break;
     default:
@@ -1889,7 +1888,6 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
     executor->invocation_time += period;
     pthread_cond_signal(&executor->exec_period);
     pthread_mutex_unlock(&executor->mutex);
-
     pthread_mutex_lock(&executor->mutex_input);
     while (!executor->input_done)
     {
@@ -1927,12 +1925,10 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id_output = 0;
-  pthread_t thread_id_input = 0;
+  pthread_t thread_id_let = 0;
   if (executor->data_comm_semantics == LET)
   {
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
+    _rclc_thread_create(&thread_id_let, SCHED_FIFO, 99, 0, _rclc_let_scheduling_wrapper, executor);
     executor->timeout_ns = 0;
   }
 
@@ -1946,8 +1942,7 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
   // never get here
   if (executor->data_comm_semantics == LET)
   {
-    pthread_cancel(thread_id_output);
-    pthread_cancel(thread_id_input);
+    pthread_cancel(thread_id_let);
   }
   return RCL_RET_OK;
 }
@@ -1957,13 +1952,11 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id_output = 0;
-  pthread_t thread_id_input = 0;
+  pthread_t thread_id_let = 0;
 
   if (executor->data_comm_semantics == LET)
   {
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
+    _rclc_thread_create(&thread_id_let, SCHED_FIFO, 99, 0, _rclc_let_scheduling_wrapper, executor);
     executor->timeout_ns = 0;
   }
 
@@ -1977,11 +1970,10 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
       return ret;
     }
   }
-
+  executor->invocation_time = 0;
   if (executor->data_comm_semantics == LET)
   {
-    pthread_cancel(thread_id_output);
-    pthread_cancel(thread_id_input);
+    pthread_cancel(thread_id_let);
   }
   return RCL_RET_OK;
 }
@@ -2081,11 +2073,8 @@ rclc_executor_let_init(
   executor->let_index = 0;
   pthread_cond_init(&(executor->exec_period), NULL);
   pthread_mutex_init(&(executor->mutex), NULL);
-  pthread_cond_init(&(executor->let_output_done), NULL);
-  pthread_mutex_init(&(executor->mutex_output), NULL);
   pthread_cond_init(&(executor->let_input_done), NULL);
   pthread_mutex_init(&(executor->mutex_input), NULL);
-  executor->output_done = true;
   executor->input_done = false;
   // allocate memory for the array
   executor->let_handles =
@@ -2131,8 +2120,6 @@ rclc_executor_let_fini(rclc_executor_t * executor)
     executor->let_index = 0;
     pthread_mutex_destroy(&(executor->mutex));
     pthread_cond_destroy(&(executor->exec_period));
-    pthread_mutex_destroy(&(executor->mutex_output));
-    pthread_cond_destroy(&(executor->let_output_done));
     pthread_mutex_destroy(&(executor->mutex_input));
     pthread_cond_destroy(&(executor->let_input_done));
   } else {
@@ -2252,13 +2239,13 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
   return rc;
 }
 
-void * _rclc_let_scheduling_output_wrapper(void * arg)
+void * _rclc_let_scheduling_wrapper(void * arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t end_time_point;
   rcutils_duration_value_t sleep_time;
-  rcutils_time_point_value_t prev_invocation_time = executor->invocation_time;
+  rcutils_time_point_value_t prev_invocation_time = 0;
   while(true)
   {
     if (executor->data_comm_semantics == LET)
@@ -2284,35 +2271,8 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
       if (ret != RCL_RET_OK)
         printf("Publish output failed \n"); 
       
-      pthread_mutex_lock(&executor->mutex_output);
-      executor->output_done = true;
-      pthread_cond_signal(&executor->let_output_done);
-      pthread_mutex_unlock(&executor->mutex_output);
-      ret = rcutils_system_time_now(&end_time_point);
-      printf("Writer %lu %ld\n", (unsigned long) executor, end_time_point);
-    }
-  }
-
-  return 0;
-}
-
-void * _rclc_let_scheduling_input_wrapper(void * arg)
-{
-  rclc_executor_t * executor = (rclc_executor_t *) arg;
-  rcl_ret_t ret = RCL_RET_OK;
-  while(true)
-  {
-    if (executor->data_comm_semantics == LET)
-    {
-      // Wait for the LET output write is done
-      pthread_mutex_lock(&executor->mutex_output);
-      while (!executor->output_done)
-      {
-        pthread_cond_wait(&executor->let_output_done, &executor->mutex_output);
-      }
-      executor->output_done = false;
-      pthread_mutex_unlock(&executor->mutex_output);
-           
+      //ret = rcutils_system_time_now(&end_time_point);
+      //printf("Writer %lu %ld\n", (unsigned long) executor, end_time_point);
       ret = _rclc_let_scheduling_input(executor);
       if (ret != RCL_RET_OK)
         printf("Reading input failed \n");
@@ -2323,7 +2283,32 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
       pthread_mutex_unlock(&executor->mutex_input);
     }
   }
+
   return 0;
+}
+
+void _rclc_print_thread_info() {
+    pthread_t thread_id = pthread_self();
+    printf("Thread id: %lu\n", thread_id);
+
+    int policy;
+    struct sched_param param;
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    printf("Thread priority: %d\n", param.sched_priority);
+
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
+
+    printf("CPU Affinity: ");
+    for (int i = 0; i < CPU_SETSIZE; i++) {
+        if (CPU_ISSET(i, &cpuset)) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+
+    return NULL;
 }
 
 void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
