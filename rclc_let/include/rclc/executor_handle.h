@@ -101,7 +101,6 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
-
 /// Container for a handle.
 typedef struct
 {
@@ -166,6 +165,12 @@ typedef struct
   /// Interval variable. Flag, which is true, if new data is available from DDS queue
   /// (is set after calling rcl_take)
   bool data_available;
+
+  /// Stores the let of the associated callback
+  rcutils_time_point_value_t callback_let;
+
+  /// id of the handle/callback in the executor (should be unique per callback)
+  int callback_id;
 } rclc_executor_handle_t;
 
 /// Information about total number of subscriptions, guard_conditions, timers, subscription etc.

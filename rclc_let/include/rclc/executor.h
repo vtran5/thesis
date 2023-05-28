@@ -57,6 +57,20 @@ extern "C"
 /// - application specific struct used in the trigger function
 typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
 
+/// LET overrun handling options
+typedef enum{
+  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, not recommended
+  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrun callback is finished
+  RUN_AT_LOW_PRIORITY, // Let the overrun callback run in background (this option would change the temporal order of data)
+  //RUN_AT_LOW_PRIORITY_NO_OUTPUT // Let the overrun callback run in background but skip the output
+} rclc_executor_let_overrun_option_t;
+
+/// Type definition for storing output write time points of callback
+typedef struct {
+    int output_time;
+    int callback_id;
+} rclc_callback_let_output_t;
+
 /// Container for RCLC-Executor
 typedef struct rclc_executor_s
 {
@@ -84,22 +98,28 @@ typedef struct rclc_executor_s
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
-  /// list of publishers/action/server/etc that the executor will call
+  /// list of publishers/action/server/etc that the executor will call (private)
   rclc_executor_let_handle_t * let_handles;
-  /// Index to the next free element in array handles
+  /// Index to the next free element in array handles (private)
   size_t let_index;
-  /// Maximum size of array 'let_handles'
+  /// Maximum size of array 'let_handles' (private)
   size_t max_let_handles;
-  /// Condition variables for LET scheduling
+  /// Condition variables for LET scheduling (private)
   pthread_cond_t exec_period;
-  /// Mutex for LET scheduling
+  /// Mutex for LET scheduling (private)
   pthread_mutex_t mutex;
-  /// Condition variables for LET scheduling input
+  /// Condition variables for LET scheduling input (private)
   pthread_cond_t let_input_done;
-  /// Mutex for LET scheduling input
-  pthread_mutex_t mutex_input;
-  /// Variable to signal that the let input write has finished
+  /// Mutex for LET scheduling input (private)
+  pthread_mutex_t mutex_input; 
+  /// Variable to signal that the let input write has finished (private)
   bool input_done;
+  /// Queue to store wakeup time for the LET output (private)
+  rclc_priority_queue_t wakeup_times;
+  /// Id of the next added handle (private)
+  int next_callback_id;
+  /// Map callback with let handles
+  rclc_map_t * let_map;
 } rclc_executor_t;
 
 /**
@@ -262,7 +282,8 @@ rclc_executor_add_subscription(
   rcl_subscription_t * subscription,
   void * msg,
   rclc_subscription_callback_t callback,
-  rclc_executor_handle_invocation_t invocation);
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let);
 
 /**
  *  Adds a subscription to an executor.
@@ -1040,7 +1061,9 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
-  rclc_publisher_t * publisher);
+  rclc_publisher_t * publisher,
+  void * handle_ptr,
+  rclc_executor_handle_type_t type);
 
 #if __cplusplus
 }

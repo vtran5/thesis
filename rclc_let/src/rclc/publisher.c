@@ -105,7 +105,7 @@ _rclc_publish_LET(
   rmw_publisher_allocation_t * allocation)
 {
   RCLC_UNUSED(allocation);
-  rcl_ret_t ret = rclc_enqueue(&(publisher->message_buffer), ros_message);
+  rcl_ret_t ret = rclc_enqueue_circular_queue(&(publisher->message_buffer), ros_message);
   return ret;
 }
 
@@ -141,7 +141,7 @@ rclc_LET_output(rclc_publisher_t * publisher)
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     unsigned char array[publisher->message_buffer.elem_size];
-    rclc_dequeue(&(publisher->message_buffer), array);
+    rclc_dequeue_circular_queue(&(publisher->message_buffer), array);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
   return ret;

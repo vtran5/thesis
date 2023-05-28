@@ -58,7 +58,8 @@ _rclc_let_scheduling(rclc_executor_t * executor, rcl_wait_set_t * wait_set);
 */
 
 static rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor);
-static void * _rclc_let_scheduling_wrapper(void * arg);
+static void * _rclc_let_scheduling_output_wrapper(void * arg);
+static void * _rclc_let_scheduling_input_wrapper(void * arg);
 static rcl_ret_t _rclc_add_handles_to_waitset(rclc_executor_t * executor);
 void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg);
 
@@ -222,7 +223,8 @@ rclc_executor_add_subscription(
   rcl_subscription_t * subscription,
   void * msg,
   rclc_subscription_callback_t callback,
-  rclc_executor_handle_invocation_t invocation)
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(subscription, RCL_RET_INVALID_ARGUMENT);
@@ -244,9 +246,12 @@ rclc_executor_add_subscription(
   executor->handles[executor->index].initialized = true;
   executor->handles[executor->index].callback_context = NULL;
   executor->handles[executor->index].data_available = false;
+  executor->handles[executor->index].callback_id = executor->next_callback_id;
+  executor->handles[executor->index].callback_let = callback_let;
 
   // increase index of handle array
   executor->index++;
+  executor->next_callback_id++;
 
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
@@ -1925,11 +1930,12 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id_let = 0;
+  pthread_t thread_id_output = 0;
+  pthread_t thread_id_input = 0;
   if (executor->data_comm_semantics == LET)
   {
-    _rclc_thread_create(&thread_id_let, SCHED_FIFO, 99, 0, _rclc_let_scheduling_wrapper, executor);
-    executor->timeout_ns = 0;
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);    executor->timeout_ns = 0;
   }
 
   while (true) {
@@ -1942,7 +1948,8 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
   // never get here
   if (executor->data_comm_semantics == LET)
   {
-    pthread_cancel(thread_id_let);
+    pthread_cancel(thread_id_output);
+    pthread_cancel(thread_id_input);
   }
   return RCL_RET_OK;
 }
@@ -1952,12 +1959,13 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
-  pthread_t thread_id_let = 0;
+  pthread_t thread_id_output = 0;
+  pthread_t thread_id_input = 0;
 
   if (executor->data_comm_semantics == LET)
   {
-    _rclc_thread_create(&thread_id_let, SCHED_FIFO, 99, 0, _rclc_let_scheduling_wrapper, executor);
-    executor->timeout_ns = 0;
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);    executor->timeout_ns = 0;
   }
 
   rcutils_time_point_value_t now;
@@ -1973,7 +1981,8 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
   executor->invocation_time = 0;
   if (executor->data_comm_semantics == LET)
   {
-    pthread_cancel(thread_id_let);
+    pthread_cancel(thread_id_output);
+    pthread_cancel(thread_id_input);
   }
   return RCL_RET_OK;
 }
@@ -2082,6 +2091,9 @@ rclc_executor_let_init(
     (number_of_let_handles * sizeof(rclc_executor_let_handle_t)),
     executor->allocator->state);
 
+  ret = rclc_init_priority_queue(&(executor->wakeup_times), sizeof(rclc_callback_let_output_t), 
+    executor->max_handles);
+
   if (NULL == executor->let_handles) {
     RCL_SET_ERROR_MSG("Could not allocate memory for 'let_handles'.");
     return RCL_RET_BAD_ALLOC;
@@ -2113,8 +2125,10 @@ _rclc_executor_let_is_valid(rclc_executor_t * executor)
 rcl_ret_t
 rclc_executor_let_fini(rclc_executor_t * executor)
 {
+  rcl_ret_t ret = RCL_RET_OK
   if (_rclc_executor_let_is_valid(executor)) {
     executor->allocator->deallocate(executor->let_handles, executor->allocator->state);
+    ret = rclc_fini_priority_queue(&(executor->wakeup_times));
     executor->let_handles = NULL;
     executor->max_let_handles = 0;
     executor->let_index = 0;
@@ -2125,56 +2139,114 @@ rclc_executor_let_fini(rclc_executor_t * executor)
   } else {
     // Repeated calls to fini or calling fini on a zero initialized executor is ok
   }
-  return RCL_RET_OK;
+  return ret;
 }
 
 rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
-  rclc_publisher_t * publisher)
+  rclc_publisher_t * publisher,
+  void * handle_ptr,
+  rclc_executor_handle_type_t type)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret = RCL_RET_OK;
-  // array bound check
-  if (executor->let_index >= executor->max_let_handles) {
-    rcl_ret_t ret = RCL_RET_ERROR;
-    RCL_SET_ERROR_MSG("Buffer overflow of 'executor->handles'. Increase 'max_handles'");
-    return ret;
+  rclc_executor_let_handle_t let_handle;
+  let_handle.type = RCLC_PUBLISHER;
+  let_handle.publisher = publisher;
+  switch(type)
+  {
+    case RCLC_SUBSCRIPTION:
+    case RCLC_SUBSCRIPTION_WITH_CONTEXT:
+      for (int i = 0; i < executor->max_handles; i++)
+      {
+        if(executor->handles[i].type == type && executor->handles[i].subscription == handle_ptr)
+        {
+          ret = rclc_insert_map(executor->let_map, &executor->handles[i].callback_id, &let_handle);
+          if (ret == RCL_RET_ERROR)
+          {
+            RCL_SET_ERROR_MSG("Buffer overflow of 'executor->let_map'. Increase 'max_handles_per_callback'");
+            return ret;
+          }
+          return ret;
+        }
+      }
+      RCL_SET_ERROR_MSG("Subscription has not been added to the executor");
+      return RCL_RET_ERROR;
+    default:
+      return ret;
   }
-  // assign data fields
-  executor->let_handles[executor->let_index].type = RCLC_PUBLISHER;
-  executor->let_handles[executor->let_index].publisher = publisher;
-
-  // increase index of handle array
-  executor->let_index++;
-
-  RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Added a publisher.");
-  return ret;
 }
 
-rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor)
+rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor, rcutils_time_point_value_t * next_wakeup_time)
 {
   rcl_ret_t rc = RCL_RET_OK;
-  
-  for (size_t i = 0; i < executor->let_index; i++)
+  rcutils_time_point_value_t current_wakeup_time;
+  int callback_id[executor->max_handles];
+  int next_callback_id = -1;
+  int index = 0;
+  if (rclc_is_empty_priority_queue(&executor->wakeup_times))
   {
-    switch (executor->let_handles[i].type)
+    // There is no data to write
+    // Not sure what to do here
+    *next_wakeup_time = -1;
+    return rc;
+  }
+
+  rc = rclc_peek_priority_queue(&executor->wakeup_times, &callback_id[0], (int64_t *) &current_wakeup_time);
+  // Need to check if current_wakeup_time == now;
+  rc = rclc_dequeue_priority_queue(&executor->wakeup_times, &callback_id[0], (int64_t *) &current_wakeup_time);
+  index++;
+  // Get all callbacks that should be handles now and set the next wake up time
+  if(!rclc_is_empty_priority_queue(&executor->wakeup_times))
+  {
+    rc = rclc_peek_priority_queue(&executor->wakeup_times, &next_callback_id, (int64_t *) next_wakeup_time);
+    while (*next_wakeup_time == current_wakeup_time)
     {
-      case RCLC_PUBLISHER:
-        rc = rclc_LET_output(executor->let_handles[i].publisher);
-        if (rc != RCL_RET_OK)
+      callback_id[index++] = next_callback_id;
+      rclc_dequeue_priority_queue(&executor->wakeup_times, &next_callback_id, (int64_t *) next_wakeup_time);
+      if(rclc_is_empty_priority_queue(&executor->wakeup_times))
+        break;     
+      rc = rclc_peek_priority_queue(&executor->wakeup_times, &next_callback_id, (int64_t *) next_wakeup_time);
+    }          
+  }
+  else
+  {
+    // There is no next_wakeup_time. Need to decide the sleep time here.
+    *next_wakeup_time = -1;
+  }
+  callback_id[index] = -1;
+  rclc_map_entry_t let_entry;
+  rclc_executor_let_handle_t * let_handle;
+  for (size_t i = 0; callback_id[i] != -1; i++)
+  {
+    rc = rclc_get_entry_map(executor->let_map, &callback_id[i], &let_entry);
+    if (rc == RCL_RET_OK) // key existed in the map
+    {
+      for (size_t j = 0; j < let_entry.num_values; j++)
+      {
+        let_handle = (rclc_executor_let_handle_t *) (let_entry.values+j*sizeof(rclc_executor_let_handle_t));
+        switch (let_handle.type)
         {
-          RCUTILS_LOG_DEBUG_NAMED(
-            ROS_PACKAGE_NAME, "Error: unable to publish let output: %d",
-            executor->let_handles[i].type);
+          case RCLC_PUBLISHER:
+            rc = rclc_LET_output(let_handle.publisher);
+            if (rc != RCL_RET_OK)
+            {
+              RCUTILS_LOG_DEBUG_NAMED(
+                ROS_PACKAGE_NAME, "Error: unable to publish let output: %lu",
+                (unsigned long) let_handle.publisher);
+              return rc;
+            }
+            break;
+          default:
+            RCUTILS_LOG_DEBUG_NAMED(
+              ROS_PACKAGE_NAME, "Error: unknown let handle type: %d",
+              let_handle.type);
+            return RCL_RET_ERROR;          
         }
-        break;
-      default:
-        RCUTILS_LOG_DEBUG_NAMED(
-          ROS_PACKAGE_NAME, "Error: unknown let handle type: %d",
-          executor->let_handles[i].type);
-        return RCL_RET_ERROR;
+      }
     }
   }
   return rc;
@@ -2184,6 +2256,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
 {
   rcl_ret_t rc = RCL_RET_OK;
   rcutils_time_point_value_t now;
+  rcutils_time_point_value_t let_output_time;
 
   if (!rcl_context_is_valid(executor->context)) {
     PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
@@ -2230,6 +2303,12 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
     printf("Listener %lu %ld\n", (unsigned long) executor, now);
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
+      if(executor->handles[i].invocation == ALWAYS || _rclc_check_handle_data_available(executor->handles[i]))
+      {
+        const int * callback_id_ptr =  &executor->handles[i].callback_id;
+        let_output_time = now + executor->handles[i].callback_let;
+        rc = rclc_enqueue_priority_queue(&executor->wakeup_times, callback_id_ptr, (int64_t) let_output_time);
+      }
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
         return rc;
@@ -2239,7 +2318,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
   return rc;
 }
 
-void * _rclc_let_scheduling_wrapper(void * arg)
+void * _rclc_let_scheduling_input_wrapper(void * arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
   rcl_ret_t ret = RCL_RET_OK;
@@ -2266,11 +2345,6 @@ void * _rclc_let_scheduling_wrapper(void * arg)
         rclc_sleep_ms(sleep_time / 1000000);
       }
 
-      // Publish output
-      ret = _rclc_let_scheduling_output(executor);
-      if (ret != RCL_RET_OK)
-        printf("Publish output failed \n"); 
-      
       //ret = rcutils_system_time_now(&end_time_point);
       //printf("Writer %lu %ld\n", (unsigned long) executor, end_time_point);
       ret = _rclc_let_scheduling_input(executor);
@@ -2281,6 +2355,33 @@ void * _rclc_let_scheduling_wrapper(void * arg)
       executor->input_done = true;
       pthread_cond_signal(&executor->let_input_done);
       pthread_mutex_unlock(&executor->mutex_input);
+    }
+  }
+
+  return 0;
+}
+
+void * _rclc_let_scheduling_output_wrapper(void * arg)
+{
+  rclc_executor_t * executor = (rclc_executor_t *) arg;
+  rcl_ret_t ret = RCL_RET_OK;
+  rcutils_time_point_value_t next_wakeup_point, now;
+  rcutils_duration_value_t sleep_time;
+  while(true)
+  {
+    if (executor->data_comm_semantics == LET)
+    {      
+      ret = _rclc_let_scheduling_output(executor, &next_wakeup_time);
+      if (ret != RCL_RET_OK)
+        printf("Writing output failed \n");
+      if (next_wakeup_time == -1)
+        next_wakeup_time = executor->invocation_time; // sleep until next executor period
+      // Sleep to the next wake up point
+      ret = rcutils_system_time_now(&now);
+      sleep_time = next_wakeup_time - now;
+      if (sleep_time > 0) {
+        rclc_sleep_ms(sleep_time / 1000000);
+      }
     }
   }
 
