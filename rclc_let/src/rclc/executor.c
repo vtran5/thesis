@@ -2183,7 +2183,7 @@ rclc_executor_add_publisher_LET(
 rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor, rcutils_time_point_value_t * next_wakeup_time)
 {
   rcl_ret_t rc = RCL_RET_OK;
-  rcutils_time_point_value_t current_wakeup_time;
+  rcutils_time_point_value_t current_wakeup_time, now;
   int callback_id[executor->max_handles];
   int next_callback_id = -1;
   int index = 0;
@@ -2196,7 +2196,13 @@ rcl_ret_t _rclc_let_scheduling_output(rclc_executor_t * executor, rcutils_time_p
   }
 
   rc = rclc_peek_priority_queue(&executor->wakeup_times, &callback_id[0], (int64_t *) &current_wakeup_time);
-  // Need to check if current_wakeup_time == now;
+  rc = rcutils_system_time_now(&now);
+  if(now < current_wakeup_time)
+  {
+    // This is just a wakeup to check next wakeup time
+    *next_wakeup_time = current_wakeup_time;
+    return rc;
+  }
   rc = rclc_dequeue_priority_queue(&executor->wakeup_times, &callback_id[0], (int64_t *) &current_wakeup_time);
   index++;
   // Get all callbacks that should be handles now and set the next wake up time
