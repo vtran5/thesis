@@ -67,7 +67,7 @@ typedef enum{
 
 /// Type definition for storing output write time points of callback
 typedef struct {
-    int output_time;
+    int callback_let;
     int callback_id;
 } rclc_callback_let_output_t;
 
@@ -100,6 +100,10 @@ typedef struct rclc_executor_s
   rclc_executor_semantics_t data_comm_semantics;
   /// list of publishers/action/server/etc that the executor will call (private)
   rclc_executor_let_handle_t * let_handles;
+  /// Flag to signal the LET thread that the executor is spinning
+  bool is_spinning;
+  /// Mutex to protect is_spinning variable;
+  pthread_mutex_t mutex_spinning;
   /// Index to the next free element in array handles (private)
   size_t let_index;
   /// Maximum size of array 'let_handles' (private)
@@ -119,7 +123,7 @@ typedef struct rclc_executor_s
   /// Id of the next added handle (private)
   int next_callback_id;
   /// Map callback with let handles
-  rclc_map_t * let_map;
+  rclc_map_t let_map;
 } rclc_executor_t;
 
 /**
@@ -271,6 +275,7 @@ rclc_executor_fini(rclc_executor_t * executor);
  * \param [in] msg pointer to an allocated message
  * \param [in] callback    function pointer to a callback
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -305,6 +310,7 @@ rclc_executor_add_subscription(
  * \param [in] callback    function pointer to a callback
  * \param [in] context     type-erased ptr to additional callback context
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer (NULL context is ignored)
  * \return `RCL_RET_ERROR` if any other error occured
@@ -317,7 +323,8 @@ rclc_executor_add_subscription_with_context(
   void * msg,
   rclc_subscription_callback_with_context_t callback,
   void * context,
-  rclc_executor_handle_invocation_t invocation);
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let);
 
 /**
  *  Adds a timer to an executor.
@@ -335,6 +342,7 @@ rclc_executor_add_subscription_with_context(
  *
  * \param [inout] executor pointer to initialized executor
  * \param [in] timer pointer to an allocated timer
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -343,7 +351,8 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_add_timer(
   rclc_executor_t * executor,
-  rcl_timer_t * timer);
+  rcl_timer_t * timer,
+  rcutils_time_point_value_t callback_let);
 
 
 /**
@@ -1057,6 +1066,8 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_let_fini(rclc_executor_t * executor);
 
+
+// Must call after adding all the callback handles
 RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_add_publisher_LET(

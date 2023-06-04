@@ -34,7 +34,7 @@ rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void*
 
 rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void* item) {
     rcl_ret_t ret = RCL_RET_OK;
-    ret = rclc_peek(queue, item);
+    ret = rclc_peek_circular_queue(queue, item);
 
     if (queue->front == queue->rear) {
         queue->front = queue->rear = -1;
@@ -103,11 +103,11 @@ rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, 
     return ret;
 }
 
-rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* item, int priority) {
+rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* item, int64_t priority) {
     rcl_ret_t ret = RCL_RET_OK;
 
     if (queue->size == queue->capacity) {
-        return RCL_RET_OVERFLOW;
+        return RCL_RET_ERROR;
     }
 
     // Find an unused node
@@ -230,7 +230,6 @@ rcl_ret_t rclc_insert_map(rclc_map_t *map, const void *key, const void *value) {
       if (map->entries[i].num_values == map->max_values_per_key) {
         return RCL_RET_OK; // max values for key reached
       }
-
       memcpy((char*)map->entries[i].values + map->value_size * map->entries[i].num_values, value, map->value_size);
       map->entries[i].num_values++;
       return RCL_RET_OK;
@@ -309,7 +308,7 @@ rcl_ret_t rclc_fini_map(rclc_map_t *map) {
   for (int i = 0; i < map->capacity; i++) {
     allocator.deallocate(map->entries[i].key, allocator.state);
     allocator.deallocate(map->entries[i].values, allocator.state);
-    map->entries.key = NULL;
+    map->entries[i].key = NULL;
     map->entries[i].values = NULL;
   }
   allocator.deallocate(map->entries, allocator.state);
