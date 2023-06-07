@@ -1,0 +1,97 @@
+@startuml
+class rclc_executor_t {
+    - context : rcl_context_t *
+    - handles : rclc_executor_handle_t *
+    - max_handles : size_t
+    - index : size_t
+    - allocator : rcl_allocator_t *
+    - wait_set : rcl_wait_set_t
+    - info : rclc_executor_handle_counters_t
+    - timeout_ns : uint64_t
+    - invocation_time : rcutils_time_point_value_t
+    - trigger_function : rclc_executor_trigger_t
+    - trigger_object : void *
+    - data_comm_semantics : rclc_executor_semantics_t
+}
+
+class rclc_executor_handle_t {
+    - type : rclc_executor_handle_type_t
+    - invocation : rclc_executor_handle_invocation_t
+    - handle : union_handle
+    - data : void *
+    - req_id : rmw_request_id_t
+    - data_response_msg : void *
+    - callback_context : void *
+    - callback : union_callback
+    - index : size_t
+    - initialized : bool
+    - data_available : bool
+}
+
+annotation union_handle{
+    - subscription : rcl_subscription_t *
+    - timer : rcl_timer_t *
+    - client : rcl_client_t *
+    - service : rcl_service_t *
+    - gc : rcl_guard_condition_t *
+    - action_client : rclc_action_client_t *
+    - action_server : rclc_action_server_t *
+}
+
+annotation union_callback{
+    - subscription_callback: rclc_subscription_callback_t 
+    - subscription_callback_with_context: rclc_subscription_callback_with_context_t 
+    - service_callback: rclc_service_callback_t 
+    - service_callback_with_reqid: rclc_service_callback_with_request_id_t 
+    - service_callback_with_context: rclc_service_callback_with_context_t 
+    - client_callback: rclc_client_callback_t 
+    - client_callback_with_reqid: rclc_client_callback_with_request_id_t 
+    - gc_callback: rclc_gc_callback_t 
+}
+
+class rclc_executor_handle_counters_t {
+    - number_of_subscriptions : size_t
+    - number_of_timers : size_t
+    - number_of_clients : size_t
+    - number_of_services : size_t
+    - number_of_action_clients : size_t
+    - number_of_action_servers : size_t
+    - number_of_guard_conditions : size_t
+    - number_of_events : size_t
+}
+
+enum rclc_executor_handle_type_t {
+    RCLC_SUBSCRIPTION,
+    RCLC_SUBSCRIPTION_WITH_CONTEXT,
+    RCLC_TIMER,
+    RCLC_CLIENT,
+    RCLC_CLIENT_WITH_REQUEST_ID,
+    RCLC_SERVICE,
+    RCLC_SERVICE_WITH_REQUEST_ID,
+    RCLC_SERVICE_WITH_CONTEXT,
+    RCLC_ACTION_CLIENT,
+    RCLC_ACTION_SERVER,
+    RCLC_GUARD_CONDITION,
+    RCLC_NONE
+}
+
+enum rclc_executor_handle_invocation_t {
+    ON_NEW_DATA,
+    ALWAYS
+}
+
+enum rclc_executor_semantics_t {
+  RCLCPP_EXECUTOR,
+  LET    
+}
+
+rclc_executor_t "1" *-- "many" rclc_executor_handle_t : contains
+rclc_executor_t "1" *-- "1" rclc_executor_handle_counters_t : contains
+rclc_executor_t "1" *-- "1" rclc_executor_semantics_t : contains
+
+rclc_executor_handle_t "1" *-- "1" rclc_executor_handle_type_t : contains
+rclc_executor_handle_t "1" *-- "1" rclc_executor_handle_invocation_t : contains
+rclc_executor_handle_t "1" *-- "1" union_handle : contains
+rclc_executor_handle_t "1" *-- "1" union_callback : contains
+
+@enduml

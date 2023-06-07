@@ -1,0 +1,22 @@
+@startuml
+
+participant "Executor" as executor
+participant "Publisher" as publisher
+participant "DDS" as dds
+
+activate executor
+note over executor : Executor starts
+
+loop Each Executor Period
+  executor -> executor : Read All Data
+  loop Each Callback
+    executor -> executor : Execute Callback
+    executor -> publisher : Publish Output
+    publisher -> dds : Send Output
+  end
+  executor -> executor : Sleep Until Next Period
+end
+
+deactivate executor
+
+@enduml
