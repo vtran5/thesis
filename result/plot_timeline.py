@@ -32,9 +32,9 @@ listener = pu.process_dataframe(df, 'Listener', executor_map, start_time, frame_
 
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
-start_index = 0
+start_index = 1
 # get the 3 consecutive rows starting from the random start index
-filtered_timer = timer.iloc[start_index:start_index+30]
+filtered_timer = timer.iloc[start_index:start_index+6]
 
 # Find min and max time from these random rows
 min_time = np.min(filtered_timer['Time'])

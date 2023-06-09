@@ -16,48 +16,115 @@ rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size,
     return ret;
 }
 
-rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item) {
+rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item, int index) {
     rcl_ret_t ret = RCL_RET_OK;
+
     if (rclc_is_full_circular_queue(queue)) {
-        return ret;
+        return RCL_RET_ERROR;
     }
 
     if (queue->front == -1) {
         queue->front = queue->rear = 0;
+        if (index < 0)
+            index = queue->rear;
     } else {
-        queue->rear = (queue->rear + 1) % queue->capacity;
+        int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+        if (index >= num_elems || index < 0) {
+            queue->rear = (queue->rear + 1) % queue->capacity;
+            index = queue->rear;
+        } else {
+            for (int i = queue->rear; i >= index; i--) {
+                memcpy((char*)queue->buffer + ((i + 1) % queue->capacity) * queue->elem_size,
+                       (char*)queue->buffer + i * queue->elem_size,
+                       queue->elem_size);
+            }
+            queue->rear = (queue->rear + 1) % queue->capacity;
+        }
     }
 
-    memcpy((char*)queue->buffer + queue->rear * queue->elem_size, item, queue->elem_size);
+    memcpy((char*)queue->buffer + index * queue->elem_size, item, queue->elem_size);
     return ret;
 }
 
-rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void* item) {
+rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void* item, int index) {
     rcl_ret_t ret = RCL_RET_OK;
-    ret = rclc_peek_circular_queue(queue, item);
 
+    if (rclc_is_empty_circular_queue(queue)) {
+        return RCL_RET_ERROR;
+    }
+
+    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+    if (index >= num_elems) {
+        return RCL_RET_ERROR;
+    }
+
+    if (index < 0) {
+        index = queue->front;
+    }
+
+    memcpy(item, (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size, queue->elem_size);
+
+    for (int i = index; i != queue->rear; i = (i + 1) % queue->capacity) {
+        memcpy((char*)queue->buffer + i * queue->elem_size,
+               (char*)queue->buffer + ((i + 1) % queue->capacity) * queue->elem_size,
+               queue->elem_size);
+    }
     if (queue->front == queue->rear) {
         queue->front = queue->rear = -1;
     } else {
-        queue->front = (queue->front + 1) % queue->capacity;
+        queue->rear = (queue->rear - 1 + queue->capacity) % queue->capacity;
     }
     return ret;
 }
 
-rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item) {
+rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item, int index) {
     rcl_ret_t ret = RCL_RET_OK;
 
-    // Check if the queue is empty
     if (rclc_is_empty_circular_queue(queue)) {
-        return ret;
+        return RCL_RET_ERROR;
     }
 
-    // Copy the first item to the provided memory location without modifying the queue.
-    memcpy(item, (char*)queue->buffer + queue->front * queue->elem_size, queue->elem_size);
+    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+    if (index >= num_elems) {
+        return RCL_RET_ERROR;
+    }
+
+    if (index < 0) {
+        index = queue->front;
+    }
+
+    memcpy(item, (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size, queue->elem_size);
 
     return ret;
 }
 
+rcl_ret_t rclc_get_circular_queue(rclc_circular_queue_t * queue, void** item, int index) {
+    rcl_ret_t ret = RCL_RET_OK;
+
+    if (rclc_is_empty_circular_queue(queue)) {
+        return RCL_RET_ERROR;
+    }
+
+    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+    if (index >= num_elems) {
+        return RCL_RET_ERROR;
+    }
+
+    if (index < 0) {
+        index = queue->front;
+    }
+
+    *item = (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size;
+
+    return ret;
+}
+
+
+int rclc_num_elements_circular_queue(rclc_circular_queue_t * queue)
+{
+    int num_elements = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+    return num_elements;
+}
 
 rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t * queue)
 {

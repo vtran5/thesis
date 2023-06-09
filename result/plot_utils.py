@@ -161,7 +161,7 @@ def plot_latency(df, median_latency, lower_bound, upper_bound, equal_percentage,
     plt.ylabel('End-to-end latency (ms)')
     plt.xlabel('Chain number')
     plt.ylim(bottom=0)
-    plt.ylim(top=200)
+    plt.ylim(top=400)
     plt.legend(loc='lower left')
 
     plt.savefig(figure_name)

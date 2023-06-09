@@ -59,17 +59,18 @@ typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int,
 
 /// LET overrun handling options
 typedef enum{
-  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, not recommended
-  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrun callback is finished
+  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, user is responsible for cleanup
+  CANCEL_CURRENT_PERIOD_NO_OUTPUT, // Same as CANCEL_CURRENT_PERIOD, except no output is published
+  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrunning callback is finished
   RUN_AT_LOW_PRIORITY, // Let the overrun callback run in background (this option would change the temporal order of data)
   //RUN_AT_LOW_PRIORITY_NO_OUTPUT // Let the overrun callback run in background but skip the output
 } rclc_executor_let_overrun_option_t;
 
-/// Type definition for storing output write time points of callback
-typedef struct {
-    int callback_let;
-    int callback_id;
-} rclc_callback_let_output_t;
+typedef enum{
+  IDLE,
+  INPUT_READ,
+  EXECUTING
+} rclc_executor_state_t;
 
 /// Container for RCLC-Executor
 typedef struct rclc_executor_s
@@ -98,31 +99,25 @@ typedef struct rclc_executor_s
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
-  /// list of publishers/action/server/etc that the executor will call (private)
-  rclc_executor_let_handle_t * let_handles;
-  /// Flag to signal the LET thread that the executor is spinning
-  bool is_spinning;
-  /// Mutex to protect is_spinning variable;
-  pthread_mutex_t mutex_spinning;
-  /// Index to the next free element in array handles (private)
-  size_t let_index;
-  /// Maximum size of array 'let_handles' (private)
-  size_t max_let_handles;
+  /// State of the executor
+  rclc_executor_state_t state;
+  /// Period of the executor
+  uint64_t period;
+  /// Maximum number of 'let_handles' per callback (private)
+  size_t max_let_handles_per_callback;
   /// Condition variables for LET scheduling (private)
   pthread_cond_t exec_period;
-  /// Mutex for LET scheduling (private)
+  /// Mutex to protect state variable (private)
   pthread_mutex_t mutex;
   /// Condition variables for LET scheduling input (private)
   pthread_cond_t let_input_done;
   /// Mutex for LET scheduling input (private)
   pthread_mutex_t mutex_input; 
-  /// Variable to signal that the let input write has finished (private)
-  bool input_done;
   /// Queue to store wakeup time for the LET output (private)
   rclc_priority_queue_t wakeup_times;
   /// Id of the next added handle (private)
   int next_callback_id;
-  /// Map callback with let handles
+  /// Map callback with let handles (publishers/action/server/etc) (private)
   rclc_map_t let_map;
 } rclc_executor_t;
 

@@ -14,9 +14,10 @@ typedef struct rclc_circular_queue_s {
 
 rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size, int capacity);
 rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t * queue);
-rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void * item);
-rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void * item);
-rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item);
+rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item, int index);
+rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void * item, int index);
+rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item, int index);
+int rclc_num_elements_circular_queue(rclc_circular_queue_t * queue);
 bool rclc_is_empty_circular_queue(rclc_circular_queue_t * queue);
 bool rclc_is_full_circular_queue(rclc_circular_queue_t * queue);
 
@@ -41,6 +42,7 @@ rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, 
 rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* item, int64_t priority);
 rcl_ret_t rclc_dequeue_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
 rcl_ret_t rclc_peek_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
+rcl_ret_t rclc_get_circular_queue(rclc_circular_queue_t * queue, void** item, int index);
 bool rclc_is_empty_priority_queue(rclc_priority_queue_t* queue);
 bool rclc_is_full_priority_queue(rclc_priority_queue_t* queue);
 rcl_ret_t rclc_fini_priority_queue(rclc_priority_queue_t* queue);

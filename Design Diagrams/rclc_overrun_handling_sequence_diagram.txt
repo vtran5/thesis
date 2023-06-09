@@ -22,10 +22,10 @@ loop Execution period
             note over MainThread: Wait for signal
             WorkerThread -> MainThread: Signal when callback execution is finished
             note over MainThread: Received signal
-        else Option 2 - Cancel Execution
+        else Option 2 - Cancel Current Execution
             MainThread -> WorkerThread: Send cancel request
             note over WorkerThread: Cleanup and terminate
-        else Option 3 - Lower Priority
+        else Option 3 - Lower Priority of Current Execution
             MainThread -> WorkerThread: Lower thread priority
         end
     end
