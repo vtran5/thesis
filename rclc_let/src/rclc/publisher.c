@@ -70,7 +70,7 @@ rclc_publisher_init(
     qos_profile, "qos_profile is a null pointer", return RCL_RET_INVALID_ARGUMENT);
   if (message_size <= 0 || buffer_capacity <= 0)
     return RCL_RET_INVALID_ARGUMENT;
-  rcl_ret_t rc = rclc_init_circular_queue(&(publisher->message_buffer), message_size, buffer_capacity);
+  rcl_ret_t rc = rclc_init_circular_queue(&(publisher->message_buffer), message_size + sizeof(int), buffer_capacity);
   if (rc != RCL_RET_OK)
     return rc;
   publisher->rcl_publisher = rcl_get_zero_initialized_publisher();
@@ -102,10 +102,11 @@ rcl_ret_t
 _rclc_publish_LET(
   rclc_publisher_t * publisher,
   const void * ros_message,
-  rmw_publisher_allocation_t * allocation)
+  rmw_publisher_allocation_t * allocation,
+  int index)
 {
   RCLC_UNUSED(allocation);
-  rcl_ret_t ret = rclc_enqueue_circular_queue(&(publisher->message_buffer), ros_message, -1);
+  rcl_ret_t ret = rclc_enqueue_pair_circular_queue(&(publisher->message_buffer), ros_message, index, -1);
   return ret;
 }
 
@@ -114,16 +115,18 @@ rclc_publish(
   rclc_publisher_t * publisher,
   const void * ros_message,
   rmw_publisher_allocation_t * allocation,
-  rclc_executor_semantics_t semantics)
+  rclc_executor_semantics_t semantics,
+  int message_index)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
   if (semantics == LET)
   {
-    ret = _rclc_publish_LET(publisher, ros_message, allocation);
+    ret = _rclc_publish_LET(publisher, ros_message, allocation, message_index);
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
+    RCLC_UNUSED(message_index);
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
@@ -132,17 +135,22 @@ rclc_publish(
 }
 
 rcl_ret_t
-rclc_LET_output(rclc_publisher_t * publisher)
+rclc_LET_output(rclc_publisher_t * publisher, int message_index)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
-  while(!rclc_is_empty_circular_queue(&(publisher->message_buffer)))
+  int queue_size = rclc_num_elements_circular_queue(&(publisher->message_buffer));
+  while(queue_size > 0)
   {
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     unsigned char array[publisher->message_buffer.elem_size];
     rclc_dequeue_circular_queue(&(publisher->message_buffer), array, -1);
-    ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
+    if (array[0] == message_index)
+      ret = rcl_publish(&(publisher->rcl_publisher), &array[1], NULL);
+    else
+      ret = rclc_enqueue_circular_queue(&(publisher->message_buffer), array, -1);
+    queue_size--;
   }
   return ret;
 }

@@ -75,7 +75,7 @@ def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False
     times = subset['Time']
     frameIDs = subset['FrameID'] if frame_id else ["" for _ in range(len(times))]
 
-    vertical_position = {'Subscriber': 0, 'Timer': 0.2, 'Executor': 0.4, 'Publisher': 0.6, 'Listener': 0.8}
+    vertical_position = {'Subscriber': 0, 'Timer': 0.2, 'Executor': 0.4, 'Publisher': 0.6, 'Listener': 0.8, 'Reader': 0.8}
     value = vertical_position[filtered_data.iloc[0, 0]]  # Get the value from the first column
 
     for time, frameID in zip(times, frameIDs):

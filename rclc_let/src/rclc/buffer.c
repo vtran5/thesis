@@ -20,6 +20,7 @@ rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void*
     rcl_ret_t ret = RCL_RET_OK;
 
     if (rclc_is_full_circular_queue(queue)) {
+        printf("Queue is full \n");
         return RCL_RET_ERROR;
     }
 
@@ -43,6 +44,38 @@ rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void*
     }
 
     memcpy((char*)queue->buffer + index * queue->elem_size, item, queue->elem_size);
+    return ret;
+}
+
+rcl_ret_t rclc_enqueue_pair_circular_queue(rclc_circular_queue_t * queue, const void* item, int item_index, int index) {
+    rcl_ret_t ret = RCL_RET_OK;
+
+    if (rclc_is_full_circular_queue(queue)) {
+        printf("Queue is full \n");
+        return RCL_RET_ERROR;
+    }
+
+    if (queue->front == -1) {
+        queue->front = queue->rear = 0;
+        if (index < 0)
+            index = queue->rear;
+    } else {
+        int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
+        if (index >= num_elems || index < 0) {
+            queue->rear = (queue->rear + 1) % queue->capacity;
+            index = queue->rear;
+        } else {
+            for (int i = queue->rear; i >= index; i--) {
+                memcpy((char*)queue->buffer + ((i + 1) % queue->capacity) * queue->elem_size,
+                       (char*)queue->buffer + i * queue->elem_size,
+                       queue->elem_size);
+            }
+            queue->rear = (queue->rear + 1) % queue->capacity;
+        }
+    }
+
+    memcpy((char*)queue->buffer + index * queue->elem_size, item_index, sizeof(int));
+    memcpy((char*)queue->buffer + index * queue->elem_size + sizeof(int), item, queue->elem_size);
     return ret;
 }
 

@@ -183,7 +183,7 @@ void node3_subscriber1_callback(const void * msgin)
   //timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node3.subscriber[0], msg->frame_id, now);
   strcat(stat3,temp);
-  busy_wait_random(5, 20);
+  busy_wait_random(5, 50);
   now = rclc_now(&support);
   //timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rclc_publish(&node3.publisher[0], msg, NULL, semantics));
@@ -328,9 +328,9 @@ int main(int argc, char const *argv[])
     executor3 = rclc_executor_get_zero_initialized_executor();
     executor4 = rclc_executor_get_zero_initialized_executor();
     rcutils_time_point_value_t callback_let1 = RCUTILS_MS_TO_NS(10);
-    rcutils_time_point_value_t callback_let2 = RCUTILS_MS_TO_NS(40);
-    rcutils_time_point_value_t callback_let3 = RCUTILS_MS_TO_NS(40);
-    rcutils_time_point_value_t callback_let4 = RCUTILS_MS_TO_NS(40);
+    rcutils_time_point_value_t callback_let2 = RCUTILS_MS_TO_NS(20);
+    rcutils_time_point_value_t callback_let3 = RCUTILS_MS_TO_NS(60);
+    rcutils_time_point_value_t callback_let4 = RCUTILS_MS_TO_NS(60);
     unsigned int num_handles = 1;
     const int num_let_handles = 1;
     //printf("Debug: number of DDS handles: %u\n", num_handles);
@@ -339,10 +339,10 @@ int main(int argc, char const *argv[])
     RCCHECK(rclc_executor_init(&executor3, &support.context, num_handles, &allocator));
     RCCHECK(rclc_executor_init(&executor4, &support.context, num_handles, &allocator));
 
-    RCCHECK(rclc_executor_let_init(&executor1, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor2, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor3, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor4, num_let_handles));
+    RCCHECK(rclc_executor_let_init(&executor1, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor2, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor3, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor4, num_let_handles, CANCEL_NEXT_PERIOD));
 
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
     {

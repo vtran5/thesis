@@ -69,7 +69,8 @@ typedef enum{
 typedef enum{
   IDLE,
   INPUT_READ,
-  EXECUTING
+  EXECUTING,
+  WAIT_INPUT
 } rclc_executor_state_t;
 
 /// Container for RCLC-Executor
@@ -103,22 +104,24 @@ typedef struct rclc_executor_s
   rclc_executor_state_t state;
   /// Period of the executor
   uint64_t period;
+  /// Overrun handling option
+  rclc_executor_let_overrun_option_t overrun_option;
   /// Maximum number of 'let_handles' per callback (private)
   size_t max_let_handles_per_callback;
+  /// Flag to signal overrun
+  bool deadline_passed;
+  /// Condition variables to signal callback status (private)
+  pthread_cond_t cond_callback;
   /// Condition variables for LET scheduling (private)
   pthread_cond_t exec_period;
-  /// Mutex to protect state variable (private)
+  /// Mutex to protect variable (private)
   pthread_mutex_t mutex;
   /// Condition variables for LET scheduling input (private)
   pthread_cond_t let_input_done;
-  /// Mutex for LET scheduling input (private)
-  pthread_mutex_t mutex_input; 
   /// Queue to store wakeup time for the LET output (private)
   rclc_priority_queue_t wakeup_times;
   /// Id of the next added handle (private)
   int next_callback_id;
-  /// Map callback with let handles (publishers/action/server/etc) (private)
-  rclc_map_t let_map;
 } rclc_executor_t;
 
 /**
@@ -1055,12 +1058,18 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_let_init(
   rclc_executor_t * executor,
-  const size_t number_of_let_handles);
+  const size_t number_of_let_handles,
+  rclc_executor_let_overrun_option_t option);
 
 RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_let_fini(rclc_executor_t * executor);
 
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_set_overrun_option(
+  rclc_executor_t * executor,
+  rclc_executor_let_overrun_option_t option);
 
 // Must call after adding all the callback handles
 RCLC_PUBLIC
