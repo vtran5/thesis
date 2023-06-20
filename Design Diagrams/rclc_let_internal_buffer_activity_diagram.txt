@@ -1,0 +1,69 @@
+@startuml
+start
+
+:Main Thread starts;
+:Create LET_Input_Thread;
+fork
+  :Create LET_Output_Thread;
+  fork
+    partition Main_Thread {
+    while (Exit Flag) is (False)
+      :Acquire Executor Mutex_Period;
+      if (Executor Invocation Time == 0) then (True)
+        :Add All Callbacks to Wakeup_Times Queue;
+        :Executor Invocation Time = now;
+      endif
+      :Executor Invocation Time += period;
+      :Broadcast exec_period Condition Variable;
+      :Release Executor Mutex_Period;
+      :Acquire Executor Mutex_Input;
+      :Wait for input_done Condition Variable;
+      :Release Executor Mutex_Input;
+      :Execute Callbacks;
+      :Sleep Until Next Invocation Time Point;
+    endwhile (True)
+    }
+    :Acquire Executor Mutex_Period;
+    :Reset Spinning Flag;
+    :Executor Invocation Time += period;
+    :Broadcast exec_period Condition Variable;
+    :Release Executor Mutex_Period;
+    :Join LET_Output_Thread;
+  fork again
+  :LET_Output_Thread starts;
+  partition LET_Output_Thread {
+    while (Spinning Flag) is (True)
+      :Publish output;
+      :Acquire Executor Mutex_Period;
+      if (Next Wakeup Time == -1) then (True)
+        while (Executor Invocation Time < now) is (True)
+          :Wait for exec_period Condition Variable;
+        endwhile (False)
+        :Set Next Wakeup Time to Executor Invocation Time;
+      endif
+      :Release Executor Mutex_Period;
+      :Sleep Until Next Wakeup Time;
+    endwhile (False)
+  }
+  end fork
+fork again
+  :LET_Input_Thread starts;
+  partition LET_Input_Thread {
+    while (Spinning Flag) is (True)
+      :Acquire Executor Mutex_Period;
+      while (Executor Invocation Time Not Updated) is (True)
+        :Wait for exec_period Condition Variable;
+      endwhile
+      :Release Executor Mutex_Period;
+      :Sleep Until End of the Period;
+      :Read Input;
+      :Acquire Executor Mutex_Input;
+      :Signal let_input_done Condition Variable;
+      :Release Executor Mutex_Input;
+    endwhile (False)
+  }
+end fork
+:Join LET_Input_Thread;
+:Reset Executor Invocation Time;
+stop
+@enduml

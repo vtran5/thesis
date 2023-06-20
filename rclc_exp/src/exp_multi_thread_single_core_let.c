@@ -183,7 +183,7 @@ void node3_subscriber1_callback(const void * msgin)
   //timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node3.subscriber[0], msg->frame_id, now);
   strcat(stat3,temp);
-  busy_wait_random(5, 20);
+  busy_wait_random(5, 50);
   now = rclc_now(&support);
   //timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rclc_publish(&node3.publisher[0], msg, NULL, semantics));
@@ -327,7 +327,10 @@ int main(int argc, char const *argv[])
     executor2 = rclc_executor_get_zero_initialized_executor();
     executor3 = rclc_executor_get_zero_initialized_executor();
     executor4 = rclc_executor_get_zero_initialized_executor();
-    
+    rcutils_time_point_value_t callback_let1 = RCUTILS_MS_TO_NS(10);
+    rcutils_time_point_value_t callback_let2 = RCUTILS_MS_TO_NS(20);
+    rcutils_time_point_value_t callback_let3 = RCUTILS_MS_TO_NS(60);
+    rcutils_time_point_value_t callback_let4 = RCUTILS_MS_TO_NS(60);
     unsigned int num_handles = 1;
     const int num_let_handles = 1;
     //printf("Debug: number of DDS handles: %u\n", num_handles);
@@ -336,51 +339,52 @@ int main(int argc, char const *argv[])
     RCCHECK(rclc_executor_init(&executor3, &support.context, num_handles, &allocator));
     RCCHECK(rclc_executor_init(&executor4, &support.context, num_handles, &allocator));
 
-    RCCHECK(rclc_executor_let_init(&executor1, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor2, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor3, num_let_handles));
-    RCCHECK(rclc_executor_let_init(&executor4, num_let_handles));
-
-    for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1.publisher[i]));
-    }
-
-    for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2.publisher[i]));
-    }
-
-    for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3.publisher[i]));
-    }
+    RCCHECK(rclc_executor_let_init(&executor1, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor2, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor3, num_let_handles, CANCEL_NEXT_PERIOD));
+    RCCHECK(rclc_executor_let_init(&executor4, num_let_handles, CANCEL_NEXT_PERIOD));
 
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
     {
-      RCCHECK(rclc_executor_add_timer(&executor1, &node1.timer[i]));
+      RCCHECK(rclc_executor_add_timer(&executor1, &node1.timer[i], callback_let1));
     }
 
     for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor2, &node2.subscriber[i], &node2.sub_msg[i], node2.subscriber_callback[i],
-        ON_NEW_DATA));
+        ON_NEW_DATA, callback_let2));
     }
 
     for (i = 0; i < NODE3_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor3, &node3.subscriber[i], &node3.sub_msg[i], node3.subscriber_callback[i],
-        ON_NEW_DATA));
+        ON_NEW_DATA, callback_let3));
     }
 
     for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor4, &node4.subscriber[i], &node4.sub_msg[i], node4.subscriber_callback[i],
-        ON_NEW_DATA));
+        ON_NEW_DATA, callback_let4));
     }
+
+    for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
+    {
+      RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1.publisher[i], &node1.timer[0], RCLC_TIMER));
+    }
+
+    for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
+    {
+      RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2.publisher[i], &node2.subscriber[0], RCLC_SUBSCRIPTION));
+    }
+
+    for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
+    {
+      RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3.publisher[i], &node3.subscriber[0], RCLC_SUBSCRIPTION));
+    }
+
     RCCHECK(rclc_executor_set_timeout(&executor1,timeout_ns));
     RCCHECK(rclc_executor_set_timeout(&executor2,timeout_ns));
     RCCHECK(rclc_executor_set_timeout(&executor3,timeout_ns));
@@ -427,10 +431,10 @@ int main(int argc, char const *argv[])
     printf("StartProgram %ld\n", now);
     if (executor_period > 0)
     {
-        struct arg_spin_period ex1 = {5*1000*1000, &executor1, &support};
-        struct arg_spin_period ex2 = {20*1000*1000, &executor2, &support};
-        struct arg_spin_period ex3 = {60*1000*1000, &executor3, &support};
-        struct arg_spin_period ex4 = {20*1000*1000, &executor4, &support};
+        struct arg_spin_period ex1 = {20*1000*1000, &executor1, &support};
+        struct arg_spin_period ex2 = {50*1000*1000, &executor2, &support};
+        struct arg_spin_period ex3 = {50*1000*1000, &executor3, &support};
+        struct arg_spin_period ex4 = {50*1000*1000, &executor4, &support};
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
         sleep_ms(2);
         thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);
@@ -451,6 +455,7 @@ int main(int argc, char const *argv[])
 
     sleep_ms(experiment_duration);
     exit_flag = true;
+    printf("Finish experiment\n");
 
     // Wait for threads to finish
     pthread_join(thread1, NULL);

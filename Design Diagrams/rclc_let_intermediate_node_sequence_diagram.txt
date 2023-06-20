@@ -1,0 +1,49 @@
+@startuml
+participant "LET Input Thread" as let_input
+participant "Executor" as executor
+participant TimeSyncNode as "Time Synchronization Thread"
+participant LETDeadline as "LET Deadline Tracker Thread"
+participant "DDS" as dds
+
+activate executor
+note over executor: Executor starts
+
+executor -> let_input: Create LET Input Thread
+executor -> TimeSyncNode: Create Time Synchronization Thread
+executor -> LETDeadline: Create LET Deadline Tracker Thread
+
+executor -> executor : Add Callbacks and Deadlines to Wakeup_Times
+
+par
+loop Each Executor Period
+  let_input -> let_input : Wake up
+  executor -> executor : Wake up
+  note over let_input: Wait for signal
+  executor -> let_input: Signal when new executor period starts
+  note over executor: Wait for signal
+  let_input -> dds: Read All Data
+  let_input -> executor: Signal when input is read
+  let_input -> let_input : Sleep Until Next Period
+  executor -> executor : Execute All Callbacks
+  executor -> TimeSyncNode : Publish Output
+  executor -> executor : Sleep Until Next Period
+end
+else
+loop Each Deadline in Wakeup_Times
+  LETDeadline -> LETDeadline : Wake Up
+  LETDeadline -> executor : Take Callbacks from Wakeup_Times
+  LETDeadline -> TimeSyncNode: Publish Signal
+  LETDeadline -> LETDeadline : Sleep Until Next Deadline \n or Executor Period
+end
+else
+loop
+  note over TimeSyncNode: Wait until receive messages from \n both Executor and LET Deadline Tracker
+  TimeSyncNode -> dds : Publish Output
+end
+end
+deactivate executor
+deactivate let_input
+deactivate TimeSyncNode
+deactivate LETDeadline
+
+@enduml

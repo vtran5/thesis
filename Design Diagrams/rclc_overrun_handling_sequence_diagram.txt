@@ -1,0 +1,35 @@
+@startuml
+participant MainThread
+participant OutputThread
+participant WorkerThread
+
+note over MainThread, OutputThread: Program starts
+
+MainThread -> OutputThread: Create and start OutputThread
+
+loop Execution period
+    MainThread -> WorkerThread: Create and start WorkerThread (if option 2 or 3)
+
+    note over MainThread: Wait for signal
+
+    OutputThread -> MainThread: Signal when deadline is passed
+    WorkerThread -> MainThread: Signal when callback execution is finished
+
+    note over MainThread: Received signal
+
+    alt Deadline Passed
+        alt Option 1 - Skip Next Execution
+            note over MainThread: Wait for signal
+            WorkerThread -> MainThread: Signal when callback execution is finished
+            note over MainThread: Received signal
+        else Option 2 - Cancel Current Execution
+            MainThread -> WorkerThread: Send cancel request
+            note over WorkerThread: Cleanup and terminate
+        else Option 3 - Lower Priority of Current Execution
+            MainThread -> WorkerThread: Lower thread priority
+        end
+    end
+
+    MainThread -> MainThread: Sleep until next period
+end
+@enduml

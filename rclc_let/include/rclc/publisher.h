@@ -129,11 +129,13 @@ rclc_publish(
   rclc_publisher_t * publisher,
   const void * ros_message,
   rmw_publisher_allocation_t * allocation,
-  rclc_executor_semantics_t semantics);
+  rclc_executor_semantics_t semantics,
+  int message_index);
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_LET_output(rclc_publisher_t * publisher);
+rclc_LET_output(rclc_publisher_t * publisher,
+  int message_index);
 
 RCLC_PUBLIC
 rcl_ret_t

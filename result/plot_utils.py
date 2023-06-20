@@ -75,7 +75,7 @@ def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False
     times = subset['Time']
     frameIDs = subset['FrameID'] if frame_id else ["" for _ in range(len(times))]
 
-    vertical_position = {'Subscriber': 0, 'Timer': 0.2, 'Executor': 0.4, 'Publisher': 0.6, 'Listener': 0.8}
+    vertical_position = {'Subscriber': 0, 'Timer': 0.2, 'Executor': 0.4, 'Publisher': 0.6, 'Listener': 0.8, 'Reader': 0.8}
     value = vertical_position[filtered_data.iloc[0, 0]]  # Get the value from the first column
 
     for time, frameID in zip(times, frameIDs):
@@ -161,7 +161,7 @@ def plot_latency(df, median_latency, lower_bound, upper_bound, equal_percentage,
     plt.ylabel('End-to-end latency (ms)')
     plt.xlabel('Chain number')
     plt.ylim(bottom=0)
-    plt.ylim(top=200)
+    plt.ylim(top=400)
     plt.legend(loc='lower left')
 
     plt.savefig(figure_name)

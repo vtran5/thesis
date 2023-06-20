@@ -1,0 +1,44 @@
+@startuml
+participant "Executor" as executor
+participant "LET_Input Thread" as let_input
+participant "LET_Output Thread" as let_output
+participant "Publisher" as publisher
+participant "DDS" as dds
+
+activate executor
+note over executor : Executor starts
+
+executor -> let_input : Create LET_Input Thread
+executor -> let_output : Create LET_Output Thread
+
+executor -> executor : Add Callbacks and Deadlines to Wakeup_Times
+par
+loop Each Executor Period
+  let_input -> let_input : Wake up
+  executor -> executor : Wake up
+  note over let_input: Wait for signal
+  executor -> let_input: Signal when new executor period starts
+  note over executor: Wait for signal
+  let_input -> dds: Read All Data
+  let_input -> executor: Signal when input is read
+  let_input -> let_input : Sleep Until Next Period
+  executor -> executor : Execute All Callbacks
+  executor -> publisher : Publish Output
+  publisher -> publisher : Store Output in FIFO Queue
+  executor -> executor : Sleep Until Next Period
+end
+else
+
+loop Each Deadline in Wakeup_Times
+  let_output -> let_output : Wake Up
+  let_output -> executor : Take Callbacks from Wakeup_Times
+  let_output -> executor : Get Associated Publishers from let_map
+  let_output -> publisher : Request Send Output
+  publisher -> dds : Send All Output Stored in FIFO queue
+  let_output -> let_output : Sleep Until Next Deadline \n or Executor Period
+end
+end
+deactivate executor
+deactivate let_input
+deactivate let_output
+@enduml

@@ -57,6 +57,22 @@ extern "C"
 /// - application specific struct used in the trigger function
 typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
 
+/// LET overrun handling options
+typedef enum{
+  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, user is responsible for cleanup
+  CANCEL_CURRENT_PERIOD_NO_OUTPUT, // Same as CANCEL_CURRENT_PERIOD, except no output is published
+  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrunning callback is finished
+  RUN_AT_LOW_PRIORITY, // Let the overrun callback run in background (this option would change the temporal order of data)
+  //RUN_AT_LOW_PRIORITY_NO_OUTPUT // Let the overrun callback run in background but skip the output
+} rclc_executor_let_overrun_option_t;
+
+typedef enum{
+  IDLE,
+  INPUT_READ,
+  EXECUTING,
+  WAIT_INPUT
+} rclc_executor_state_t;
+
 /// Container for RCLC-Executor
 typedef struct rclc_executor_s
 {
@@ -84,22 +100,28 @@ typedef struct rclc_executor_s
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
-  /// list of publishers/action/server/etc that the executor will call
-  rclc_executor_let_handle_t * let_handles;
-  /// Index to the next free element in array handles
-  size_t let_index;
-  /// Maximum size of array 'let_handles'
-  size_t max_let_handles;
-  /// Condition variables for LET scheduling
+  /// State of the executor
+  rclc_executor_state_t state;
+  /// Period of the executor
+  uint64_t period;
+  /// Overrun handling option
+  rclc_executor_let_overrun_option_t overrun_option;
+  /// Maximum number of 'let_handles' per callback (private)
+  size_t max_let_handles_per_callback;
+  /// Flag to signal overrun
+  bool deadline_passed;
+  /// Condition variables to signal callback status (private)
+  pthread_cond_t cond_callback;
+  /// Condition variables for LET scheduling (private)
   pthread_cond_t exec_period;
-  /// Mutex for LET scheduling
+  /// Mutex to protect variable (private)
   pthread_mutex_t mutex;
-  /// Condition variables for LET scheduling input
+  /// Condition variables for LET scheduling input (private)
   pthread_cond_t let_input_done;
-  /// Mutex for LET scheduling input
-  pthread_mutex_t mutex_input;
-  /// Variable to signal that the let input write has finished
-  bool input_done;
+  /// Queue to store wakeup time for the LET output (private)
+  rclc_priority_queue_t wakeup_times;
+  /// Id of the next added handle (private)
+  int next_callback_id;
 } rclc_executor_t;
 
 /**
@@ -251,6 +273,7 @@ rclc_executor_fini(rclc_executor_t * executor);
  * \param [in] msg pointer to an allocated message
  * \param [in] callback    function pointer to a callback
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -262,7 +285,8 @@ rclc_executor_add_subscription(
   rcl_subscription_t * subscription,
   void * msg,
   rclc_subscription_callback_t callback,
-  rclc_executor_handle_invocation_t invocation);
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let);
 
 /**
  *  Adds a subscription to an executor.
@@ -284,6 +308,7 @@ rclc_executor_add_subscription(
  * \param [in] callback    function pointer to a callback
  * \param [in] context     type-erased ptr to additional callback context
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer (NULL context is ignored)
  * \return `RCL_RET_ERROR` if any other error occured
@@ -296,7 +321,8 @@ rclc_executor_add_subscription_with_context(
   void * msg,
   rclc_subscription_callback_with_context_t callback,
   void * context,
-  rclc_executor_handle_invocation_t invocation);
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let);
 
 /**
  *  Adds a timer to an executor.
@@ -314,6 +340,7 @@ rclc_executor_add_subscription_with_context(
  *
  * \param [inout] executor pointer to initialized executor
  * \param [in] timer pointer to an allocated timer
+ * \param [in] callback_let the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -322,7 +349,8 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_add_timer(
   rclc_executor_t * executor,
-  rcl_timer_t * timer);
+  rcl_timer_t * timer,
+  rcutils_time_point_value_t callback_let);
 
 
 /**
@@ -1030,7 +1058,8 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_let_init(
   rclc_executor_t * executor,
-  const size_t number_of_let_handles);
+  const size_t number_of_let_handles,
+  rclc_executor_let_overrun_option_t option);
 
 RCLC_PUBLIC
 rcl_ret_t
@@ -1038,9 +1067,18 @@ rclc_executor_let_fini(rclc_executor_t * executor);
 
 RCLC_PUBLIC
 rcl_ret_t
+rclc_executor_set_overrun_option(
+  rclc_executor_t * executor,
+  rclc_executor_let_overrun_option_t option);
+
+// Must call after adding all the callback handles
+RCLC_PUBLIC
+rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
-  rclc_publisher_t * publisher);
+  rclc_publisher_t * publisher,
+  void * handle_ptr,
+  rclc_executor_handle_type_t type);
 
 #if __cplusplus
 }

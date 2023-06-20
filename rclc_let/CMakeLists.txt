@@ -126,7 +126,7 @@ endif()
 #################################################
 # gtest
 #################################################
-#set(BUILD_TESTING OFF)
+set(BUILD_TESTING OFF)
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)

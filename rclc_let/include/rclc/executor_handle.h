@@ -101,7 +101,52 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
+typedef void (* rclc_subscription_let_callback_t) (const void *, void *);
 
+/// Enumeration for publisher, server, client, etc that will send messages
+typedef enum
+{
+  RCLC_PUBLISHER,
+  // RCLC_SERVICE,
+  // RCLC_CLIENT,
+  // RCLC_ACTION_CLIENT,
+  // RCLC_ACTION_SERVER,
+  RCLC_LET_NONE
+} rclc_executor_let_handle_type_t;
+
+/// Container for handles that will send messages
+typedef struct
+{
+  /// Type of handle
+  rclc_executor_let_handle_type_t type;
+  union {
+    rclc_publisher_t * publisher;
+    rcl_client_t * client;
+    rcl_service_t * service;
+    rclc_action_client_t * action_client;
+    rclc_action_server_t * action_server;
+  };
+} rclc_executor_let_handle_t;
+
+typedef struct {
+  /// id of the handle/callback in the executor (should be unique per callback)
+  int callback_id;
+  /// Stores the let (i.e deadline) of the callback
+  rcutils_time_point_value_t callback_let;
+  /// Flag to True if the callback is executing
+  bool is_executing;
+  /// Array to store the callback let handles
+  rclc_executor_let_handle_t * let_handles;
+  /// Number of let handles stored in the array
+  int let_num;
+  /// Callback index (each callback execution is assign an index to differentiate between runs)
+  int index;
+  /// LET output index 
+  /// (this should be updated at the same frequency as callback index, if not there's overrun error)
+  /// (this index is compared to the callback index to ensure the correct data is published)
+  int output_index;
+} rclc_callback_let_info_t;
+#define CALLBACK_INDEX_MAX_VALUE 100 // index and output_index will be wrapped around this value to prevent overflow
 /// Container for a handle.
 typedef struct
 {
@@ -166,6 +211,8 @@ typedef struct
   /// Interval variable. Flag, which is true, if new data is available from DDS queue
   /// (is set after calling rcl_take)
   bool data_available;
+  /// Store callback state and information
+  rclc_callback_let_info_t callback_info;
 } rclc_executor_handle_t;
 
 /// Information about total number of subscriptions, guard_conditions, timers, subscription etc.
@@ -299,38 +346,15 @@ void *
 rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle);
 
 /********************* LET Implementation ************************/
-
-/// Enumeration for publisher, server, client, etc that will send messages
-typedef enum
-{
-  RCLC_PUBLISHER,
-  // RCLC_SERVICE,
-  // RCLC_CLIENT,
-  // RCLC_ACTION_CLIENT,
-  // RCLC_ACTION_SERVER,
-  RCLC_LET_NONE
-} rclc_executor_let_handle_type_t;
-
-typedef void (* rclc_subscription_let_callback_t) (const void *, void *);
-
-/// Container for handles that will send messages
-typedef struct
-{
-  /// Type of handle
-  rclc_executor_let_handle_type_t type;
-  union {
-    rclc_publisher_t * publisher;
-    rcl_client_t * client;
-    rcl_service_t * service;
-    rclc_action_client_t * action_client;
-    rclc_action_server_t * action_server;
-  };
-} rclc_executor_let_handle_t;
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_init(
+    rclc_executor_handle_t * handle,
+  size_t max_let_handles_per_callback);
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_executor_let_handle_init(rclc_executor_let_handle_t * handle);
-
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle);
 
 #if __cplusplus
 }
