@@ -119,9 +119,15 @@ typedef struct rclc_executor_s
   /// Condition variables for LET scheduling input (private)
   pthread_cond_t let_input_done;
   /// Queue to store wakeup time for the LET output (private)
-  rclc_priority_queue_t wakeup_times;
+  rclc_priority_queue_t output_invocation_times;
   /// Id of the next added handle (private)
   int next_callback_id;
+  /// period index of the executor
+  uint64_t spin_index;
+  /// period index of the input thread
+  uint64_t input_index;
+  /// timepoint used for input thread wakeup
+  rcutils_time_point_value_t input_invocation_time;
 } rclc_executor_t;
 
 /**
@@ -286,7 +292,8 @@ rclc_executor_add_subscription(
   void * msg,
   rclc_subscription_callback_t callback,
   rclc_executor_handle_invocation_t invocation,
-  rcutils_time_point_value_t callback_let);
+  rcutils_time_point_value_t callback_let,
+  int message_size);
 
 /**
  *  Adds a subscription to an executor.
@@ -322,7 +329,8 @@ rclc_executor_add_subscription_with_context(
   rclc_subscription_callback_with_context_t callback,
   void * context,
   rclc_executor_handle_invocation_t invocation,
-  rcutils_time_point_value_t callback_let);
+  rcutils_time_point_value_t callback_let,
+  int message_size);
 
 /**
  *  Adds a timer to an executor.
@@ -1053,6 +1061,10 @@ rclc_executor_trigger_one(
   void * obj);
 
 /********************* LET Implementation ************************/
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_set_period(rclc_executor_t * executor, 
+  const uint64_t period);
 
 RCLC_PUBLIC
 rcl_ret_t
@@ -1077,6 +1089,8 @@ rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
   rclc_publisher_t * publisher,
+  const int message_size,
+  const int buffer_capacity,
   void * handle_ptr,
   rclc_executor_handle_type_t type);
 

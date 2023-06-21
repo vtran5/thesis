@@ -165,15 +165,21 @@ rclc_executor_let_handle_init(
   size_t max_let_handles_per_callback)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
-  handle->callback_info.callback_id = -1;
-  handle->callback_info.callback_let = 0;
-  handle->callback_info.is_executing = false;
-  handle->callback_info.index = 0;
   rcl_allocator_t allocator = rcl_get_default_allocator();
-  handle->callback_info.let_handles = allocator.allocate(
+  handle->callback_info = allocator.allocate(
+    (sizeof(rclc_callback_let_info_t)),
+    allocator.state);
+
+  handle->callback_info->callback_id = -1;
+  handle->callback_info->callback_let = 0;
+  handle->callback_info->output_index = 0;
+  handle->callback_info->let_num = 0;
+  handle->callback_info->num_period_per_let = 0;
+  
+  handle->callback_info->let_handles = allocator.allocate(
     (max_let_handles_per_callback * sizeof(rclc_executor_let_handle_t)),
     allocator.state);
-  if (NULL == handle->callback_info.let_handles)
+  if (NULL == handle->callback_info->let_handles)
     return RCL_RET_BAD_ALLOC;
   return RCL_RET_OK;
 }
@@ -181,15 +187,13 @@ rclc_executor_let_handle_init(
 rcl_ret_t
 rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
 {
-  if (NULL != handle->callback_info.let_handles)
+  if (NULL != handle->callback_info->let_handles)
   {
     rcl_allocator_t allocator = rcl_get_default_allocator();
-    allocator.deallocate(handle->callback_info.let_handles, allocator.state);
-    handle->callback_info.let_handles = NULL;
-    handle->callback_info.callback_id = -1;
-    handle->callback_info.callback_let = 0;
-    handle->callback_info.is_executing = false;
-    handle->callback_info.index = 0;
-    handle->callback_info.output_index = 0;
+    allocator.deallocate(handle->callback_info->let_handles, allocator.state);
+    handle->callback_info->let_handles = NULL;
+    allocator.deallocate(handle->callback_info, allocator.state);
+    handle->callback_info = NULL;
   }
+  return RCL_RET_OK;
 }

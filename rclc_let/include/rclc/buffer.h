@@ -5,23 +5,32 @@
 #include <stdbool.h>
 #include <rcl/types.h>
 // Circular Queue
+typedef enum {
+    LOCKED,
+    PUSH_ONLY,
+    POP_ONLY,
+    UNLOCKED
+} rclc_queue_state_t;
+
 typedef struct rclc_circular_queue_s {
     int front, rear;
     int elem_size;
     int capacity;
     void* buffer;
+    rclc_queue_state_t state;
 } rclc_circular_queue_t;
 
 rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size, int capacity);
 rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item, int index);
-rcl_ret_t rclc_enqueue_pair_circular_queue(rclc_circular_queue_t * queue, const void* item, int item_index, int index);
 rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void * item, int index);
 rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item, int index);
 int rclc_num_elements_circular_queue(rclc_circular_queue_t * queue);
 bool rclc_is_empty_circular_queue(rclc_circular_queue_t * queue);
 bool rclc_is_full_circular_queue(rclc_circular_queue_t * queue);
-
+rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue);
+rcl_ret_t rclc_lock_queue(rclc_circular_queue_t * queue);
+rcl_ret_t rclc_unlock_queue(rclc_circular_queue_t * queue);
 
 // Priority Queue (fixed size - implemented with linked list) 
 typedef struct rclc_priority_node_s {
@@ -44,6 +53,7 @@ rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* 
 rcl_ret_t rclc_dequeue_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
 rcl_ret_t rclc_peek_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
 rcl_ret_t rclc_get_circular_queue(rclc_circular_queue_t * queue, void** item, int index);
+rcl_ret_t rclc_set_state_queue(rclc_circular_queue_t * queue, rclc_queue_state_t state);
 bool rclc_is_empty_priority_queue(rclc_priority_queue_t* queue);
 bool rclc_is_full_priority_queue(rclc_priority_queue_t* queue);
 rcl_ret_t rclc_fini_priority_queue(rclc_priority_queue_t* queue);
@@ -96,4 +106,42 @@ bool rclc_is_full_value_map(rclc_map_t *map, const void *key);
 
 // Check if the map contains the key
 bool rclc_contains_key_map(rclc_map_t *map, const void *key);
+
+// 2D Circular Queue
+typedef struct rclc_2d_circular_queue_s {
+    int size;
+    rclc_circular_queue_t* queues;
+} rclc_2d_circular_queue_t;
+
+rcl_ret_t rclc_init_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, int _2d_capacity, int elem_size, int _1d_capacity);
+rcl_ret_t rclc_fini_2d_circular_queue(rclc_2d_circular_queue_t * queue2d);
+rcl_ret_t rclc_enqueue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, const void* item, int queue_index, int item_index);
+rcl_ret_t rclc_dequeue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, void * item, int queue_index);
+rclc_circular_queue_t* rclc_get_queue(rclc_2d_circular_queue_t * queue2d, int queue_index);
+
+// Array
+typedef enum {
+    AVAILABLE,
+    UNAVAILABLE
+} rclc_array_element_status_t;
+
+typedef struct rclc_array_element_s {
+    rclc_array_element_status_t status;
+    void * item;
+} rclc_array_element_t;
+
+typedef struct rclc_array_s {
+    int elem_size;
+    int capacity;
+    rclc_array_element_t* buffer;
+} rclc_array_t;
+
+rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity);
+rcl_ret_t rclc_fini_array(rclc_array_t * array);
+rcl_ret_t rclc_set_array(rclc_array_t * array, const void* item, int index);
+rcl_ret_t rclc_get_array(rclc_array_t * array, void * item, int index);
+rcl_ret_t rclc_take_array(rclc_array_t * array, void * item, int index);
+rcl_ret_t rclc_get_pointer_array(rclc_array_t * array, int index, void** item_ptr, rclc_array_element_status_t * status);
+int rclc_capacity_array(rclc_array_t * array);
+
 #endif // RCLC__BUFFER_H_

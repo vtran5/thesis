@@ -183,7 +183,7 @@ void node3_subscriber1_callback(const void * msgin)
   //timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node3.subscriber[0], msg->frame_id, now);
   strcat(stat3,temp);
-  busy_wait_random(5, 50);
+  busy_wait_random(5, 60);
   now = rclc_now(&support);
   //timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rclc_publish(&node3.publisher[0], msg, NULL, semantics));
@@ -209,7 +209,7 @@ void node4_subscriber1_callback(const void * msgin)
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-    unsigned int timer_period = 100;
+    unsigned int timer_period = 50;
     unsigned int executor_period = 100;
     unsigned int experiment_duration = 10000;
     bool let = false;
@@ -232,8 +232,6 @@ int main(int argc, char const *argv[])
     semantics = (let) ? LET : RCLCPP_EXECUTOR;
 
     const unsigned int timer_timeout[NODE1_TIMER_NUMBER] = {timer_period};
-    int logger_dim1 =  (experiment_duration/min_period(NODE1_TIMER_NUMBER, timer_timeout)) + 1;
-    //init_timestamp(LOGGER_DIM0, logger_dim1, timestamp);
 
     // create init_options
     RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
@@ -257,23 +255,20 @@ int main(int argc, char const *argv[])
 
     const rosidl_message_type_support_t * my_type_support =
       ROSIDL_GET_MSG_TYPE_SUPPORT(custom_interfaces, msg, Message);  
-    
+
     int i;
-    const int publisher_buffer_capacity = 5;
+    
     // Setting the DDS QoS profile to have buffer depth = 1
     rmw_qos_profile_t profile = rmw_qos_profile_default;
     profile.depth = 1;
     for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_publisher_init(&node1.publisher[i], &node1.rcl_node, my_type_support, topic_name[0], 
-                          sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &profile));    
+      RCCHECK(rclc_publisher_init(&node1.publisher[i], &node1.rcl_node, my_type_support, topic_name[0], &profile));    
     }
-
 
     for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_publisher_init(&node2.publisher[i], &node2.rcl_node, my_type_support, topic_name[1], 
-                          sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &profile));    
+      RCCHECK(rclc_publisher_init(&node2.publisher[i], &node2.rcl_node, my_type_support, topic_name[1], &profile));    
     }
 
     // create a timer, which will call the publisher with period=`timer_timeout` ms in the 'node1_timer_callback'
@@ -299,11 +294,10 @@ int main(int argc, char const *argv[])
       //printf("Created subscriber %s:\n", topic_name[i]);
       custom_interfaces__msg__Message__init(&node3.sub_msg[i]);
     }
-
+    
     for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_publisher_init(&node3.publisher[i], &node3.rcl_node, my_type_support, topic_name[2], 
-                          sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &profile));    
+      RCCHECK(rclc_publisher_init(&node3.publisher[i], &node3.rcl_node, my_type_support, topic_name[2], &profile));    
     }
 
     for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
@@ -327,12 +321,19 @@ int main(int argc, char const *argv[])
     executor2 = rclc_executor_get_zero_initialized_executor();
     executor3 = rclc_executor_get_zero_initialized_executor();
     executor4 = rclc_executor_get_zero_initialized_executor();
+
     rcutils_time_point_value_t callback_let1 = RCUTILS_MS_TO_NS(10);
     rcutils_time_point_value_t callback_let2 = RCUTILS_MS_TO_NS(20);
-    rcutils_time_point_value_t callback_let3 = RCUTILS_MS_TO_NS(60);
-    rcutils_time_point_value_t callback_let4 = RCUTILS_MS_TO_NS(60);
+    rcutils_time_point_value_t callback_let3 = RCUTILS_MS_TO_NS(80);
+    rcutils_time_point_value_t callback_let4 = RCUTILS_MS_TO_NS(80);
     unsigned int num_handles = 1;
-    const int num_let_handles = 1;
+    
+    const rcutils_time_point_value_t period1 = RCUTILS_MS_TO_NS(10);
+    const rcutils_time_point_value_t period2 = RCUTILS_MS_TO_NS(25);
+    const rcutils_time_point_value_t period3 = RCUTILS_MS_TO_NS(25);
+    const rcutils_time_point_value_t period4 = RCUTILS_MS_TO_NS(25);
+    const int publisher_buffer_capacity = 3; // Max number of publisher calls per callback
+    const int num_let_handles = 1; // max number of let handles per callback
     //printf("Debug: number of DDS handles: %u\n", num_handles);
     RCCHECK(rclc_executor_init(&executor1, &support.context, num_handles, &allocator));
     RCCHECK(rclc_executor_init(&executor2, &support.context, num_handles, &allocator));
@@ -343,6 +344,11 @@ int main(int argc, char const *argv[])
     RCCHECK(rclc_executor_let_init(&executor2, num_let_handles, CANCEL_NEXT_PERIOD));
     RCCHECK(rclc_executor_let_init(&executor3, num_let_handles, CANCEL_NEXT_PERIOD));
     RCCHECK(rclc_executor_let_init(&executor4, num_let_handles, CANCEL_NEXT_PERIOD));
+ 
+    RCCHECK(rclc_executor_set_period(&executor1, period1));
+    RCCHECK(rclc_executor_set_period(&executor2, period2));
+    RCCHECK(rclc_executor_set_period(&executor3, period3));
+    RCCHECK(rclc_executor_set_period(&executor4, period4));
 
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
     {
@@ -353,36 +359,39 @@ int main(int argc, char const *argv[])
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor2, &node2.subscriber[i], &node2.sub_msg[i], node2.subscriber_callback[i],
-        ON_NEW_DATA, callback_let2));
+        ON_NEW_DATA, callback_let2, sizeof(custom_interfaces__msg__Message)));
     }
 
     for (i = 0; i < NODE3_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor3, &node3.subscriber[i], &node3.sub_msg[i], node3.subscriber_callback[i],
-        ON_NEW_DATA, callback_let3));
+        ON_NEW_DATA, callback_let3, sizeof(custom_interfaces__msg__Message)));
     }
 
     for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
         &executor4, &node4.subscriber[i], &node4.sub_msg[i], node4.subscriber_callback[i],
-        ON_NEW_DATA, callback_let4));
+        ON_NEW_DATA, callback_let4, sizeof(custom_interfaces__msg__Message)));
     }
 
     for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1.publisher[i], &node1.timer[0], RCLC_TIMER));
+      RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1.publisher[i], 
+            sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &node1.timer[0], RCLC_TIMER));
     }
 
     for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2.publisher[i], &node2.subscriber[0], RCLC_SUBSCRIPTION));
+      RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2.publisher[i],  
+            sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &node2.subscriber[0], RCLC_SUBSCRIPTION));
     }
 
     for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
     {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3.publisher[i], &node3.subscriber[0], RCLC_SUBSCRIPTION));
+      RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3.publisher[i],  
+            sizeof(custom_interfaces__msg__Message), publisher_buffer_capacity, &node3.subscriber[0], RCLC_SUBSCRIPTION));
     }
 
     RCCHECK(rclc_executor_set_timeout(&executor1,timeout_ns));
@@ -431,10 +440,10 @@ int main(int argc, char const *argv[])
     printf("StartProgram %ld\n", now);
     if (executor_period > 0)
     {
-        struct arg_spin_period ex1 = {20*1000*1000, &executor1, &support};
-        struct arg_spin_period ex2 = {50*1000*1000, &executor2, &support};
-        struct arg_spin_period ex3 = {50*1000*1000, &executor3, &support};
-        struct arg_spin_period ex4 = {50*1000*1000, &executor4, &support};
+        struct arg_spin_period ex1 = {period1, &executor1, &support};
+        struct arg_spin_period ex2 = {period2, &executor2, &support};
+        struct arg_spin_period ex3 = {period3, &executor3, &support};
+        struct arg_spin_period ex4 = {period4, &executor4, &support};
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
         sleep_ms(2);
         thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);

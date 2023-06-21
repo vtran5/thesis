@@ -112,12 +112,16 @@ my_node2_t node2;
 my_node3_t node3;
 my_node4_t node4;
 
-rcl_time_point_value_t *timestamp[LOGGER_DIM0];
-
+//rcl_time_point_value_t *timestamp[LOGGER_DIM0];
+char stat1[200000000];
+char stat2[200000000];
+char stat3[200000000];
+char stat4[200000000];
 /***************************** CALLBACKS ***********************************/
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
   RCLC_UNUSED(last_call_time);
+  char temp[1000] = "";
   if (timer == NULL)
   {
     printf("timer_callback Error: timer parameter is NULL\n");
@@ -129,19 +133,22 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   {
     start_time = now;
     node1.first_run = false;
-    printf("StartTime %ld\n", start_time);
+    sprintf(temp, "StartTime %ld\n", start_time);
+    strcat(stat1,temp);
   }
   pub_msg.frame_id = node1.count1++;
   pub_msg.stamp = now;
 
   //printf("Timer: Timer start\n");
-  timestamp[0][pub_msg.frame_id] = (now - start_time)/1000;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node1.timer[0], pub_msg.frame_id, now);
+  strcat(stat1,temp);
   RCSOFTCHECK(rcl_publish(&node1.publisher[0], &pub_msg, NULL));
   //printf("Timer1: Published message %ld at time %ld \n", pub_msg.frame_id, now-start_time);
 }
 
 void node2_subscriber1_callback(const void * msgin)
 {
+  char temp[1000] = "";
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   rcl_time_point_value_t now;
   if (msgin == NULL) {
@@ -149,17 +156,20 @@ void node2_subscriber1_callback(const void * msgin)
     return;
   }
   now = rclc_now(&support);
-  timestamp[1][msg->frame_id] = (now - msg->stamp)/1000;
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node2.subscriber[0], msg->frame_id, now);
+  strcat(stat2,temp);
   //printf("Node1_Sub1_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[1][msg->frame_id]);
   busy_wait_random(5, 15);
   now = rclc_now(&support);
-  timestamp[2][msg->frame_id] = (now - msg->stamp)/1000;  
   RCSOFTCHECK(rcl_publish(&node2.publisher[0], msg, NULL));
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node2.subscriber[0], msg->frame_id, now);
+  strcat(stat2,temp);
   //printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
 }
 
 void node3_subscriber1_callback(const void * msgin)
 {
+  char temp[1000] = "";
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   rcl_time_point_value_t now;
   if (msgin == NULL) {
@@ -167,17 +177,20 @@ void node3_subscriber1_callback(const void * msgin)
     return;
   }
   now = rclc_now(&support);
-  timestamp[3][msg->frame_id] = (now - msg->stamp)/1000;
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node3.subscriber[0], msg->frame_id, now);
+  strcat(stat3,temp);
   //printf("Node1_Sub2_Callback: I heard: %ld at time %ld\n", msg->frame_id, timestamp[2][msg->frame_id]);
-  busy_wait_random(5, 20);
-  now = rclc_now(&support);
-  timestamp[4][msg->frame_id] = (now - msg->stamp)/1000;  
+  busy_wait_random(5, 50);
+  now = rclc_now(&support); 
   RCSOFTCHECK(rcl_publish(&node3.publisher[0], msg, NULL));
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node3.subscriber[0], msg->frame_id, now);
+  strcat(stat3,temp);
   //printf("Node1_Sub1_Callback: Published message %ld at time %ld\n", msg->frame_id, msg->stamp);
 }
 
 void node4_subscriber1_callback(const void * msgin)
 {
+  char temp[1000] = "";
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   rcl_time_point_value_t now;
   if (msgin == NULL) {
@@ -185,13 +198,14 @@ void node4_subscriber1_callback(const void * msgin)
     return;
   }
   now = rclc_now(&support);
-  timestamp[5][msg->frame_id] = (now - msg->stamp)/1000;
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node4.subscriber[0], msg->frame_id, now);
+  strcat(stat4,temp);
 }
 
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-    unsigned int timer_period = 100;
+    unsigned int timer_period = 50;
     unsigned int executor_period = 100;
     unsigned int experiment_duration = 10000;
     bool let = false;
@@ -212,8 +226,6 @@ int main(int argc, char const *argv[])
     exit_flag = false;
 
     const unsigned int timer_timeout[NODE1_TIMER_NUMBER] = {timer_period};
-    int logger_dim1 =  (experiment_duration/min_period(NODE1_TIMER_NUMBER, timer_timeout)) + 1;
-    init_timestamp(LOGGER_DIM0, logger_dim1, timestamp);
 
     // create init_options
     RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
@@ -358,6 +370,15 @@ int main(int argc, char const *argv[])
     printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
     printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
 
+    printf("PublisherID Publisher1 %lu\n", (unsigned long) &node1.publisher[0]);
+    printf("PublisherID Publisher2 %lu\n", (unsigned long) &node2.publisher[0]);
+    printf("PublisherID Publisher3 %lu\n", (unsigned long) &node3.publisher[0]);
+
+    printf("SubscriberID Subscriber1 %lu\n", (unsigned long) &node2.subscriber[0]);
+    printf("SubscriberID Subscriber2 %lu\n", (unsigned long) &node3.subscriber[0]);
+    printf("SubscriberID Subscriber3 %lu\n", (unsigned long) &node4.subscriber[0]);
+
+    printf("TimerID Timer1 %lu\n", (unsigned long) &node1.timer[0]);
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
     ////////////////////////////////////////////////////////////////////////////
@@ -366,7 +387,8 @@ int main(int argc, char const *argv[])
     pthread_t thread3 = 0;
     pthread_t thread4 = 0;
     int policy = SCHED_FIFO;
-
+    rcl_time_point_value_t now = rclc_now(&support);
+    printf("StartProgram %ld\n", now);
     if (executor_period > 0)
     {
         struct arg_spin_period ex1 = {executor_period*1000*1000, &executor1, &support};
@@ -456,8 +478,10 @@ int main(int argc, char const *argv[])
     RCCHECK(rcl_node_fini(&node4.rcl_node));
     RCCHECK(rclc_support_fini(&support));  
 
-    print_timestamp(LOGGER_DIM0,logger_dim1, timestamp);
-    fini_timestamp(LOGGER_DIM0, timestamp);
+    printf("%s", stat1);
+    printf("%s", stat2);
+    printf("%s", stat3);
+    printf("%s", stat4);
  
   	return 0;
 }

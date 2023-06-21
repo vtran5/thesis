@@ -101,8 +101,6 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
-typedef void (* rclc_subscription_let_callback_t) (const void *, void *);
-
 /// Enumeration for publisher, server, client, etc that will send messages
 typedef enum
 {
@@ -133,18 +131,16 @@ typedef struct {
   int callback_id;
   /// Stores the let (i.e deadline) of the callback
   rcutils_time_point_value_t callback_let;
-  /// Flag to True if the callback is executing
-  bool is_executing;
+  /// Array to store input data for different periods during its LET
+  rclc_array_t data;
   /// Array to store the callback let handles
   rclc_executor_let_handle_t * let_handles;
   /// Number of let handles stored in the array
   int let_num;
-  /// Callback index (each callback execution is assign an index to differentiate between runs)
-  int index;
-  /// LET output index 
-  /// (this should be updated at the same frequency as callback index, if not there's overrun error)
-  /// (this index is compared to the callback index to ensure the correct data is published)
+  /// LET output index (this should be updated at the same frequency as callback index in LET output thread)
   int output_index;
+  /// Number of executor period per callback LET
+  int num_period_per_let;
 } rclc_callback_let_info_t;
 #define CALLBACK_INDEX_MAX_VALUE 100 // index and output_index will be wrapped around this value to prevent overflow
 /// Container for a handle.
@@ -212,7 +208,7 @@ typedef struct
   /// (is set after calling rcl_take)
   bool data_available;
   /// Store callback state and information
-  rclc_callback_let_info_t callback_info;
+  rclc_callback_let_info_t * callback_info;
 } rclc_executor_handle_t;
 
 /// Information about total number of subscriptions, guard_conditions, timers, subscription etc.

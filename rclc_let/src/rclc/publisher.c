@@ -25,13 +25,10 @@ rclc_publisher_init_default(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name,
-  const int message_size,
-  const int buffer_capacity)
+  const char * topic_name)
 {
   return rclc_publisher_init(
-    publisher, node, type_support, topic_name, message_size, buffer_capacity,
-    &rmw_qos_profile_default);
+    publisher, node, type_support, topic_name, &rmw_qos_profile_default);
 }
 
 rcl_ret_t
@@ -39,13 +36,10 @@ rclc_publisher_init_best_effort(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name,
-  const int message_size,
-  const int buffer_capacity)
+  const char * topic_name)
 {
   return rclc_publisher_init(
-    publisher, node, type_support, topic_name, message_size, buffer_capacity,
-    &rmw_qos_profile_sensor_data);
+    publisher, node, type_support, topic_name, &rmw_qos_profile_sensor_data);
 }
 
 rcl_ret_t
@@ -54,8 +48,6 @@ rclc_publisher_init(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  const int message_size,
-  const int buffer_capacity,
   const rmw_qos_profile_t * qos_profile)
 {
   RCL_CHECK_FOR_NULL_WITH_MSG(
@@ -68,15 +60,11 @@ rclc_publisher_init(
     topic_name, "topic_name is a null pointer", return RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_FOR_NULL_WITH_MSG(
     qos_profile, "qos_profile is a null pointer", return RCL_RET_INVALID_ARGUMENT);
-  if (message_size <= 0 || buffer_capacity <= 0)
-    return RCL_RET_INVALID_ARGUMENT;
-  rcl_ret_t rc = rclc_init_circular_queue(&(publisher->message_buffer), message_size + sizeof(int), buffer_capacity);
-  if (rc != RCL_RET_OK)
-    return rc;
+
   publisher->rcl_publisher = rcl_get_zero_initialized_publisher();
   rcl_publisher_options_t pub_opt = rcl_publisher_get_default_options();
   pub_opt.qos = *qos_profile;
-  rc = rcl_publisher_init(
+  rcl_ret_t rc = rcl_publisher_init(
     &(publisher->rcl_publisher),
     node,
     type_support,
@@ -102,11 +90,15 @@ rcl_ret_t
 _rclc_publish_LET(
   rclc_publisher_t * publisher,
   const void * ros_message,
-  rmw_publisher_allocation_t * allocation,
-  int index)
+  rmw_publisher_allocation_t * allocation)
 {
   RCLC_UNUSED(allocation);
-  rcl_ret_t ret = rclc_enqueue_pair_circular_queue(&(publisher->message_buffer), ros_message, index, -1);
+  uint64_t executor_index = *(publisher->executor_index);
+  int buffer_size = publisher->message_buffer.size;
+  int index = (int) (executor_index%buffer_size);
+  printf("Publish %lu at index %d %ld %d\n", (unsigned long) publisher, index, executor_index, buffer_size);
+  rcl_ret_t ret = rclc_enqueue_2d_circular_queue(&(publisher->message_buffer), 
+                  ros_message, index, -1);
   return ret;
 }
 
@@ -115,18 +107,16 @@ rclc_publish(
   rclc_publisher_t * publisher,
   const void * ros_message,
   rmw_publisher_allocation_t * allocation,
-  rclc_executor_semantics_t semantics,
-  int message_index)
+  rclc_executor_semantics_t semantics)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
   if (semantics == LET)
   {
-    ret = _rclc_publish_LET(publisher, ros_message, allocation, message_index);
+    ret = _rclc_publish_LET(publisher, ros_message, allocation);
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
-    RCLC_UNUSED(message_index);
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
@@ -135,22 +125,32 @@ rclc_publish(
 }
 
 rcl_ret_t
-rclc_LET_output(rclc_publisher_t * publisher, int message_index)
+rclc_publisher_let_init(
+  rclc_publisher_t * publisher,
+  const int message_size,
+  const int _1d_capacity,
+  const int _2d_capacity,
+  uint64_t * executor_index_ptr)
+{
+  if (message_size <= 0 || _1d_capacity <= 0 || _2d_capacity <= 0 || executor_index_ptr == NULL)
+    return RCL_RET_INVALID_ARGUMENT;
+  publisher->executor_index = executor_index_ptr;
+  rcl_ret_t rc = rclc_init_2d_circular_queue(&(publisher->message_buffer), _2d_capacity, message_size, _1d_capacity);
+  return rc;
+}
+
+rcl_ret_t
+rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
-  int queue_size = rclc_num_elements_circular_queue(&(publisher->message_buffer));
-  while(queue_size > 0)
+  while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
   {
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
-    unsigned char array[publisher->message_buffer.elem_size];
-    rclc_dequeue_circular_queue(&(publisher->message_buffer), array, -1);
-    if (array[0] == message_index)
-      ret = rcl_publish(&(publisher->rcl_publisher), &array[1], NULL);
-    else
-      ret = rclc_enqueue_circular_queue(&(publisher->message_buffer), array, -1);
-    queue_size--;
+    unsigned char array[rclc_get_queue(&(publisher->message_buffer), queue_index)->elem_size];
+    rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), array, queue_index);
+    ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
   return ret;
 }
@@ -158,7 +158,38 @@ rclc_LET_output(rclc_publisher_t * publisher, int message_index)
 rcl_ret_t
 rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node)
 {
-  rcl_ret_t rc = rclc_fini_circular_queue(&(publisher->message_buffer));
+  rcl_ret_t rc = rclc_fini_2d_circular_queue(&(publisher->message_buffer));
   rc = rcl_publisher_fini(&(publisher->rcl_publisher), node);
   return rc;
+}
+
+rcl_ret_t
+rclc_publisher_check_buffer_state(rclc_publisher_t * publisher, 
+  int queue_index, rclc_queue_state_t * state)
+{
+  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
+
+  if (queue == NULL)
+    return RCL_RET_ERROR;
+  *state = queue->state;
+  return RCL_RET_OK;
+}
+
+rcl_ret_t
+rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
+  int queue_index)
+{
+  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
+  rcl_ret_t ret = rclc_flush_circular_queue(queue);
+  return ret;
+}
+
+rcl_ret_t
+rclc_publisher_set_state_buffer(rclc_publisher_t * publisher,
+  int queue_index,
+  rclc_queue_state_t state)
+{
+  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
+  rcl_ret_t ret = rclc_set_state_queue(queue, state);
+  return ret;
 }

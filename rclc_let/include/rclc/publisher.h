@@ -33,7 +33,8 @@ extern "C"
 typedef struct rclc_publisher_s
 {
   rcl_publisher_t rcl_publisher;
-  rclc_circular_queue_t message_buffer;
+  rclc_2d_circular_queue_t message_buffer;
+  uint64_t * executor_index; // This should point to the executor spin_index
 } rclc_publisher_t;
 
 
@@ -61,9 +62,7 @@ rclc_publisher_init_default(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name,
-  const int message_size,
-  const int buffer_capacity);
+  const char * topic_name);
 
 /**
  *  Creates an rcl publisher with quality-of-service option best effort
@@ -89,9 +88,7 @@ rclc_publisher_init_best_effort(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name,
-  const int message_size,
-  const int buffer_capacity);
+  const char * topic_name);
 
 /**
  *  Creates an rcl publisher with defined QoS
@@ -119,9 +116,16 @@ rclc_publisher_init(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  const int message_size,
-  const int buffer_capacity,
   const rmw_qos_profile_t * qos_profile);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_let_init(
+  rclc_publisher_t * publisher,
+  const int message_size,
+  const int _1d_capacity,
+  const int _2d_capacity,
+  uint64_t * executor_index_ptr);
 
 RCLC_PUBLIC
 rcl_ret_t
@@ -129,17 +133,34 @@ rclc_publish(
   rclc_publisher_t * publisher,
   const void * ros_message,
   rmw_publisher_allocation_t * allocation,
-  rclc_executor_semantics_t semantics,
-  int message_index);
+  rclc_executor_semantics_t semantics);
 
 RCLC_PUBLIC
 rcl_ret_t
 rclc_LET_output(rclc_publisher_t * publisher,
-  int message_index);
+  int queue_index);
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node);
+rclc_publisher_fini(rclc_publisher_t * publisher, 
+  rcl_node_t * node);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_check_buffer_state(rclc_publisher_t * publisher, 
+  int queue_index,
+  rclc_queue_state_t * state);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
+  int queue_index);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_set_state_buffer(rclc_publisher_t * publisher,
+  int queue_index,
+  rclc_queue_state_t state);
 
 #if __cplusplus
 }
