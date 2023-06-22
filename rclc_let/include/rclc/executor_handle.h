@@ -133,6 +133,8 @@ typedef struct {
   rcutils_time_point_value_t callback_let;
   /// Array to store input data for different periods during its LET
   rclc_array_t data;
+  /// Array to store data_available flag for different periods during its LET
+  rclc_array_t data_available;
   /// Array to store the callback let handles
   rclc_executor_let_handle_t * let_handles;
   /// Number of let handles stored in the array

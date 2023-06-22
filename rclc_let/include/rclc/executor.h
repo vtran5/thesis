@@ -55,7 +55,7 @@ extern "C"
 /// - array of executor_handles
 /// - size of array
 /// - application specific struct used in the trigger function
-typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
+typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *, rclc_executor_semantics_t, uint64_t);
 
 /// LET overrun handling options
 typedef enum{
@@ -983,7 +983,9 @@ bool
 rclc_executor_trigger_all(
   rclc_executor_handle_t * handles,
   unsigned int size,
-  void * obj);
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: any, returns true if at least one handles is ready.
@@ -1008,7 +1010,9 @@ bool
 rclc_executor_trigger_any(
   rclc_executor_handle_t * handles,
   unsigned int size,
-  void * obj);
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: always, returns always true.
@@ -1032,7 +1036,9 @@ bool
 rclc_executor_trigger_always(
   rclc_executor_handle_t * handles,
   unsigned int size,
-  void * obj);
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: one, returns true, if rcl handle obj is ready
@@ -1058,7 +1064,9 @@ bool
 rclc_executor_trigger_one(
   rclc_executor_handle_t * handles,
   unsigned int size,
-  void * obj);
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /********************* LET Implementation ************************/
 RCLC_PUBLIC
