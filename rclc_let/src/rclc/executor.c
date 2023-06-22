@@ -1480,6 +1480,17 @@ _rclc_execute(rclc_executor_handle_t * handle, rclc_executor_semantics_t semanti
   rcl_ret_t rc = RCL_RET_OK;
   bool invoke_callback = false;
   bool data_available = _rclc_check_handle_data_available(handle, semantics, index);
+  void * data;
+  char data_arr[handle->callback_info->data.elem_size];
+  if (semantics ==  LET)
+  {  
+    memcpy(data_arr, handle->data, handle->callback_info->data.elem_size);
+    data = data_arr;
+  }
+  else
+  {
+    data = handle->data;
+  }
 
   // determine, if callback shall be called
   if (handle->invocation == ON_NEW_DATA && data_available)
@@ -1498,7 +1509,7 @@ _rclc_execute(rclc_executor_handle_t * handle, rclc_executor_semantics_t semanti
     switch (handle->type) {
       case RCLC_SUBSCRIPTION:
         if (data_available) {
-          handle->subscription_callback(handle->data);
+          handle->subscription_callback(data);
         } else {
           handle->subscription_callback(NULL);
         }
@@ -1507,7 +1518,7 @@ _rclc_execute(rclc_executor_handle_t * handle, rclc_executor_semantics_t semanti
       case RCLC_SUBSCRIPTION_WITH_CONTEXT:
         if (data_available) {
           handle->subscription_callback_with_context(
-            handle->data,
+            data,
             handle->callback_context);
         } else {
           handle->subscription_callback_with_context(
@@ -1986,7 +1997,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period)
           int policy;
           pthread_t thread_id;
           pthread_getschedparam(pthread_self(), &policy, &param);
-          _rclc_thread_create(&thread_id, SCHED_FIFO, param.sched_priority - 1, -1, _rclc_let_spin_some_wrapper, executor);
+          _rclc_thread_create(&thread_id, policy, param.sched_priority - 1, -1, _rclc_let_spin_some_wrapper, executor);
           pthread_mutex_lock(&executor->mutex);
           while(executor->state == EXECUTING && !executor->deadline_passed)
           {
