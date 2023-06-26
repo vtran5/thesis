@@ -34,6 +34,7 @@ extern "C"
 
 #include "rclc/action_client.h"
 #include "rclc/action_server.h"
+#include "rclc/executor_let.h"
 
 /*! \file executor.h
     \brief The RCLC-Executor provides an Executor based on RCL in which all callbacks are
@@ -55,6 +56,15 @@ typedef enum
 /// - size of array
 /// - application specific struct used in the trigger function
 typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
+
+/// LET overrun handling options
+typedef enum{
+  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, user is responsible for cleanup
+  CANCEL_CURRENT_PERIOD_NO_OUTPUT, // Same as CANCEL_CURRENT_PERIOD, except no output is published
+  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrunning callback is finished
+  RUN_AT_LOW_PRIORITY, // Let the overrun callback run in background (this option would change the temporal order of data)
+  //RUN_AT_LOW_PRIORITY_NO_OUTPUT // Let the overrun callback run in background but skip the output
+} rclc_executor_let_overrun_option_t;
 
 /// Container for RCLC-Executor
 typedef struct
@@ -83,6 +93,30 @@ typedef struct
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
+  /// State of the executor
+  rclc_executor_state_t state;
+  /// Period of the executor
+  uint64_t period;
+  /// Overrun handling option
+  rclc_executor_let_overrun_option_t overrun_option;
+  /// Maximum number of 'let_handles' per callback (private)
+  size_t max_let_handles_per_callback;
+  /// Flag to signal overrun
+  bool deadline_passed;
+  /// Mutex to protect variable (private)
+  pthread_mutex_t mutex;
+  /// Condition variables for LET scheduling input (private)
+  pthread_cond_t let_input_done;
+  /// Id of the next added handle (private)
+  int next_callback_id;
+  /// period index of the executor
+  uint64_t spin_index;
+  /// period index of the input thread
+  uint64_t input_index;
+  /// timepoint used for input thread wakeup
+  rcutils_time_point_value_t input_invocation_time;
+  /// object for the LET output executor
+  rclc_executor_let_t executor_let;
 } rclc_executor_t;
 
 /**

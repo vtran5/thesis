@@ -36,7 +36,7 @@ typedef enum
   RCLC_SUBSCRIPTION,
   RCLC_SUBSCRIPTION_WITH_CONTEXT,
   RCLC_TIMER,
-  // RCLC_TIMER_WITH_CONTEXT,  // TODO
+  RCLC_TIMER_WITH_CONTEXT,  
   RCLC_CLIENT,
   RCLC_CLIENT_WITH_REQUEST_ID,
   // RCLC_CLIENT_WITH_CONTEXT,  // TODO
@@ -47,6 +47,8 @@ typedef enum
   RCLC_ACTION_SERVER,
   RCLC_GUARD_CONDITION,
   // RCLC_GUARD_CONDITION_WITH_CONTEXT,  //TODO
+  RCLC_LET_TIMER,
+  RCLC_SUBSCRIPTION_LET_DATA,
   RCLC_NONE
 } rclc_executor_handle_type_t;
 
@@ -100,6 +102,30 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
+/// Type definition for timer callback with context
+/// - timer pointer
+/// - additional callback context
+typedef void (* rclc_timer_callback_with_context_t)(const void *, void *);
+
+/// Type definition for data subscription callback in LET executor only
+/// - incoming message
+/// - let_executor
+/// - handle pointer
+/// - data_consumed flag
+typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, void *, void *);
+
+typedef struct {
+  /// id of the handle/callback in the executor (should be unique per callback)
+  int callback_id;
+  /// Stores the let (i.e deadline) of the callback
+  rcutils_time_point_value_t callback_let;
+  /// Array to store input data for different periods during its LET
+  rclc_array_t data;
+  /// Array to store data_available flag for different periods during its LET
+  rclc_array_t data_available;
+  /// Number of executor period per callback LET
+  int num_period_per_let;
+} rclc_callback_let_info_t;
 
 /// Container for a handle.
 typedef struct
@@ -117,6 +143,9 @@ typedef struct
     rcl_guard_condition_t * gc;
     rclc_action_client_t * action_client;
     rclc_action_server_t * action_server;
+    // Private handles for let executor
+    rclc_let_timer_t * let_timer;
+    rclc_let_data_channel_t * t let_data;
   };
   /// Storage of data, which holds the message of a subscription, service, etc.
   /// subscription: ptr to message
@@ -151,6 +180,8 @@ typedef struct
     rclc_client_callback_t client_callback;
     rclc_client_callback_with_request_id_t client_callback_with_reqid;
     rclc_gc_callback_t gc_callback;
+    rclc_timer_callback_with_context_t timer_callback_with_context;
+    rclc_subscription_callback_for_let_data_t subscription_let_data_callback;
   };
 
   /// Internal variable.
@@ -165,6 +196,8 @@ typedef struct
   /// Interval variable. Flag, which is true, if new data is available from DDS queue
   /// (is set after calling rcl_take)
   bool data_available;
+  /// Store callback state and information
+  rclc_callback_let_info_t * callback_info;
 } rclc_executor_handle_t;
 
 /// Information about total number of subscriptions, guard_conditions, timers, subscription etc.
