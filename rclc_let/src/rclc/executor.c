@@ -2106,6 +2106,7 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
     ret = rcutils_system_time_now(&executor->invocation_time);
     executor->input_invocation_time = executor->invocation_time;
     RCLC_UNUSED(ret);
+    executor->timeout_ns = 0;
     // Add all callbacks to output_invocation_times queue
     for(size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++)
     {
@@ -2136,7 +2137,6 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period)
     pthread_join(thread_id_output, NULL);
     pthread_join(thread_id_input, NULL);
   }
-  executor->period = 0;
   return ret;
 }
 
@@ -2194,7 +2194,6 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
     pthread_join(thread_id_output, NULL);
     pthread_join(thread_id_input, NULL);
   }
-  executor->period = 0;
   return RCL_RET_OK;
 }
 
