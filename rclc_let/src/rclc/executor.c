@@ -1082,22 +1082,22 @@ _rclc_check_for_new_data(rclc_executor_handle_t * handle,
   switch (handle->type) {
     case RCLC_SUBSCRIPTION:
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
+      handle->data_available = (NULL != wait_set->subscriptions[handle->index]); 
       if(semantics == LET)
       {
-        bool data_available = (NULL != wait_set->subscriptions[handle->index]);
-        rc = rclc_set_array(&(handle->callback_info->data_available), &data_available, 
+        rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
               input_index%handle->callback_info->num_period_per_let);
       }
-      else
-      {
-        handle->data_available = (NULL != wait_set->subscriptions[handle->index]);        
-      }
-      
       break;
 
     case RCLC_TIMER:
       // case RCLC_TIMER_WITH_CONTEXT:
       handle->data_available = (NULL != wait_set->timers[handle->index]);
+      if(semantics == LET)
+      {
+        rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
+              input_index%handle->callback_info->num_period_per_let);
+      }
       break;
 
     case RCLC_SERVICE:
