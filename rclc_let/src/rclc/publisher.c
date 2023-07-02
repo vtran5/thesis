@@ -15,14 +15,14 @@
 // limitations under the License.
 
 #include "rclc/publisher.h"
-
+#include <string.h>
 #include <rcl/error_handling.h>
 #include <rcutils/logging_macros.h>
 #include <rmw/qos_profiles.h>
 
 rcl_ret_t
 rclc_publisher_init_default(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name)
@@ -34,7 +34,7 @@ rclc_publisher_init_default(
 
 rcl_ret_t
 rclc_publisher_init_best_effort(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name)
@@ -46,7 +46,7 @@ rclc_publisher_init_best_effort(
 
 rcl_ret_t
 rclc_publisher_init(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
@@ -63,17 +63,86 @@ rclc_publisher_init(
   RCL_CHECK_FOR_NULL_WITH_MSG(
     qos_profile, "qos_profile is a null pointer", return RCL_RET_INVALID_ARGUMENT);
 
-  (*publisher) = rcl_get_zero_initialized_publisher();
-  rcl_publisher_options_t pub_opt = rcl_publisher_get_default_options();
-  pub_opt.qos = *qos_profile;
+  publisher->rcl_publisher = rcl_get_zero_initialized_publisher();
+  publisher->option = rcl_publisher_get_default_options();
+  publisher->option.qos = *qos_profile;
+  publisher->type_support = type_support;
+  publisher->node = node;
+  publisher->topic_name = publisher->option.allocator.allocate(strlen(topic_name) + 1, publisher->option.allocator.state);
+  if (publisher->topic_name == NULL)
+    return RCL_RET_BAD_ALLOC;
+  strcpy(publisher->topic_name, topic_name);
+
   rcl_ret_t rc = rcl_publisher_init(
-    publisher,
+    &publisher->rcl_publisher,
     node,
     type_support,
     topic_name,
-    &pub_opt);
+    &publisher->option);
   if (rc != RCL_RET_OK) {
     PRINT_RCLC_ERROR(rclc_publisher_init_best_effort, rcl_publisher_init);
   }
   return rc;
+}
+
+rcl_ret_t
+_rclc_publish_default(
+  rclc_publisher_t * publisher,
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation)
+{
+  rcl_ret_t ret = rcl_publish(&(publisher->rcl_publisher), ros_message, allocation);
+  return ret;
+}
+
+rcl_ret_t
+_rclc_publish_LET(
+  rclc_publisher_t * publisher,
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation)
+{
+  RCLC_UNUSED(allocation);
+  uint64_t executor_index = *(publisher->executor_index);
+  int index = (int) (executor_index%publisher->num_period_per_let);
+  if((publisher->let_publishers == NULL) || !rcl_publisher_is_valid(&(publisher->let_publishers[index])))
+  {
+    printf("Invalid publisher at index %d\n", index);
+    return RCL_RET_ERROR;
+  }
+  rcl_ret_t ret = rcl_publish(&(publisher->let_publishers[index]), ros_message, allocation);
+  return ret;
+}
+
+rcl_ret_t
+rclc_publish(
+  rclc_publisher_t * publisher,
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation,
+  rclc_executor_semantics_t semantics)
+{
+  rcl_ret_t ret = RCL_RET_OK;
+  rcutils_time_point_value_t now;
+  if (semantics == LET)
+  {
+    ret = _rclc_publish_LET(publisher, ros_message, allocation);
+  }
+  else if (semantics == RCLCPP_EXECUTOR)
+  {
+    ret = rcutils_steady_time_now(&now);
+    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
+    ret = _rclc_publish_default(publisher, ros_message, allocation);
+  }
+  return ret;
+}
+
+rcl_ret_t
+rclc_publisher_fini(rclc_publisher_t * publisher)
+{
+  if (publisher->topic_name == NULL)
+    return RCL_RET_OK;
+  
+  publisher->option.allocator.deallocate(publisher->topic_name, publisher->option.allocator.state);
+  publisher->topic_name = NULL;
+  rcl_ret_t ret = rcl_publisher_fini(&(publisher->rcl_publisher), publisher->node);
+  return ret;
 }

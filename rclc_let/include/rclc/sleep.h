@@ -22,7 +22,9 @@ extern "C"
 #endif
 
 #include "rclc/visibility_control.h"
-
+#include <stdint.h>
+#include <time.h>
+  
 /**
  *  Waits for milliseconds.
  *
@@ -40,6 +42,25 @@ RCLC_PUBLIC
 void
 rclc_sleep_ms(
   unsigned int ms);
+
+/**
+ *  Waits for nanoseconds. In windows there is no nanoseconds precision 
+ * so the duration is rounded to milliseconds.
+ *
+ *  * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param[in] ns nanoseconds to wait
+ */
+RCLC_PUBLIC
+void
+rclc_sleep_ns(
+  uint64_t ns);
 
 #if __cplusplus
 }

@@ -33,6 +33,17 @@ typedef struct
   rcl_clock_t clock;
 } rclc_support_t;
 
+/* defines the semantics of data communication
+   RCLCPP_EXECUTOR - same semantics as in the rclcpp Executor ROS2(Eloquent)
+   LET             - logical execution time
+   LET_OUTPUT      - internal mode for let output executor (should not be used by users)
+*/
+typedef enum
+{
+  RCLCPP_EXECUTOR,
+  LET,
+  LET_OUTPUT
+} rclc_executor_semantics_t;
 
 /**
  * macro to print errors

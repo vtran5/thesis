@@ -18,7 +18,7 @@
 
 #include <rcl/error_handling.h>
 #include <rcutils/logging_macros.h>
-
+#include <rcl/allocator.h>
 
 // initialization of handle_counters object
 rcl_ret_t
@@ -150,12 +150,6 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle)
       // case RCLC_GUARD_CONDITION_WITH_CONTEXT:
       ptr = handle->gc;
       break;
-    case RCLC_SUBSCRIPTION_LET_DATA:
-      ptr = handle->let_data;
-      break;
-    case RCLC_LET_TIMER:
-      ptr = let_timer;
-      break;
     case RCLC_NONE:
     default:
       ptr = NULL;
@@ -165,19 +159,16 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle)
 }
 
 rcl_ret_t
-rclc_executor_let_handle_init(
-    rclc_executor_handle_t * handle,
-  size_t max_let_handles_per_callback)
+rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
   rcl_allocator_t allocator = rcl_get_default_allocator();
   handle->callback_info = allocator.allocate(
     (sizeof(rclc_callback_let_info_t)),
     allocator.state);
-
-  handle->callback_info->callback_id = -1;
-  handle->callback_info->callback_let = 0;
-  handle->callback_info->output_index = 0;
+  if (handle->callback_info == NULL)
+    return RCL_RET_ERROR;
+  handle->callback_info->callback_let_ns = 0;
   handle->callback_info->num_period_per_let = 0;
   
   return RCL_RET_OK;
@@ -186,7 +177,7 @@ rclc_executor_let_handle_init(
 rcl_ret_t
 rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
 {
-  if (NULL != handle->callback_info->let_handles)
+  if (0 != handle->callback_info->callback_let_ns)
   {
     rcl_allocator_t allocator = rcl_get_default_allocator();
     allocator.deallocate(handle->callback_info, allocator.state);

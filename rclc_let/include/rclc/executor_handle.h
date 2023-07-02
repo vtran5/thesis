@@ -27,6 +27,7 @@ extern "C"
 #include <rclc/action_client.h>
 #include <rclc/action_server.h>
 
+#include "rclc/buffer.h"
 /// TODO (jst3si) Where is this defined? - in my build environment this variable is not set.
 // #define ROS_PACKAGE_NAME "rclc"
 
@@ -105,7 +106,7 @@ typedef void (* rclc_gc_callback_t)();
 /// Type definition for timer callback with context
 /// - timer pointer
 /// - additional callback context
-typedef void (* rclc_timer_callback_with_context_t)(const void *, void *);
+typedef void (* rclc_timer_callback_with_context_t)(rcl_timer_t *, void *);
 
 /// Type definition for data subscription callback in LET executor only
 /// - incoming message
@@ -115,10 +116,8 @@ typedef void (* rclc_timer_callback_with_context_t)(const void *, void *);
 typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, void *, void *);
 
 typedef struct {
-  /// id of the handle/callback in the executor (should be unique per callback)
-  int callback_id;
   /// Stores the let (i.e deadline) of the callback
-  rcutils_time_point_value_t callback_let;
+  rcutils_time_point_value_t callback_let_ns;
   /// Array to store input data for different periods during its LET
   rclc_array_t data;
   /// Array to store data_available flag for different periods during its LET
@@ -143,9 +142,6 @@ typedef struct
     rcl_guard_condition_t * gc;
     rclc_action_client_t * action_client;
     rclc_action_server_t * action_server;
-    // Private handles for let executor
-    rclc_let_timer_t * let_timer;
-    rclc_let_data_channel_t * t let_data;
   };
   /// Storage of data, which holds the message of a subscription, service, etc.
   /// subscription: ptr to message
@@ -181,7 +177,6 @@ typedef struct
     rclc_client_callback_with_request_id_t client_callback_with_reqid;
     rclc_gc_callback_t gc_callback;
     rclc_timer_callback_with_context_t timer_callback_with_context;
-    rclc_subscription_callback_for_let_data_t subscription_let_data_callback;
   };
 
   /// Internal variable.
@@ -329,6 +324,14 @@ rclc_executor_handle_print(rclc_executor_handle_t * handle);
 RCLC_PUBLIC
 void *
 rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_init(rclc_executor_handle_t * handle);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle);
 
 #if __cplusplus
 }

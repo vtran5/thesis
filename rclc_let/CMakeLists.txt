@@ -45,7 +45,7 @@ else()
   find_package(rosidl_runtime_c REQUIRED)
 endif()
 
-#add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
+add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
 #################################################
 # create library
 #################################################
@@ -64,6 +64,8 @@ add_library(${PROJECT_NAME}
   src/rclc/executor_handle.c
   src/rclc/executor.c
   src/rclc/sleep.c
+  src/rclc/buffer.c
+  src/rclc/let_output_node.c
 )
 if("${rcl_VERSION}" VERSION_LESS "1.0.0")
   target_sources(${PROJECT_NAME}
@@ -124,6 +126,7 @@ endif()
 #################################################
 # gtest
 #################################################
+set(BUILD_TESTING OFF)
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
