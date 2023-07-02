@@ -47,8 +47,8 @@ ament_target_dependencies(exp5 rcl rclc custom_interfaces)
 add_executable(exp6 src/exp_single_thread_multi_core.c src/utilities.c)
 ament_target_dependencies(exp6 rcl rclc custom_interfaces)
 
-#add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
-#ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
+add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
+ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 
 add_executable(mytest src/test.c src/utilities.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
@@ -81,7 +81,7 @@ install(TARGETS
   exp4
   exp5
   exp6
-#  exp7
+  exp7
   DESTINATION lib/${PROJECT_NAME}
 )
 
