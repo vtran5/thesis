@@ -67,6 +67,7 @@ static rcl_ret_t _rclc_add_handles_to_waitset(rclc_executor_t * executor);
 static rcl_ret_t _rclc_wait_for_new_input(rclc_executor_t * executor, const uint64_t timeout_ns);
 static void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg);
 static void * _rclc_output_let_spin_wrapper(void * arg);
+void print_ret(rcl_ret_t ret, unsigned long ptr);
 
 
 // rationale: user must create an executor with:
@@ -376,7 +377,7 @@ rclc_executor_add_timer(
 
     if (executor->period_ns > 0)
     {
-      executor->handles[executor->index].callback_info->num_period_per_let = 2;
+      executor->handles[executor->index].callback_info->num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
       rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), 
                           sizeof(bool), (callback_let_ns/executor->period_ns) + 1);
     }  
@@ -437,7 +438,7 @@ rclc_executor_add_timer_with_context(
 
     if (executor->period_ns > 0)
     {
-      executor->handles[executor->index].callback_info->num_period_per_let = 2;
+      executor->handles[executor->index].callback_info->num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
       rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), 
                           sizeof(bool), (callback_let_ns/executor->period_ns) + 1);
     }  
@@ -1155,6 +1156,12 @@ _rclc_check_for_new_data(
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
     case RCLC_SUBSCRIPTION_LET_DATA:
       handle->data_available = (NULL != wait_set->subscriptions[handle->index]); 
+      if (handle->type == RCLC_SUBSCRIPTION_LET_DATA && handle->data_available)
+        printf("Sub let output available\n");
+      else if(handle->type == RCLC_SUBSCRIPTION && handle->data_available)
+        printf("Sub normal available\n");
+      else
+        printf("Sub unavailable\n");
       if(semantics == LET)
       {
         rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
@@ -1166,6 +1173,10 @@ _rclc_check_for_new_data(
     case RCLC_TIMER_WITH_CONTEXT:
     case RCLC_LET_TIMER:
       handle->data_available = (NULL != wait_set->timers[handle->index]);
+      if (handle->type == RCLC_LET_TIMER && handle->data_available)
+        printf("LETTimer available\n");
+      else
+        printf("LETTimer unavailable\n");
       if(semantics == LET)
       {
         rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
@@ -1240,8 +1251,8 @@ _rclc_take_new_data(
   switch (handle->type) {
     case RCLC_SUBSCRIPTION:
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
-    case RCLC_SUBSCRIPTION_LET_DATA:
       if (wait_set->subscriptions[handle->index]) {
+        printf("Sub normal starts taking data\n");
         rmw_message_info_t messageInfo;
         if (semantics == LET)
         {
@@ -1268,9 +1279,30 @@ _rclc_take_new_data(
           }
           return rc;
         }
+        printf("Sub normal takes new data\n");
       }
       break;
-
+    case RCLC_SUBSCRIPTION_LET_DATA:
+      if (wait_set->subscriptions[handle->index]) {
+        rmw_message_info_t messageInfo;
+        rc = rcl_take(handle->subscription, handle->data, &messageInfo, NULL);          
+        if (rc != RCL_RET_OK) {
+          // rcl_take might return this error even with successfull rcl_wait
+          if (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED) {
+            PRINT_RCLC_ERROR(rclc_take_new_data, rcl_take);
+            RCUTILS_LOG_ERROR_NAMED(ROS_PACKAGE_NAME, "Error number: %d", rc);
+          }
+          // invalidate that data is available, because rcl_take failed
+          if (rc == RCL_RET_SUBSCRIPTION_TAKE_FAILED) {
+            handle->data_available = false;
+          }
+          return rc;
+        }
+        rclc_let_data_subscriber_callback_context_t * context_obj = 
+            (rclc_let_data_subscriber_callback_context_t *) handle->callback_context;
+        context_obj->output->data_consumed = false;
+      }
+      break;      
     case RCLC_TIMER:
     case RCLC_TIMER_WITH_CONTEXT:
     case RCLC_LET_TIMER:
@@ -1526,6 +1558,7 @@ bool _rclc_check_handle_data_available(
     case RCLC_SUBSCRIPTION:
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
     case RCLC_TIMER:
+      printf("Check handle for available data\n");
       if (semantics == LET)
       {
         bool data_available = false;
@@ -1534,7 +1567,21 @@ bool _rclc_check_handle_data_available(
         RCLC_UNUSED(ret);
         return data_available;
       }
+      else if (handle->data_available)
+        return true;
       break;
+    case RCLC_SUBSCRIPTION_LET_DATA:
+      printf("Check sub for available data\n");
+      if (handle->callback_context != NULL)
+      {
+        printf("Sub has context\n");
+        rclc_let_data_subscriber_callback_context_t * context_obj = (rclc_let_data_subscriber_callback_context_t *) handle->callback_context;
+        if (context_obj->output->data_consumed == false)
+        {
+          printf("Data available and not consumed\n");
+          return true;
+        }
+      }
     default:
       if (handle->data_available) {
         return true;
@@ -1556,8 +1603,7 @@ static
 rcl_ret_t
 _rclc_execute(rclc_executor_handle_t * handle, 
   rclc_executor_semantics_t semantics, 
-  uint64_t period_index,
-  unsigned long executor_ptr)
+  uint64_t period_index)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
@@ -1579,6 +1625,9 @@ _rclc_execute(rclc_executor_handle_t * handle,
     switch (handle->type) {
       case RCLC_SUBSCRIPTION:
         if (data_available) {
+          int64_t * temp = data;
+          rcutils_time_point_value_t now;
+          rc = rcutils_steady_time_now(&now);
           handle->subscription_callback(data);
         } else {
           handle->subscription_callback(NULL);
@@ -1869,7 +1918,6 @@ _rclc_default_scheduling(rclc_executor_t * executor)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
-
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
     rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->spin_index);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
@@ -1881,6 +1929,9 @@ _rclc_default_scheduling(rclc_executor_t * executor)
       executor->handles, executor->max_handles,
       executor->trigger_object, RCLCPP_EXECUTOR, executor->spin_index))
   {
+    rcutils_time_point_value_t now;
+    rc = rcutils_steady_time_now(&now);
+    printf("Triggered %lu %ld\n", (unsigned long) executor, now);
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
@@ -1889,7 +1940,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
       {
         return rc;
       }
-      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index, 0);
+      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -1910,6 +1961,10 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
+    if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA && executor->handles[i].data_available)
+    {
+      _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
+    }
   }
   // if the trigger condition is fullfilled, fetch data and execute
   // Customized trigger function to trigger on any timer callback
@@ -1917,6 +1972,9 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
       executor->handles, executor->max_handles,
       executor->trigger_object, RCLCPP_EXECUTOR, executor->spin_index))
   {
+    rcutils_time_point_value_t now;
+    rc = rcutils_steady_time_now(&now);
+    printf("Triggered %lu %ld\n", (unsigned long) executor, now);
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       // Require that for 1 output, the timer is always added first to the executor
@@ -1926,7 +1984,8 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
       {
         return rc;
       }
-      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index, (unsigned long) executor);
+      if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA)
+      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -1957,6 +2016,9 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       executor->handles, executor->max_handles,
       executor->trigger_object, LET, executor->spin_index))
   {
+    rcutils_time_point_value_t now;
+    rc = rcutils_steady_time_now(&now);
+    printf("Triggered %lu %ld\n", (unsigned long) executor, now);
     // step 2:  process (execute)
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       if(executor->handles[i].type == RCLC_SUBSCRIPTION || executor->handles[i].type == RCLC_SUBSCRIPTION_WITH_CONTEXT)
@@ -1969,7 +2031,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
         if (rc != RCL_RET_OK)
           return rc;
       }
-      rc = _rclc_execute(&executor->handles[i], LET, executor->spin_index, 0);
+      rc = _rclc_execute(&executor->handles[i], LET, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -2021,7 +2083,7 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
   rcl_ret_t rc = RCL_RET_OK;
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "spin_some");
-
+  rcutils_time_point_value_t now;
   // based on semantics process input data
   switch (executor->data_comm_semantics) {
     case LET:
@@ -2029,14 +2091,16 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       break;
     case RCLCPP_EXECUTOR:
       rc = _rclc_wait_for_new_input(executor, timeout_ns);
-      rcutils_time_point_value_t now;
       rc = rcutils_steady_time_now(&now);
-      printf("Listener %lu %ld\n", (unsigned long) executor, now);
+      printf("Listener %lu 1 %ld\n", (unsigned long) executor, now);
       rc = _rclc_default_scheduling(executor);
       break;
     case LET_OUTPUT:
       rc = _rclc_wait_for_new_input(executor, timeout_ns);
-      rc = _rclc_let_output_scheduling(executor);
+      if (rc == RCL_RET_WAIT_SET_EMPTY)
+        rclc_sleep_ns(timeout_ns);
+      else if(rc == RCL_RET_OK)
+        rc = _rclc_let_output_scheduling(executor);
       break;
     default:
       PRINT_RCLC_ERROR(rclc_executor_spin_some, unknown_semantics);
@@ -2225,7 +2289,7 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
     executor->timeout_ns = 0;
     output_let_arg_t arg = {&executor->let_output_node, exit_flag, period_ns};
     _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg);
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_output_let_spin_wrapper, &arg);
   }
   while (!(*exit_flag)) {
     ret = rcutils_steady_time_now(&now);
@@ -2467,14 +2531,14 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
   }
   rc = rcutils_steady_time_now(&now);
 
-
+  printf("Listener %lu %ld %ld\n", (unsigned long) executor, executor->input_index, now);
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
       executor->trigger_object, executor->data_comm_semantics, executor->input_index))
   {
-    printf("Listener %lu %ld %ld\n", (unsigned long) executor, executor->input_index, now);
+    printf("Reader %lu %ld %ld\n", (unsigned long) executor, executor->input_index, now);
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, LET, executor->input_index);
@@ -2721,8 +2785,6 @@ static rcl_ret_t _rclc_wait_for_new_input(rclc_executor_t * executor, const uint
   // wait up to 'timeout_ns' to receive notification about which handles reveived
   // new data from DDS queue.
   rc = rcl_wait(&executor->wait_set, timeout_ns);
-  RCLC_UNUSED(rc);
-  
   return rc;
 }
 
@@ -2753,4 +2815,127 @@ rclc_executor_add_publisher_LET(
     executor->handles, executor->max_handles, publisher,
     max_number_per_callback, handle_ptr, type);
   return ret;
+}
+
+void print_ret(rcl_ret_t ret, unsigned long ptr)
+{
+  switch(ret)
+  {
+  case RCL_RET_OK:
+    printf("RCL_RET_OK %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ERROR:
+    printf("RCL_RET_ERROR %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMEOUT:
+    printf("RCL_RET_TIMEOUT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_BAD_ALLOC:
+    printf("RCL_RET_BAD_ALLOC %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_ARGUMENT:
+    printf("RCL_RET_INVALID_ARGUMENT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_UNSUPPORTED:
+    printf("RCL_RET_UNSUPPORTED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ALREADY_INIT:
+    printf("RCL_RET_ALREADY_INIT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NOT_INIT:
+    printf("RCL_RET_NOT_INIT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_MISMATCHED_RMW_ID:
+    printf("RCL_RET_MISMATCHED_RMW_ID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TOPIC_NAME_INVALID:
+    printf("RCL_RET_TOPIC_NAME_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_NAME_INVALID:
+    printf("RCL_RET_SERVICE_NAME_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_UNKNOWN_SUBSTITUTION:
+    printf("RCL_RET_UNKNOWN_SUBSTITUTION %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ALREADY_SHUTDOWN:
+    printf("RCL_RET_ALREADY_SHUTDOWN %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID:
+    printf("RCL_RET_NODE_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID_NAME:
+    printf("RCL_RET_NODE_INVALID_NAME %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID_NAMESPACE:
+    printf("RCL_RET_NODE_INVALID_NAMESPACE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_NAME_NON_EXISTENT:
+    printf("RCL_RET_NODE_NAME_NON_EXISTENT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_PUBLISHER_INVALID:
+    printf("RCL_RET_PUBLISHER_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SUBSCRIPTION_INVALID:
+    printf("RCL_RET_SUBSCRIPTION_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SUBSCRIPTION_TAKE_FAILED:
+    printf("RCL_RET_SUBSCRIPTION_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_CLIENT_INVALID:
+    printf("RCL_RET_CLIENT_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_CLIENT_TAKE_FAILED:
+    printf("RCL_RET_CLIENT_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_INVALID:
+    printf("RCL_RET_SERVICE_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_TAKE_FAILED:
+    printf("RCL_RET_SERVICE_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMER_INVALID:
+    printf("RCL_RET_TIMER_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMER_CANCELED:
+    printf("RCL_RET_TIMER_CANCELED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_INVALID:
+    printf("RCL_RET_WAIT_SET_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_EMPTY:
+    printf("RCL_RET_WAIT_SET_EMPTY %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_FULL:
+    printf("RCL_RET_WAIT_SET_FULL %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_REMAP_RULE:
+    printf("RCL_RET_INVALID_REMAP_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WRONG_LEXEME:
+    printf("RCL_RET_WRONG_LEXEME %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_ROS_ARGS:
+    printf("RCL_RET_INVALID_ROS_ARGS %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_PARAM_RULE:
+    printf("RCL_RET_INVALID_PARAM_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_LOG_LEVEL_RULE:
+    printf("RCL_RET_INVALID_LOG_LEVEL_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_EVENT_INVALID:
+    printf("RCL_RET_EVENT_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_EVENT_TAKE_FAILED:
+    printf("RCL_RET_EVENT_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_LIFECYCLE_STATE_REGISTERED:
+    printf("RCL_RET_LIFECYCLE_STATE_REGISTERED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED:
+    printf("RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED %ld\n", (long)ptr);
+    break;
+  default:
+    printf("Unknown case %ld\n", (long)ptr);
+  }
 }

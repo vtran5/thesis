@@ -81,15 +81,13 @@ typedef struct
 {
   rclc_let_output_t * output;
   uint64_t period_ns;
-  unsigned long executor_ptr;
-  uint64_t executor_index;
 } rclc_let_timer_callback_context_t;
 
 typedef struct 
 {
   rclc_let_output_t * output;
   rcl_subscription_t * subscriber;
-} _rclc_let_data_subscriber_callback_context_t;
+} rclc_let_data_subscriber_callback_context_t;
 
 rcl_ret_t
 rclc_let_output_node_init(

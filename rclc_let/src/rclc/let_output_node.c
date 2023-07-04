@@ -215,7 +215,7 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 		output->first_run = false;
 	}
 	ret = rcutils_steady_time_now(&now);
-	printf("Writer %ld\n", now);
+	printf("Writer %lu %ld\n", (unsigned long) output->handle.publisher, now);
 	output->period_index++;
 	output->timer_triggered = true;
 	return;
@@ -223,7 +223,7 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 
 void _rclc_let_data_subscriber_callback(const void * msgin, void * context)
 {
-	_rclc_let_data_subscriber_callback_context_t * context_obj = context;
+	rclc_let_data_subscriber_callback_context_t * context_obj = context;
 	rclc_let_output_t * output = context_obj->output;
 	rcl_subscription_t * subscriber = context_obj->subscriber;
 	int period_id = output->period_index%output->callback_info->num_period_per_let;
@@ -250,7 +250,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 	rclc_executor_t output_executor = rclc_executor_get_zero_initialized_executor();
 	ret = rclc_executor_init(&output_executor, &let_output_node->support.context, 
 						let_output_node->max_intermediate_handles, let_output_node->allocator);
-	ret = rclc_executor_set_timeout(&output_executor, RCL_MS_TO_NS(1000));
+	ret = rclc_executor_set_timeout(&output_executor, RCL_MS_TO_NS(5000));
 	ret = rclc_executor_set_semantics(&output_executor, LET_OUTPUT);
 	ret = rclc_executor_set_trigger(&output_executor, _rclc_executor_trigger_any_let_timer, NULL);
 
@@ -275,7 +275,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   		void * msg;
   		rclc_array_element_status_t status;
   		ret = rclc_get_pointer_array(&let_output_node->output_arr[i].data_arr, j, &msg, &status);
-  		_rclc_let_data_subscriber_callback_context_t sub_context = 
+  		rclc_let_data_subscriber_callback_context_t sub_context = 
   		{
   			.output = &let_output_node->output_arr[i],
   			.subscriber = &let_output_node->output_arr[i].subscriber_arr[j]
@@ -287,7 +287,6 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 	  		&sub_context, 0, ON_NEW_DATA, 0);  		
   	}
   }
-
   while(!(*exit_flag))
   {
   	ret = rclc_executor_spin_some(&output_executor, output_executor.timeout_ns);
