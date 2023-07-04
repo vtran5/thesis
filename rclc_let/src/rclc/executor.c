@@ -1628,6 +1628,7 @@ _rclc_execute(rclc_executor_handle_t * handle,
           int64_t * temp = data;
           rcutils_time_point_value_t now;
           rc = rcutils_steady_time_now(&now);
+          printf("callback execute %ld % ld\n", temp[1], now);
           handle->subscription_callback(data);
         } else {
           handle->subscription_callback(NULL);
@@ -1940,6 +1941,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
       {
         return rc;
       }
+      printf("Execute Sub normal %ld\n", (unsigned long) executor);
       rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
@@ -1958,11 +1960,14 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
 
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
     rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->spin_index);
+    printf("Check for new data");
+    print_ret(rc, (unsigned long) executor);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
     if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA && executor->handles[i].data_available)
     {
+      printf("Take sub data\n");
       _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
     }
   }
@@ -1985,6 +1990,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
         return rc;
       }
       if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA)
+        printf("Execute Sub %ld\n", (unsigned long) executor);
       rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
@@ -2096,11 +2102,18 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       rc = _rclc_default_scheduling(executor);
       break;
     case LET_OUTPUT:
+      rc = rcutils_steady_time_now(&now);
+      printf("Wait start %ld %ld %ld\n", (unsigned long) executor,timeout_ns, now);
       rc = _rclc_wait_for_new_input(executor, timeout_ns);
+      print_ret(rc, (unsigned long) executor);
       if (rc == RCL_RET_WAIT_SET_EMPTY)
+      {
+        printf("Sleeping %ld\n", (unsigned long) executor);
         rclc_sleep_ns(timeout_ns);
-      else if(rc == RCL_RET_OK)
-        rc = _rclc_let_output_scheduling(executor);
+      }
+      rc = rcutils_steady_time_now(&now);
+      printf("Wait done %ld %ld\n", (unsigned long) executor, now);
+      rc = _rclc_let_output_scheduling(executor);
       break;
     default:
       PRINT_RCLC_ERROR(rclc_executor_spin_some, unknown_semantics);
@@ -2424,8 +2437,10 @@ bool _rclc_executor_trigger_any_let_timer(
   for (unsigned int i = 0; i < size; i++) {
     if (handles[i].initialized)
     {
+      printf("Check handle type\n");
       if (handles[i].type == RCLC_LET_TIMER)
       {
+        printf("Handle is timer, check data available\n");
         if (_rclc_check_handle_data_available(&handles[i], semantics, index)) {
           return true;
         }        

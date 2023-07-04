@@ -223,6 +223,7 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 
 void _rclc_let_data_subscriber_callback(const void * msgin, void * context)
 {
+	printf("Sub output callback\n");
 	rclc_let_data_subscriber_callback_context_t * context_obj = context;
 	rclc_let_output_t * output = context_obj->output;
 	rcl_subscription_t * subscriber = context_obj->subscriber;
@@ -272,6 +273,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 
   	for (int j = 0; j < let_output_node->output_arr[i].callback_info->num_period_per_let; j++)
   	{
+  		printf("Number of period per let %d\n", let_output_node->output_arr[i].callback_info->num_period_per_let);
   		void * msg;
   		rclc_array_element_status_t status;
   		ret = rclc_get_pointer_array(&let_output_node->output_arr[i].data_arr, j, &msg, &status);
@@ -287,6 +289,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 	  		&sub_context, 0, ON_NEW_DATA, 0);  		
   	}
   }
+  printf("Output executor start %ld\n", (unsigned long) &output_executor);
   while(!(*exit_flag))
   {
   	ret = rclc_executor_spin_some(&output_executor, output_executor.timeout_ns);
