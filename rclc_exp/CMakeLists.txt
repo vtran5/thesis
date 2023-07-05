@@ -50,7 +50,7 @@ ament_target_dependencies(exp6 rcl rclc custom_interfaces)
 add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
 ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 
-add_executable(exp8 src/exp_multi_thread_single_core_let.c src/utilities.c)
+add_executable(exp8 src/exp8.c src/utilities.c)
 ament_target_dependencies(exp8 rcl rclc_let custom_interfaces)
 
 add_executable(mytest src/test.c src/utilities.c)

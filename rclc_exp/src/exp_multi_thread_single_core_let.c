@@ -53,11 +53,10 @@ void timer_callback(
     start_time = now;
     node->first_run = false;
     sprintf(temp, "StartTime %ld\n", start_time);
-    strcat(stat1,temp);
+    strcat(stat,temp);
   }
-  pub_msg.frame_id = node->count1++;
+  pub_msg.frame_id = node->count[0]++;
   pub_msg.stamp = now;
-
   sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
   strcat(stat,temp);
   RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
@@ -78,7 +77,7 @@ void subscriber_callback(
   now = rclc_now(&support);
   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
   strcat(stat,temp);
-  busy_wait_random(min_run_time, max_run_time);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
   now = rclc_now(&support);
   if (pub_index >= 0)
   {
@@ -114,7 +113,7 @@ void node2_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 15;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time, max_run_time, pub_semantics);
+  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node3_subscriber1_callback(const void * msgin)
@@ -129,7 +128,7 @@ void node3_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 20;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time, max_run_time, pub_semantics);
+  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node4_subscriber1_callback(const void * msgin)
@@ -144,7 +143,7 @@ void node4_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time, max_run_time, pub_semantics);
+  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 /******************** MAIN PROGRAM ****************************************/
@@ -172,8 +171,7 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
     exit_flag = false;
     semantics = (let) ? LET : RCLCPP_EXECUTOR;
-
-    const unsigned int timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(timer_period)};
+    const uint64_t timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(timer_period)};
 
     // create init_options
     RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
@@ -205,12 +203,12 @@ int main(int argc, char const *argv[])
     node4_sub_topic_name = create_topic_name_array(NODE4_SUBSCRIBER_NUMBER);
 
 
-    node1_pub_topic_name[0] = "topic01";
-    node2_sub_topic_name[0] = "topic01";
-    node2_pub_topic_name[0] = "topic02";
-    node3_sub_topic_name[0] = "topic02";
-    node3_pub_topic_name[0] = "topic03";
-    node4_sub_topic_name[0] = "topic03";
+    sprintf(node1_pub_topic_name[0], "topic01");        
+    sprintf(node2_sub_topic_name[0], "topic01");
+    sprintf(node2_pub_topic_name[0], "topic02");
+    sprintf(node3_sub_topic_name[0], "topic02");
+    sprintf(node3_pub_topic_name[0], "topic03");
+    sprintf(node4_sub_topic_name[0], "topic03");
 
     const rosidl_message_type_support_t * my_type_support =
       ROSIDL_GET_MSG_TYPE_SUPPORT(custom_interfaces, msg, Message);  
@@ -219,14 +217,17 @@ int main(int argc, char const *argv[])
     rmw_qos_profile_t profile = rmw_qos_profile_default;
     profile.depth = 1;
     // Init node 1
-    init_node_timer(node1, &support, timer_timeout);
+    init_node_timer(node1, &support, timer_timeout_ns);
     init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile);
+
     // Init node 2
     init_node_subscriber(node2, my_type_support, node2_sub_topic_name, &profile);
     init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile);
+
     // Init node 3
     init_node_subscriber(node3, my_type_support, node3_sub_topic_name, &profile);
     init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile);
+
     // Init node 4
     init_node_subscriber(node4, my_type_support, node4_sub_topic_name, &profile);
 
@@ -257,7 +258,7 @@ int main(int argc, char const *argv[])
     const int max_number_per_callback = 3; // Max number of calls per publisher per callback
     const int num_let_handles = 1; // max number of let handles per callback
     const int max_intermediate_handles = 5;
-    //printf("Debug: number of DDS handles: %u\n", num_handles);
+
     RCCHECK(rclc_executor_init(&executor1, &support.context, num_handles, &allocator));
     RCCHECK(rclc_executor_init(&executor2, &support.context, num_handles, &allocator));
     RCCHECK(rclc_executor_init(&executor3, &support.context, num_handles, &allocator));
@@ -287,45 +288,45 @@ int main(int argc, char const *argv[])
     RCCHECK(rclc_executor_set_period(&executor2, period2));
     RCCHECK(rclc_executor_set_period(&executor3, period3));
     RCCHECK(rclc_executor_set_period(&executor4, period4));
-
+    int i;
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
     {
-      RCCHECK(rclc_executor_add_timer(&executor1, &node1.timer[i], callback_let1));
+      RCCHECK(rclc_executor_add_timer(&executor1, &node1->timer[i], callback_let1));
     }
     for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
-        &executor2, &node2.subscriber[i], &node2.sub_msg[i], node2.subscriber_callback[i],
+        &executor2, &node2->subscriber[i], &node2->sub_msg[i], node2->subscriber_callback[i],
         ON_NEW_DATA, callback_let2, sizeof(custom_interfaces__msg__Message)));
     }
     for (i = 0; i < NODE3_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
-        &executor3, &node3.subscriber[i], &node3.sub_msg[i], node3.subscriber_callback[i],
+        &executor3, &node3->subscriber[i], &node3->sub_msg[i], node3->subscriber_callback[i],
         ON_NEW_DATA, callback_let3, sizeof(custom_interfaces__msg__Message)));
     }
     for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
-        &executor4, &node4.subscriber[i], &node4.sub_msg[i], node4.subscriber_callback[i],
+        &executor4, &node4->subscriber[i], &node4->sub_msg[i], node4->subscriber_callback[i],
         ON_NEW_DATA, callback_let4, sizeof(custom_interfaces__msg__Message)));
     }
     if (let)
     {
       for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1.publisher[i],
-          max_number_per_callback, &node1.timer[0], RCLC_TIMER));
+        RCCHECK(rclc_executor_add_publisher_LET(&executor1, &node1->publisher[i],
+          max_number_per_callback, &node1->timer[0], RCLC_TIMER));
       }
       for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2.publisher[i],
-          max_number_per_callback, &node2.subscriber[0], RCLC_SUBSCRIPTION));
+        RCCHECK(rclc_executor_add_publisher_LET(&executor2, &node2->publisher[i],
+          max_number_per_callback, &node2->subscriber[0], RCLC_SUBSCRIPTION));
       }
       for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3.publisher[i],
-          max_number_per_callback, &node3.subscriber[0], RCLC_SUBSCRIPTION));
+        RCCHECK(rclc_executor_add_publisher_LET(&executor3, &node3->publisher[i],
+          max_number_per_callback, &node3->subscriber[0], RCLC_SUBSCRIPTION));
       }
     }
 
@@ -339,13 +340,13 @@ int main(int argc, char const *argv[])
     printf("ExecutorID Executor3 %lu\n", (unsigned long) &executor3);
     printf("ExecutorID Executor4 %lu\n", (unsigned long) &executor4);
 
-    printf("PublisherID Publisher1 %lu\n", (unsigned long) &node1.publisher[0]);
-    printf("PublisherID Publisher2 %lu\n", (unsigned long) &node2.publisher[0]);
-    printf("PublisherID Publisher3 %lu\n", (unsigned long) &node3.publisher[0]);
-    printf("SubscriberID Subscriber1 %lu\n", (unsigned long) &node2.subscriber[0]);
-    printf("SubscriberID Subscriber2 %lu\n", (unsigned long) &node3.subscriber[0]);
-    printf("SubscriberID Subscriber3 %lu\n", (unsigned long) &node4.subscriber[0]);
-    printf("TimerID Timer1 %lu\n", (unsigned long) &node1.timer[0]);
+    printf("PublisherID Publisher1 %lu\n", (unsigned long) &node1->publisher[0]);
+    printf("PublisherID Publisher2 %lu\n", (unsigned long) &node2->publisher[0]);
+    printf("PublisherID Publisher3 %lu\n", (unsigned long) &node3->publisher[0]);
+    printf("SubscriberID Subscriber1 %lu\n", (unsigned long) &node2->subscriber[0]);
+    printf("SubscriberID Subscriber2 %lu\n", (unsigned long) &node3->subscriber[0]);
+    printf("SubscriberID Subscriber3 %lu\n", (unsigned long) &node4->subscriber[0]);
+    printf("TimerID Timer1 %lu\n", (unsigned long) &node1->timer[0]);
 
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of Linux threads
@@ -399,7 +400,7 @@ int main(int argc, char const *argv[])
     RCCHECK(rclc_executor_let_fini(&executor2));
     RCCHECK(rclc_executor_let_fini(&executor3));
     RCCHECK(rclc_executor_let_fini(&executor4));
-    printf("LET fini\n");
+
     RCCHECK(rclc_executor_fini(&executor1));
     RCCHECK(rclc_executor_fini(&executor2));
     RCCHECK(rclc_executor_fini(&executor3));

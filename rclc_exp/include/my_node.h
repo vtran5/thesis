@@ -106,7 +106,7 @@ my_node_t * create_node(
 
   if(timer_num > 0)
   {
-    node->timer = malloc(sizeof(rcl_timer)*timer_num);
+    node->timer = malloc(sizeof(rcl_timer_t)*timer_num);
     if(node->timer == NULL)
     {
       if (node->subscriber_callback != NULL)
@@ -151,7 +151,7 @@ void init_node(
   rclc_support_t * support, 
   char * node_name)
 {
-  if(node == NULL || node_name == NULL)
+  if((node == NULL) || (node_name == NULL))
     return;
   node->rcl_node = rcl_get_zero_initialized_node();
   RCCHECK(rclc_node_init_default(&node->rcl_node, node_name, "rclc_app", support));  
@@ -163,7 +163,7 @@ void init_node_publisher(
   char ** topic_name,
   rmw_qos_profile_t * profile)
 {
-  if(node == NULL || my_type_support == NULL | topic_name == NULL | profile == NULL)
+  if((node == NULL) || (my_type_support == NULL) | (topic_name == NULL) | (profile == NULL))
     return;
   for (int i = 0; i < node->pub_num; i++)
   {
@@ -177,7 +177,7 @@ void init_node_timer(
   rclc_support_t * support,
   uint64_t * timeout_ns)
 {
-  if(node == NULL || support == NULL | timeout_ns == NULL)
+  if((node == NULL) || (support == NULL) | (timeout_ns == NULL))
     return;
   for (int i = 0; i < node->timer_num; i++)
   {
@@ -192,7 +192,7 @@ void init_node_subscriber(
   char ** topic_name,
   rmw_qos_profile_t * profile)
 {
-  if(node == NULL || my_type_support == NULL | topic_name == NULL | profile == NULL)
+  if((node == NULL) || (my_type_support == NULL) | (topic_name == NULL) | (profile == NULL))
     return;
   for (int i = 0; i < node->sub_num; i++)
   {
@@ -226,7 +226,7 @@ void destroy_node(my_node_t * node)
   }
 
   if(node->count != NULL)
-    free(node->count)
+    free(node->count);
 
   if(node->subscriber != NULL)
   {
@@ -260,7 +260,7 @@ char** create_topic_name_array(size_t array_size)
 
   for(size_t i = 0; i < array_size; i++)
   {
-    arr[i] = malloc(sizeof("topicXX"));
+    arr[i] = malloc(8*sizeof(char)); // "topicXX" plus null terminator
     if (arr[i] == NULL) {
       for (size_t j = 0; j < i; ++j) {
           free(arr[j]);
@@ -269,6 +269,7 @@ char** create_topic_name_array(size_t array_size)
       return NULL;
     }
   }
+  return arr;
 }
 
 void destroy_topic_name_array(char** arr, size_t array_size) {
