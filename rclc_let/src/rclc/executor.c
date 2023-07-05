@@ -302,11 +302,7 @@ rclc_executor_add_subscription_with_context(
   }
 
   // assign data fields
-    if (executor->data_comm_semantics == LET_OUTPUT)
-    executor->handles[executor->index].type = RCLC_SUBSCRIPTION_LET_DATA;
-  else
-    executor->handles[executor->index].type = RCLC_SUBSCRIPTION_WITH_CONTEXT;
-
+  executor->handles[executor->index].type = RCLC_SUBSCRIPTION_WITH_CONTEXT;
   executor->handles[executor->index].subscription = subscription;
   executor->handles[executor->index].data = msg;
   executor->handles[executor->index].subscription_callback_with_context = callback;
@@ -326,6 +322,53 @@ rclc_executor_add_subscription_with_context(
     }    
   }
 
+  // invalidate wait_set so that in next spin_some() call the
+  // 'executor->wait_set' is updated accordingly
+  if (rcl_wait_set_is_valid(&executor->wait_set)) {
+    ret = rcl_wait_set_fini(&executor->wait_set);
+    if (RCL_RET_OK != ret) {
+      RCL_SET_ERROR_MSG("Could not reset wait_set in rclc_executor_add_subscription_with_context.");
+      return ret;
+    }
+  }
+
+  // increase index of handle array
+  executor->index++;
+  executor->info.number_of_subscriptions++;
+
+  RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Added a subscription.");
+  return ret;
+}
+
+rcl_ret_t
+rclc_executor_add_subscription_for_let_data(
+  rclc_executor_t * executor,
+  rcl_subscription_t * subscription,
+  void * msg,
+  rclc_subscription_callback_for_let_data_t callback,
+  void * context,
+  rclc_executor_handle_invocation_t invocation)
+{
+  RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(subscription, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(msg, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(callback, RCL_RET_INVALID_ARGUMENT);
+  rcl_ret_t ret = RCL_RET_OK;
+  // array bound check
+  if (executor->index >= executor->max_handles) {
+    RCL_SET_ERROR_MSG("Buffer overflow of 'executor->handles'. Increase 'max_handles'");
+    return RCL_RET_ERROR;
+  }
+
+  // assign data fields
+  executor->handles[executor->index].type = RCLC_SUBSCRIPTION_LET_DATA;
+  executor->handles[executor->index].subscription = subscription;
+  executor->handles[executor->index].data = msg;
+  executor->handles[executor->index].subscription_callback_let_data = callback;
+  executor->handles[executor->index].invocation = invocation;
+  executor->handles[executor->index].initialized = true;
+  executor->handles[executor->index].callback_context = context;
+  
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
   if (rcl_wait_set_is_valid(&executor->wait_set)) {
@@ -1561,20 +1604,8 @@ bool _rclc_check_handle_data_available(
       else if (handle->data_available)
         return true;
       break;
-    case RCLC_SUBSCRIPTION_LET_DATA:
-      if (handle->callback_context != NULL)
-      {
-        rclc_let_data_subscriber_callback_context_t * context_obj = (rclc_let_data_subscriber_callback_context_t *) handle->callback_context;
-        if (context_obj->output->data_consumed[context_obj->subscriber_period_id] == false)
-        {
-          printf("Sub output data not consumed\n");
-          return true;
-        }
-      }
     default:
       if (handle->data_available) {
-        if(handle->type ==  RCLC_SUBSCRIPTION_LET_DATA)
-          printf("Sub output data available\n");
         return true;
       }
       break;
@@ -1886,7 +1917,7 @@ _rclc_execute(rclc_executor_handle_t * handle,
         }        
         break;
       case RCLC_SUBSCRIPTION_LET_DATA:
-        handle->subscription_callback_with_context(data, handle->callback_context);
+        handle->subscription_callback_let_data(data, handle->callback_context, data_available);
         break;
       default:
         RCUTILS_LOG_DEBUG_NAMED(
@@ -1949,6 +1980,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
+    print_ret(rc, executor);
     printf("Check new data\n");
     if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA && executor->handles[i].data_available)
     {
@@ -1975,12 +2007,6 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       // Require that for 1 output, the timer is always added first to the executor
-      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
-      if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED) &&
-        (rc != RCL_RET_SERVICE_TAKE_FAILED))
-      {
-        return rc;
-      }
       rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
@@ -2092,11 +2118,16 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       rc = _rclc_default_scheduling(executor);
       break;
     case LET_OUTPUT:
+      rc = rcutils_steady_time_now(&now);
+      printf("OutEx wait for new input timeout %lu %lu %ld\n", timeout_ns, (unsigned long) executor, now);
       rc = _rclc_wait_for_new_input(executor, timeout_ns);
+      print_ret(rc, executor);
       if (rc == RCL_RET_WAIT_SET_EMPTY)
       {
         rclc_sleep_ns(timeout_ns);
       }
+      rc = rcutils_steady_time_now(&now);
+      printf("OutEx wait done %lu %ld\n", (unsigned long) executor, now);
       rc = _rclc_let_output_scheduling(executor);
       break;
     default:

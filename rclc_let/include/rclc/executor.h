@@ -323,6 +323,16 @@ rclc_executor_add_subscription_with_context(
   rcutils_time_point_value_t callback_let_ns,
   int message_size);
 
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_subscription_for_let_data(
+  rclc_executor_t * executor,
+  rcl_subscription_t * subscription,
+  void * msg,
+  rclc_subscription_callback_for_let_data_t callback,
+  void * context,
+  rclc_executor_handle_invocation_t invocation);
+
 /**
  *  Adds a timer to an executor.
  * * An error is returned, if {@link rclc_executor_t.handles} array is full.

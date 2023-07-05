@@ -233,7 +233,7 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 	return;
 }
 
-void _rclc_let_data_subscriber_callback(const void * msgin, void * context)
+void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool data_available)
 {
 	printf("Sub output callback\n");
 	rclc_let_data_subscriber_callback_context_t * context_obj = context;
@@ -243,15 +243,26 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context)
 	rcutils_time_point_value_t now;
 	if(output->timer_triggered && subscriber_period_id == period_id)
 	{
+		printf("Sub output callback triggered\n");
+		output->timer_triggered = false;
+		if(!data_available && output->data_consumed[subscriber_period_id])
+		{
+			// Deadline passed without new data
+			output->callback_info->deadline_passed = true;
+			return;
+		}
+
 		rcl_ret_t ret = rcl_publish(&output->publisher.rcl_publisher, msgin, NULL);
 		RCLC_UNUSED(ret);
 		output->data_consumed[subscriber_period_id] = true;
-		output->timer_triggered = false;
 		ret = rcutils_steady_time_now(&now);
 		printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, period_id, now);
 	}
-	else
+	else if (data_available || !output->data_consumed[subscriber_period_id])
+	{
+		// have new data but not for this deadline
 		output->data_consumed[subscriber_period_id] = false;
+	}
 	return;
 }
 
@@ -308,10 +319,11 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   		sub_context[intermediate_handles_count].output = &let_output_node->output_arr[i];
   		sub_context[intermediate_handles_count].subscriber_period_id = j;
   		
-	  	rclc_executor_add_subscription_with_context(&output_executor, 
+	  	rclc_executor_add_subscription_for_let_data(&output_executor, 
 	  		&let_output_node->output_arr[i].subscriber_arr[j],
 	  		msg, &_rclc_let_data_subscriber_callback, 
-	  		&sub_context[intermediate_handles_count], 0, ON_NEW_DATA, 0);  		
+	  		&sub_context[intermediate_handles_count], ALWAYS);  		
+	  	
 	  	intermediate_handles_count++;
   	}
   }

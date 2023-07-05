@@ -113,7 +113,7 @@ typedef void (* rclc_timer_callback_with_context_t)(rcl_timer_t *, void *);
 /// - let_executor
 /// - handle pointer
 /// - data_consumed flag
-typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, void *, void *);
+typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, bool);
 
 typedef struct {
   /// Stores the let (i.e deadline) of the callback
@@ -124,6 +124,9 @@ typedef struct {
   rclc_array_t data_available;
   /// Number of executor period per callback LET
   int num_period_per_let;
+  /// Set to true when deadline has passed but the callback is still executed
+  /// Should not read any new callback input while true
+  bool deadline_passed;
 } rclc_callback_let_info_t;
 
 /// Container for a handle.
@@ -177,6 +180,7 @@ typedef struct
     rclc_client_callback_with_request_id_t client_callback_with_reqid;
     rclc_gc_callback_t gc_callback;
     rclc_timer_callback_with_context_t timer_callback_with_context;
+    rclc_subscription_callback_for_let_data_t subscription_callback_let_data;
   };
 
   /// Internal variable.
