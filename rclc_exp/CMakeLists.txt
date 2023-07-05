@@ -53,6 +53,9 @@ ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 add_executable(exp8 src/exp8.c src/utilities.c)
 ament_target_dependencies(exp8 rcl rclc_let custom_interfaces)
 
+add_executable(exp9 src/exp9.c src/utilities.c)
+ament_target_dependencies(exp9 rcl rclc_let custom_interfaces)
+
 add_executable(mytest src/test.c src/utilities.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
 
@@ -86,6 +89,7 @@ install(TARGETS
   exp6
   exp7
   exp8
+  exp9
   DESTINATION lib/${PROJECT_NAME}
 )
 

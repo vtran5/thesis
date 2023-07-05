@@ -22,6 +22,7 @@
 
 #define LOGGER_DIM0 6
 
+// Experiment with deadline violation
 
 rclc_support_t support;
 volatile rcl_time_point_value_t start_time;
@@ -126,7 +127,7 @@ void node3_subscriber1_callback(const void * msgin)
   int sub_index = 0;
   int pub_index = 0;
   int min_run_time_ms = 5;
-  int max_run_time_ms = 80;
+  int max_run_time_ms = 60;
   rclc_executor_semantics_t pub_semantics = semantics;
   subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
@@ -247,8 +248,8 @@ int main(int argc, char const *argv[])
 
     callback_let_timer1[0] = RCUTILS_MS_TO_NS(10);
     callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(20);
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(120);
-    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(120);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(60);
+    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(60);
 
     unsigned int num_handles = 1;
     
@@ -361,6 +362,9 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
+
+
+    //thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);
 
     sleep_ms(experiment_duration);
     exit_flag = true;

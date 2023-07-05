@@ -51,7 +51,7 @@ typedef struct
 	rcl_timer_t timer;
 	bool first_run;
   bool timer_triggered;
-  bool data_consumed;
+  bool * data_consumed;
   bool initialized;
 	uint64_t period_index;
   int max_msg_per_period;
@@ -86,7 +86,7 @@ typedef struct
 typedef struct 
 {
   rclc_let_output_t * output;
-  rcl_subscription_t * subscriber;
+  int subscriber_period_id;
 } rclc_let_data_subscriber_callback_context_t;
 
 rcl_ret_t

@@ -281,5 +281,24 @@ void destroy_topic_name_array(char** arr, size_t array_size) {
         
         // Then free the array itself
         free(arr);
+        arr = NULL;
     }
+}
+
+rcutils_time_point_value_t * create_time_array(size_t array_size)
+{
+  if(array_size <= 0)
+    return NULL;
+
+  rcutils_time_point_value_t * arr = malloc(array_size * sizeof(rcutils_time_point_value_t));
+  if(arr == NULL)
+    printf("Fail to allocate memory for callback let array\n");
+  return arr;
+}
+
+void destroy_time_array(rcutils_time_point_value_t * array)
+{
+  if(array != NULL)
+    free(array);
+  array = NULL;
 }

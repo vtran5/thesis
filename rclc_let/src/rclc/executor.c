@@ -1154,6 +1154,8 @@ _rclc_check_for_new_data(
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
     case RCLC_SUBSCRIPTION_LET_DATA:
       handle->data_available = (NULL != wait_set->subscriptions[handle->index]); 
+      if (handle->type == RCLC_SUBSCRIPTION_LET_DATA && handle->data_available)
+        printf("Sub output new data to take\n");
       if(semantics == LET)
       {
         rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
@@ -1165,6 +1167,8 @@ _rclc_check_for_new_data(
     case RCLC_TIMER_WITH_CONTEXT:
     case RCLC_LET_TIMER:
       handle->data_available = (NULL != wait_set->timers[handle->index]);
+      if (handle->type == RCLC_LET_TIMER && handle->data_available)
+        printf("Tm output new data to take\n");
       if(semantics == LET)
       {
         rc = rclc_set_array(&(handle->callback_info->data_available), &handle->data_available, 
@@ -1281,12 +1285,14 @@ _rclc_take_new_data(
           // invalidate that data is available, because rcl_take failed
           if (rc == RCL_RET_SUBSCRIPTION_TAKE_FAILED) {
             handle->data_available = false;
+            printf("Sub output take data failed\n");
           }
           return rc;
         }
+        printf("Sub output takes data\n");
         rclc_let_data_subscriber_callback_context_t * context_obj = 
             (rclc_let_data_subscriber_callback_context_t *) handle->callback_context;
-        context_obj->output->data_consumed = false;
+        context_obj->output->data_consumed[context_obj->subscriber_period_id] = false;
       }
       break;      
     case RCLC_TIMER:
@@ -1559,13 +1565,16 @@ bool _rclc_check_handle_data_available(
       if (handle->callback_context != NULL)
       {
         rclc_let_data_subscriber_callback_context_t * context_obj = (rclc_let_data_subscriber_callback_context_t *) handle->callback_context;
-        if (context_obj->output->data_consumed == false)
+        if (context_obj->output->data_consumed[context_obj->subscriber_period_id] == false)
         {
+          printf("Sub output data not consumed\n");
           return true;
         }
       }
     default:
       if (handle->data_available) {
+        if(handle->type ==  RCLC_SUBSCRIPTION_LET_DATA)
+          printf("Sub output data available\n");
         return true;
       }
       break;
@@ -1934,15 +1943,24 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
-
+  printf("OutEx start scheduling %ld\n", (unsigned long) executor);
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
     rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->spin_index);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
+    printf("Check new data\n");
     if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA && executor->handles[i].data_available)
     {
       _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
+    }
+    if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA)
+    {
+      rclc_let_data_subscriber_callback_context_t * context_obj = (rclc_let_data_subscriber_callback_context_t *) executor->handles[i].callback_context;
+      if (context_obj->output->data_consumed[context_obj->subscriber_period_id])
+        printf("data_consumed true\n");
+      else
+        printf("data_consumed false\n");      
     }
   }
   // if the trigger condition is fullfilled, fetch data and execute
@@ -2140,7 +2158,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     }
     executor->state = EXECUTING;
     ret = rcutils_steady_time_now(&end_time_point);
-    printf("Executing Executor %lu %ld\n", (unsigned long) executor, end_time_point);
+    printf("Executing Executor %lu %ld %ld\n", (unsigned long) executor, executor->spin_index, end_time_point);
     pthread_mutex_unlock(&executor->mutex);
 
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);

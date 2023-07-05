@@ -110,6 +110,7 @@ _rclc_publish_LET(
     return RCL_RET_ERROR;
   }
   rcl_ret_t ret = rcl_publish(&(publisher->let_publishers[index]), ros_message, allocation);
+  printf("Publish internal at index %d %ld\n", index, (unsigned long) publisher);
   return ret;
 }
 

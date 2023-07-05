@@ -26,14 +26,23 @@ rcl_ret_t _rclc_output_handle_init(
 	output->handle = handle;
 	output->first_run = true;
 	output->timer_triggered = false;
-	output->data_consumed = true;
 	output->period_index = 0;
 
 	switch(output->handle.type)
 	{
 	case RCLC_PUBLISHER:
 		output->subscriber_arr = allocator->allocate(num_period_per_let*sizeof(rcl_subscription_t), allocator->state);
+		if(output->subscriber_arr == NULL)
+			return RCL_RET_BAD_ALLOC;
+
+		output->data_consumed = allocator->allocate(num_period_per_let*sizeof(bool), allocator->state);
+		if(output->data_consumed == NULL)
+			return RCL_RET_BAD_ALLOC;
+
 		output->handle.publisher->let_publishers = allocator->allocate(num_period_per_let*sizeof(rcl_publisher_t), allocator->state);
+		if(output->handle.publisher->let_publishers == NULL)
+			return RCL_RET_BAD_ALLOC;
+
 		char * intermediate_topic = allocator->allocate(strlen(output->handle.publisher->topic_name)+ 13, allocator->state);
 		if (intermediate_topic == NULL)
 			return RCL_RET_BAD_ALLOC;
@@ -57,6 +66,7 @@ rcl_ret_t _rclc_output_handle_init(
 				output->handle.publisher->type_support,
 				intermediate_topic,
 				&output->handle.publisher->option.qos);
+			output->data_consumed[i] = true;
 		}
 
 		allocator->deallocate(intermediate_topic, allocator->state);
@@ -100,6 +110,8 @@ rcl_ret_t _rclc_output_handle_fini(
 		allocator->deallocate(output->subscriber_arr, allocator->state);
 		output->subscriber_arr = NULL;
 		rclc_fini_array(&output->data_arr);
+		allocator->deallocate(output->data_consumed, allocator->state);
+		output->data_consumed = NULL;
 		allocator->deallocate(output->handle.publisher->let_publishers, allocator->state);
 		output->handle.publisher->let_publishers = NULL;
 		break;
@@ -214,10 +226,10 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 		RCLC_UNUSED(ret);
 		output->first_run = false;
 	}
-	ret = rcutils_steady_time_now(&now);
-	printf("Writer %lu %ld\n", (unsigned long) output->handle.publisher, now);
 	output->period_index++;
 	output->timer_triggered = true;
+	ret = rcutils_steady_time_now(&now);
+	printf("Writer %lu %ld %ld\n", (unsigned long) output->handle.publisher, output->period_index, now);
 	return;
 }
 
@@ -226,20 +238,20 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context)
 	printf("Sub output callback\n");
 	rclc_let_data_subscriber_callback_context_t * context_obj = context;
 	rclc_let_output_t * output = context_obj->output;
-	rcl_subscription_t * subscriber = context_obj->subscriber;
-	int period_id = output->period_index%output->callback_info->num_period_per_let;
+	int subscriber_period_id = context_obj->subscriber_period_id;
+	int period_id = (output->period_index - 1)%output->callback_info->num_period_per_let; // Minus 1 because output->period_index is incremented before output send
 	rcutils_time_point_value_t now;
-	if(output->timer_triggered && subscriber == &(output->subscriber_arr[period_id]))
+	if(output->timer_triggered && subscriber_period_id == period_id)
 	{
 		rcl_ret_t ret = rcl_publish(&output->publisher.rcl_publisher, msgin, NULL);
 		RCLC_UNUSED(ret);
-		output->data_consumed = true;
+		output->data_consumed[subscriber_period_id] = true;
 		output->timer_triggered = false;
 		ret = rcutils_steady_time_now(&now);
-		printf("Publisher %lu %ld\n", (unsigned long) output->handle.publisher, now);
+		printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, period_id, now);
 	}
 	else
-		output->data_consumed = false;
+		output->data_consumed[subscriber_period_id] = false;
 	return;
 }
 
@@ -254,7 +266,25 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 	ret = rclc_executor_set_timeout(&output_executor, RCL_MS_TO_NS(5000));
 	ret = rclc_executor_set_semantics(&output_executor, LET_OUTPUT);
 	ret = rclc_executor_set_trigger(&output_executor, _rclc_executor_trigger_any_let_timer, NULL);
+	rclc_let_timer_callback_context_t * timer_context = let_output_node->allocator->allocate(
+																sizeof(rclc_let_timer_callback_context_t)*let_output_node->index, 
+																let_output_node->allocator->state);
+	if (timer_context == NULL)
+	{
+		printf("Bad memory allocation\n");
+		return RCL_RET_BAD_ALLOC;
+	}
 
+	rclc_let_data_subscriber_callback_context_t * sub_context = let_output_node->allocator->allocate(
+																sizeof(rclc_let_data_subscriber_callback_context_t)*let_output_node->max_intermediate_handles, 
+																let_output_node->allocator->state);
+	if (sub_context == NULL)
+	{
+		printf("Bad memory allocation\n");
+		return RCL_RET_BAD_ALLOC;
+	}
+
+	int intermediate_handles_count = 0;
   for (size_t i = 0; (i < let_output_node->max_output_handles && let_output_node->output_arr[i].initialized); i++)
   {
   	let_output_node->output_arr[i].timer = rcl_get_zero_initialized_timer();
@@ -262,14 +292,12 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   		&let_output_node->support, 
   		let_output_node->output_arr[i].callback_info->callback_let_ns, 
   		NULL);
-  	rclc_let_timer_callback_context_t timer_context =
-  	{
-  		.output = &let_output_node->output_arr[i],
-  		.period_ns = period_ns
-  	};
+  	timer_context[i].output = &let_output_node->output_arr[i];
+  	timer_context[i].period_ns = period_ns;
+
   	ret = rclc_executor_add_timer_with_context(&output_executor,
   		&let_output_node->output_arr[i].timer, &_rclc_let_deadline_timer_callback,
-  		&timer_context, 0);
+  		&timer_context[i], 0);
 
   	for (int j = 0; j < let_output_node->output_arr[i].callback_info->num_period_per_let; j++)
   	{
@@ -277,16 +305,14 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   		void * msg;
   		rclc_array_element_status_t status;
   		ret = rclc_get_pointer_array(&let_output_node->output_arr[i].data_arr, j, &msg, &status);
-  		rclc_let_data_subscriber_callback_context_t sub_context = 
-  		{
-  			.output = &let_output_node->output_arr[i],
-  			.subscriber = &let_output_node->output_arr[i].subscriber_arr[j]
-  		};
-
+  		sub_context[intermediate_handles_count].output = &let_output_node->output_arr[i];
+  		sub_context[intermediate_handles_count].subscriber_period_id = j;
+  		
 	  	rclc_executor_add_subscription_with_context(&output_executor, 
 	  		&let_output_node->output_arr[i].subscriber_arr[j],
 	  		msg, &_rclc_let_data_subscriber_callback, 
-	  		&sub_context, 0, ON_NEW_DATA, 0);  		
+	  		&sub_context[intermediate_handles_count], 0, ON_NEW_DATA, 0);  		
+	  	intermediate_handles_count++;
   	}
   }
   printf("Output executor start %ld\n", (unsigned long) &output_executor);
@@ -298,6 +324,8 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
       return RCL_RET_ERROR;
     }
   }
+  let_output_node->allocator->deallocate(timer_context, let_output_node->allocator->state);
+  let_output_node->allocator->deallocate(sub_context, let_output_node->allocator->state);
   return ret;
 }
 
