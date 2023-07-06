@@ -1938,7 +1938,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->spin_index);
+    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
@@ -1946,20 +1946,20 @@ _rclc_default_scheduling(rclc_executor_t * executor)
   // if the trigger condition is fullfilled, fetch data and execute
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
-      executor->trigger_object, RCLCPP_EXECUTOR, executor->spin_index))
+      executor->trigger_object, RCLCPP_EXECUTOR, 0))
   {
     rcutils_time_point_value_t now;
     rc = rcutils_steady_time_now(&now);
     printf("Triggered %lu %ld\n", (unsigned long) executor, now);
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
+      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED) &&
         (rc != RCL_RET_SERVICE_TAKE_FAILED))
       {
         return rc;
       }
-      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
+      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, 0);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -1976,7 +1976,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
   rcl_ret_t rc = RCL_RET_OK;
   printf("OutEx start scheduling %ld\n", (unsigned long) executor);
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->spin_index);
+    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
@@ -1984,7 +1984,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
     printf("Check new data\n");
     if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA && executor->handles[i].data_available)
     {
-      _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->input_index);
+      _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
     }
     if (executor->handles[i].type == RCLC_SUBSCRIPTION_LET_DATA)
     {
@@ -1999,7 +1999,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
   // Customized trigger function to trigger on any timer callback
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
-      executor->trigger_object, RCLCPP_EXECUTOR, executor->spin_index))
+      executor->trigger_object, RCLCPP_EXECUTOR, 0))
   {
     rcutils_time_point_value_t now;
     rc = rcutils_steady_time_now(&now);
@@ -2007,7 +2007,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       // Require that for 1 output, the timer is always added first to the executor
-      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, executor->spin_index);
+      rc = _rclc_execute(&executor->handles[i], RCLCPP_EXECUTOR, 0);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -2036,7 +2036,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
-      executor->trigger_object, LET, executor->spin_index))
+      executor->trigger_object, LET, executor->let_executor->spin_index))
   {
     rcutils_time_point_value_t now;
     rc = rcutils_steady_time_now(&now);
@@ -2048,12 +2048,12 @@ _rclc_let_scheduling(rclc_executor_t * executor)
         rclc_array_element_status_t status;
         // get handle.data point to the data in the data array
         rc = rclc_get_pointer_array(&(executor->handles[i].callback_info->data), 
-                executor->spin_index%executor->handles[i].callback_info->num_period_per_let, 
+                executor->let_executor->spin_index%executor->handles[i].callback_info->num_period_per_let, 
                 &(executor->handles[i].data), &status);
         if (rc != RCL_RET_OK)
           return rc;
       }
-      rc = _rclc_execute(&executor->handles[i], LET, executor->spin_index);
+      rc = _rclc_execute(&executor->handles[i], LET, executor->let_executor->spin_index);
       if (rc != RCL_RET_OK) {
         return rc;
       }
@@ -2147,7 +2147,7 @@ rclc_executor_spin(rclc_executor_t * executor)
     ROS_PACKAGE_NAME,
     "INFO: rcl_wait timeout %ld ms",
     ((executor->timeout_ns / 1000) / 1000));
-  executor->state = EXECUTING;
+  executor->let_executor->state = EXECUTING;
   while (true) {
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -2182,15 +2182,15 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
       return RCL_RET_ERROR;
     }
 
-    pthread_mutex_lock(&executor->mutex);
-    while (executor->state != INPUT_READ && executor->spin_index >= executor->input_index)
+    pthread_mutex_lock(&executor->let_executor->mutex);
+    while (executor->let_executor->state != INPUT_READ && executor->let_executor->spin_index >= executor->let_executor->input_index)
     {
-      pthread_cond_wait(&executor->let_input_done, &executor->mutex);
+      pthread_cond_wait(&executor->let_executor->let_input_done, &executor->let_executor->mutex);
     }
-    executor->state = EXECUTING;
+    executor->let_executor->state = EXECUTING;
     ret = rcutils_steady_time_now(&end_time_point);
-    printf("Executing Executor %lu %ld %ld\n", (unsigned long) executor, executor->spin_index, end_time_point);
-    pthread_mutex_unlock(&executor->mutex);
+    printf("Executing Executor %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->spin_index, end_time_point);
+    pthread_mutex_unlock(&executor->let_executor->mutex);
 
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -2198,18 +2198,18 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
       return ret;
     }
     
-    executor->spin_index++;
+    executor->let_executor->spin_index++;
     executor->invocation_time += period_ns;
     ret = rcutils_system_time_now(&end_time_point);
     
-    pthread_mutex_lock(&executor->mutex);
-    executor->state = WAIT_INPUT;
+    pthread_mutex_lock(&executor->let_executor->mutex);
+    executor->let_executor->state = WAIT_INPUT;
     while(executor->invocation_time < end_time_point)
     {
       executor->invocation_time += period_ns;
-      executor->spin_index++;
+      executor->let_executor->spin_index++;
     }        
-    pthread_mutex_unlock(&executor->mutex);       
+    pthread_mutex_unlock(&executor->let_executor->mutex);       
   }
   else
   {
@@ -2242,7 +2242,7 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
   rcl_ret_t ret;
   pthread_t thread_id_input = 0;
   pthread_t thread_id_output = 0;
-  executor->state = EXECUTING;
+  executor->let_executor->state = EXECUTING;
   bool exit_flag = false;
   
   if (executor->data_comm_semantics == LET)
@@ -2257,10 +2257,10 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
       executor->handles[i].callback_info->num_period_per_let = (executor->handles[i].callback_info->callback_let_ns/period_ns) + 1;
     }
     ret = rcutils_system_time_now(&executor->invocation_time);
-    executor->input_invocation_time = executor->invocation_time;
+    executor->let_executor->input_invocation_time = executor->invocation_time;
     RCLC_UNUSED(ret);
     executor->timeout_ns = 0;
-    output_let_arg_t arg = {&executor->let_output_node, &exit_flag, period_ns};
+    output_let_arg_t arg = {&executor->let_executor->let_output_node, &exit_flag, period_ns};
     _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
     _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg);
   }
@@ -2276,9 +2276,9 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
   if (executor->data_comm_semantics == LET)
   {
       // should never get here
-    pthread_mutex_lock(&executor->mutex);
-    executor->state = IDLE;
-    pthread_mutex_unlock(&executor->mutex);
+    pthread_mutex_lock(&executor->let_executor->mutex);
+    executor->let_executor->state = IDLE;
+    pthread_mutex_unlock(&executor->let_executor->mutex);
     pthread_join(thread_id_input, NULL);
     pthread_join(thread_id_output, NULL);
   }
@@ -2288,7 +2288,7 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
 }
 
 rcl_ret_t
-rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period_ns, volatile bool * exit_flag)
+rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period_ns, bool * exit_flag)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret;
@@ -2297,7 +2297,7 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
   rcutils_time_point_value_t now;
   ret = rcutils_steady_time_now(&now);
   printf("Start Executor %lu %ld\n", (unsigned long) executor, now);
-  executor->state = EXECUTING;
+  executor->let_executor->state = EXECUTING;
 
   if (executor->data_comm_semantics == LET)
   {
@@ -2312,10 +2312,10 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
       executor->handles[i].callback_info->num_period_per_let = (executor->handles[i].callback_info->callback_let_ns/period_ns) + 1;
     }
     ret = rcutils_system_time_now(&executor->invocation_time);
-    executor->input_invocation_time = executor->invocation_time;
+    executor->let_executor->input_invocation_time = executor->invocation_time;
     RCLC_UNUSED(ret);
     executor->timeout_ns = 0;
-    output_let_arg_t arg = {&executor->let_output_node, exit_flag, period_ns};
+    output_let_arg_t arg = {&executor->let_executor->let_output_node, exit_flag, period_ns};
     _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
     _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_output_let_spin_wrapper, &arg);
   }
@@ -2331,9 +2331,9 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
   
   if (executor->data_comm_semantics == LET)
   {
-    pthread_mutex_lock(&executor->mutex);
-    executor->state = IDLE;
-    pthread_mutex_unlock(&executor->mutex);
+    pthread_mutex_lock(&executor->let_executor->mutex);
+    executor->let_executor->state = IDLE;
+    pthread_mutex_unlock(&executor->let_executor->mutex);
     pthread_join(thread_id_input, NULL);
     pthread_join(thread_id_output, NULL);
   }
@@ -2482,16 +2482,19 @@ rclc_executor_let_init(
   RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor is NULL", return RCL_RET_INVALID_ARGUMENT);
 
   rcl_ret_t ret = RCL_RET_OK;
-  executor->max_let_handles_per_callback = number_of_let_handles;
-  executor->overrun_option = option;
-  pthread_mutex_init(&(executor->mutex), NULL);
-  pthread_cond_init(&(executor->let_input_done), NULL);
+  executor->let_executor = executor->allocator->allocate(sizeof(rclc_executor_let_t), executor->allocator->state);
+  if(executor->let_executor == NULL)
+    return RCL_RET_BAD_ALLOC;
+  executor->let_executor->max_let_handles_per_callback = number_of_let_handles;
+  executor->let_executor->overrun_option = option;
+  pthread_mutex_init(&(executor->let_executor->mutex), NULL);
+  pthread_cond_init(&(executor->let_executor->let_input_done), NULL);
   // initialize let handle
   for (size_t i = 0; i < executor->max_handles; i++) {
     rclc_executor_let_handle_init(&executor->handles[i]);
   }
 
-  ret = rclc_let_output_node_init(&executor->let_output_node,
+  ret = rclc_let_output_node_init(&executor->let_executor->let_output_node,
           number_of_let_handles, max_intermediate_handles, executor->allocator);
   return ret;
 }
@@ -2501,7 +2504,7 @@ bool
 _rclc_executor_let_is_valid(rclc_executor_t * executor)
 {
   RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor pointer is invalid", return false);
-  if (executor->max_let_handles_per_callback == 0) {
+  if (executor->let_executor == NULL) {
     return false;
   }
   return true;
@@ -2512,10 +2515,11 @@ rclc_executor_let_fini(rclc_executor_t * executor)
 {
   rcl_ret_t ret = RCL_RET_OK;
   if (_rclc_executor_let_is_valid(executor)) {
-    executor->max_let_handles_per_callback = 0;
-    pthread_mutex_destroy(&(executor->mutex));
-    pthread_cond_destroy(&(executor->let_input_done));
-    ret = rclc_let_output_node_fini(&executor->let_output_node);
+    executor->let_executor->max_let_handles_per_callback = 0;
+    pthread_mutex_destroy(&(executor->let_executor->mutex));
+    pthread_cond_destroy(&(executor->let_executor->let_input_done));
+    ret = rclc_let_output_node_fini(&executor->let_executor->let_output_node);
+    executor->allocator->deallocate(executor->let_executor, executor->allocator->state);
     // de-initialize let handle
     for (size_t i = 0; i < executor->max_handles; i++) {
       rclc_executor_let_handle_fini(&executor->handles[i]);
@@ -2533,7 +2537,7 @@ rclc_executor_set_overrun_option(rclc_executor_t * executor, rclc_executor_let_o
     executor, "executor is null pointer", return RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret = RCL_RET_OK;
   if (_rclc_executor_is_valid(executor) && _rclc_executor_let_is_valid(executor)) {
-    executor->overrun_option = option;
+    executor->let_executor->overrun_option = option;
   } else {
     RCL_SET_ERROR_MSG("executor not initialized.");
     return RCL_RET_ERROR;
@@ -2552,24 +2556,24 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
   // complexity: O(n) where n denotes the number of handles
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
     rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, 
-          executor->data_comm_semantics, executor->input_index);
+          executor->data_comm_semantics, executor->let_executor->input_index);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
   }
   rc = rcutils_steady_time_now(&now);
 
-  printf("Listener %lu %ld %ld\n", (unsigned long) executor, executor->input_index, now);
+  printf("Listener %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
-      executor->trigger_object, executor->data_comm_semantics, executor->input_index))
+      executor->trigger_object, executor->data_comm_semantics, executor->let_executor->input_index))
   {
-    printf("Reader %lu %ld %ld\n", (unsigned long) executor, executor->input_index, now);
+    printf("Reader %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, LET, executor->input_index);
+      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, LET, executor->let_executor->input_index);
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
         return rc;
       }
@@ -2594,39 +2598,39 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
       if (ret != RCL_RET_OK)
         printf("Reading input failed \n");
 
-      pthread_mutex_lock(&executor->mutex);
+      pthread_mutex_lock(&executor->let_executor->mutex);
       // Increment input_index
-      if (executor->state != IDLE){
-        executor->input_index++;
+      if (executor->let_executor->state != IDLE){
+        executor->let_executor->input_index++;
         // Only update the executor state if it's not executing callbacks
-        if (executor->state != EXECUTING)
-          executor->state = INPUT_READ;
-        pthread_cond_signal(&executor->let_input_done);
-        pthread_mutex_unlock(&executor->mutex); 
+        if (executor->let_executor->state != EXECUTING)
+          executor->let_executor->state = INPUT_READ;
+        pthread_cond_signal(&executor->let_executor->let_input_done);
+        pthread_mutex_unlock(&executor->let_executor->mutex); 
       }
       else
       {
         // If executor is IDLE, exit thread
-        pthread_mutex_unlock(&executor->mutex);
+        pthread_mutex_unlock(&executor->let_executor->mutex);
         break;        
       }
       // Sleep to the end of the period
       ret = rcutils_system_time_now(&end_time_point);
-      executor->input_invocation_time += executor->period_ns;
-      sleep_time = executor->input_invocation_time - end_time_point;
+      executor->let_executor->input_invocation_time += executor->period_ns;
+      sleep_time = executor->let_executor->input_invocation_time - end_time_point;
       if (sleep_time > 0) {
         rclc_sleep_ns(sleep_time);
       }
     }
     else
     {
-      pthread_mutex_lock(&executor->mutex);
-      if(executor->state == IDLE)
+      pthread_mutex_lock(&executor->let_executor->mutex);
+      if(executor->let_executor->state == IDLE)
       {
-        pthread_mutex_unlock(&executor->mutex);
+        pthread_mutex_unlock(&executor->let_executor->mutex);
         break;
       }
-      pthread_mutex_unlock(&executor->mutex);
+      pthread_mutex_unlock(&executor->let_executor->mutex);
       rclc_sleep_ms(5);
     }
   }
@@ -2835,8 +2839,8 @@ rclc_executor_add_publisher_LET(
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
-  publisher->executor_index = &executor->spin_index;
-  rcl_ret_t ret = rclc_let_output_node_add_publisher(&executor->let_output_node,
+  publisher->executor_index = &executor->let_executor->spin_index;
+  rcl_ret_t ret = rclc_let_output_node_add_publisher(&executor->let_executor->let_output_node,
     executor->handles, executor->max_handles, publisher,
     max_number_per_callback, handle_ptr, type);
   return ret;

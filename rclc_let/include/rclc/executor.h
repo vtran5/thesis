@@ -72,6 +72,30 @@ typedef enum{
   WAIT_INPUT
 } rclc_executor_state_t;
 
+typedef struct 
+{
+  /// State of the executor
+  rclc_executor_state_t state;  
+  /// Overrun handling option
+  rclc_executor_let_overrun_option_t overrun_option;
+  /// Maximum number of 'let_handles' per callback (private)
+  size_t max_let_handles_per_callback;
+  /// Flag to signal overrun
+  bool deadline_passed;
+  /// Mutex to protect variable (private)
+  pthread_mutex_t mutex;
+  /// Condition variables for LET scheduling input (private)
+  pthread_cond_t let_input_done;
+  /// period index of the executor
+  uint64_t spin_index;
+  /// period index of the input thread
+  uint64_t input_index;
+  /// timepoint used for input thread wakeup
+  rcutils_time_point_value_t input_invocation_time;
+  /// object for the LET output executor
+  rclc_let_output_node_t let_output_node;
+} rclc_executor_let_t;
+
 /// Container for RCLC-Executor
 typedef struct
 {
@@ -99,28 +123,9 @@ typedef struct
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
-  /// State of the executor
-  rclc_executor_state_t state;
   /// Period of the executor
   uint64_t period_ns;
-  /// Overrun handling option
-  rclc_executor_let_overrun_option_t overrun_option;
-  /// Maximum number of 'let_handles' per callback (private)
-  size_t max_let_handles_per_callback;
-  /// Flag to signal overrun
-  bool deadline_passed;
-  /// Mutex to protect variable (private)
-  pthread_mutex_t mutex;
-  /// Condition variables for LET scheduling input (private)
-  pthread_cond_t let_input_done;
-  /// period index of the executor
-  uint64_t spin_index;
-  /// period index of the input thread
-  uint64_t input_index;
-  /// timepoint used for input thread wakeup
-  rcutils_time_point_value_t input_invocation_time;
-  /// object for the LET output executor
-  rclc_let_output_node_t let_output_node;
+  rclc_executor_let_t * let_executor;
 } rclc_executor_t;
 
 /**
