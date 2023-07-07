@@ -180,6 +180,9 @@ rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
 {
   if (0 != handle->callback_info->callback_let_ns)
   {
+    rclc_fini_array(&handle->callback_info->data);
+    rclc_fini_array(&handle->callback_info->data_available);
+    rclc_fini_array(&handle->callback_info->state);
     rcl_allocator_t allocator = rcl_get_default_allocator();
     allocator.deallocate(handle->callback_info, allocator.state);
     handle->callback_info = NULL;

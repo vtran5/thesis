@@ -109,7 +109,6 @@ rcl_ret_t _rclc_output_handle_fini(
 		ret = rclc_publisher_fini(&output->publisher); 
 		allocator->deallocate(output->subscriber_arr, allocator->state);
 		output->subscriber_arr = NULL;
-		rclc_fini_array(&output->data_arr);
 		allocator->deallocate(output->data_consumed, allocator->state);
 		output->data_consumed = NULL;
 		allocator->deallocate(output->handle.publisher->let_publishers, allocator->state);
@@ -137,6 +136,7 @@ rclc_let_output_node_init(
 	let_output_node->max_intermediate_handles = max_intermediate_handles;
 	let_output_node->index = 0;
 	let_output_node->output_arr = allocator->allocate(max_number_of_let_handles*sizeof(rclc_let_output_t), allocator->state);
+	pthread_mutex_init(&(let_output_node->mutex), NULL);
   return ret;
 }
 
@@ -153,6 +153,7 @@ rclc_let_output_node_fini(rclc_let_output_node_t * let_output_node)
   let_output_node->output_arr = NULL;
   let_output_node->index = 0;
   let_output_node->max_output_handles = 0;
+  pthread_mutex_destroy(&(let_output_node->mutex));
   return ret;
 }
 
@@ -229,26 +230,45 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 	output->period_index++;
 	output->timer_triggered = true;
 	ret = rcutils_steady_time_now(&now);
-	printf("Writer %lu %ld %ld\n", (unsigned long) output->handle.publisher, output->period_index, now);
+	printf("Writer %lu %lu %ld\n", (unsigned long) output->handle.publisher, output->period_index, now);
 	return;
 }
 
 void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool data_available)
 {
-	printf("Sub output callback\n");
 	rclc_let_data_subscriber_callback_context_t * context_obj = context;
 	rclc_let_output_t * output = context_obj->output;
 	int subscriber_period_id = context_obj->subscriber_period_id;
+	pthread_mutex_t * mutex = context_obj->mutex;
 	int period_id = (output->period_index - 1)%output->callback_info->num_period_per_let; // Minus 1 because output->period_index is incremented before output send
 	rcutils_time_point_value_t now;
+	rclc_callback_state_t state;
+	rclc_get_array(&output->callback_info->state, &state, subscriber_period_id);	
+	printf("Sub output callback index %d\n", subscriber_period_id);
+
 	if(output->timer_triggered && subscriber_period_id == period_id)
 	{
+
 		printf("Sub output callback triggered\n");
-		output->timer_triggered = false;
+		if(state == RUNNING || state == RELEASED)
+		{
+			pthread_mutex_lock(mutex);
+			for(int i = 0; i < output->callback_info->num_period_per_let && i != period_id; i++)
+			{
+				state = INACTIVE;
+        rclc_set_array(&(output->callback_info->state), &state, i);
+			}
+			pthread_mutex_unlock(mutex);
+			printf("OutEx running index %d\n", subscriber_period_id);
+			output->callback_info->deadline_passed = true;
+			printf("deadline passed %lu\n", (unsigned long) output->handle.publisher);
+			return;			
+		}
+
 		if(!data_available && output->data_consumed[subscriber_period_id])
 		{
-			// Deadline passed without new data
-			output->callback_info->deadline_passed = true;
+			// Finish executing without new data
+			printf("No LET output\n");
 			return;
 		}
 
@@ -258,12 +278,54 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 		ret = rcutils_steady_time_now(&now);
 		printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, period_id, now);
 	}
-	else if (data_available || !output->data_consumed[subscriber_period_id])
+	else
 	{
-		// have new data but not for this deadline
-		output->data_consumed[subscriber_period_id] = false;
-	}
+		printf("Sub output callback not triggered\n");
+		if(data_available)
+			printf("data_available true\n");
+		if(output->data_consumed[subscriber_period_id])
+			printf("data_consumed true\n");
+		if (data_available || (output->data_consumed[subscriber_period_id] == false))
+			{
+				// have new data but not for this deadline
+				output->data_consumed[subscriber_period_id] = false;
+				if(output->callback_info->deadline_passed)
+					printf("deadline_passed true\n");
+				printf("state %d\n", (int) state);
+				// if the overrun callback finish executing, publish the data
+				if(output->callback_info->deadline_passed && (state == INACTIVE))
+				{
+					rcl_ret_t ret = rcl_publish(&output->publisher.rcl_publisher, msgin, NULL);
+					RCLC_UNUSED(ret);
+					output->data_consumed[subscriber_period_id] = true;
+					ret = rcutils_steady_time_now(&now);
+					printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, subscriber_period_id, now);			
+				}
+			}		
+	} 
 	return;
+}
+
+void _rclc_check_overrun_callback_finishes(rclc_let_output_node_t * let_output_node)
+{
+	rclc_let_output_t * output;
+	bool is_finish = true;
+	rclc_callback_state_t state;
+	int period_id;
+	for (size_t i = 0; i < let_output_node->max_output_handles && let_output_node->output_arr[i].initialized; i++)
+	{
+	  output = &let_output_node->output_arr[i];
+	  if(!output->timer_triggered)
+	    continue;
+
+	  period_id = (output->period_index - 1)%output->callback_info->num_period_per_let; 
+	  rclc_get_array(&output->callback_info->state, &state, period_id);
+
+	  if(state == INACTIVE && output->callback_info->deadline_passed)
+	    output->callback_info->deadline_passed = false;
+
+	  output->timer_triggered = false;
+	}
 }
 
 RCLC_PUBLIC
@@ -318,6 +380,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   		ret = rclc_get_pointer_array(&let_output_node->output_arr[i].data_arr, j, &msg, &status);
   		sub_context[intermediate_handles_count].output = &let_output_node->output_arr[i];
   		sub_context[intermediate_handles_count].subscriber_period_id = j;
+  		sub_context[intermediate_handles_count].mutex = &let_output_node->mutex;
   		
 	  	rclc_executor_add_subscription_for_let_data(&output_executor, 
 	  		&let_output_node->output_arr[i].subscriber_arr[j],
@@ -327,7 +390,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 	  	intermediate_handles_count++;
   	}
   }
-  printf("Output executor start %ld\n", (unsigned long) &output_executor);
+  printf("Output executor start %lu\n", (unsigned long) &output_executor);
   while(!(*exit_flag))
   {
   	ret = rclc_executor_spin_some(&output_executor, output_executor.timeout_ns);
@@ -335,7 +398,9 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
       printf("LET output Executor spin failed\n");
       return RCL_RET_ERROR;
     }
+    _rclc_check_overrun_callback_finishes(let_output_node);
   }
+  printf("Output executor stop %lu\n", (unsigned long) &output_executor);
   let_output_node->allocator->deallocate(timer_context, let_output_node->allocator->state);
   let_output_node->allocator->deallocate(sub_context, let_output_node->allocator->state);
   return ret;

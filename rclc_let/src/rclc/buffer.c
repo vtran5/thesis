@@ -551,8 +551,14 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
 }
 
 rcl_ret_t rclc_fini_array(rclc_array_t * array) {
+    if (array->buffer == NULL)
+        return RCL_RET_OK;
+
     rcl_allocator_t allocator = rcl_get_default_allocator();
     for(int i = 0; i < array->capacity; i++) {
+        if (array->buffer[i].item == NULL)
+            continue;
+        
         allocator.deallocate(array->buffer[i].item, allocator.state);
         array->buffer[i].item = NULL;
     }

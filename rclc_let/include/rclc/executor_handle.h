@@ -115,6 +115,13 @@ typedef void (* rclc_timer_callback_with_context_t)(rcl_timer_t *, void *);
 /// - data_consumed flag
 typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, bool);
 
+typedef enum 
+{
+  RELEASED,
+  RUNNING,
+  INACTIVE
+} rclc_callback_state_t;
+
 typedef struct {
   /// Stores the let (i.e deadline) of the callback
   rcutils_time_point_value_t callback_let_ns;
@@ -127,6 +134,8 @@ typedef struct {
   /// Set to true when deadline has passed but the callback is still executed
   /// Should not read any new callback input while true
   bool deadline_passed;
+  /// State of the callback
+  rclc_array_t state;
 } rclc_callback_let_info_t;
 
 /// Container for a handle.

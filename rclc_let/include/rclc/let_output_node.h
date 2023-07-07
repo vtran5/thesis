@@ -73,6 +73,8 @@ typedef struct
   size_t max_intermediate_handles;
   // Index to the next free element in array handles
   size_t index;
+  /// Mutex to protect callback state variable (private)
+  pthread_mutex_t mutex;
   //int output_index;
   //int output_callback_id;
 } rclc_let_output_node_t;
@@ -87,6 +89,7 @@ typedef struct
 {
   rclc_let_output_t * output;
   int subscriber_period_id;
+  pthread_mutex_t * mutex;
 } rclc_let_data_subscriber_callback_context_t;
 
 rcl_ret_t
