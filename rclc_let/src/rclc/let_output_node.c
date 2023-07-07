@@ -258,9 +258,10 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 				state = INACTIVE;
         rclc_set_array(&(output->callback_info->state), &state, i);
 			}
+			output->callback_info->deadline_passed = OVERRUN;
 			pthread_mutex_unlock(mutex);
 			printf("OutEx running index %d\n", subscriber_period_id);
-			output->callback_info->deadline_passed = true;
+			
 			printf("deadline passed %lu\n", (unsigned long) output->handle.publisher);
 			return;			
 		}
@@ -289,11 +290,11 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 			{
 				// have new data but not for this deadline
 				output->data_consumed[subscriber_period_id] = false;
-				if(output->callback_info->deadline_passed)
+				if(output->callback_info->deadline_passed == HANDLING_ERROR)
 					printf("deadline_passed true\n");
 				printf("state %d\n", (int) state);
 				// if the overrun callback finish executing, publish the data
-				if(output->callback_info->deadline_passed && (state == INACTIVE))
+				if(output->callback_info->deadline_passed == HANDLING_ERROR)
 				{
 					rcl_ret_t ret = rcl_publish(&output->publisher.rcl_publisher, msgin, NULL);
 					RCLC_UNUSED(ret);
@@ -321,8 +322,12 @@ void _rclc_check_overrun_callback_finishes(rclc_let_output_node_t * let_output_n
 	  period_id = (output->period_index - 1)%output->callback_info->num_period_per_let; 
 	  rclc_get_array(&output->callback_info->state, &state, period_id);
 
-	  if(state == INACTIVE && output->callback_info->deadline_passed)
-	    output->callback_info->deadline_passed = false;
+	  if(output->callback_info->deadline_passed == HANDLING_ERROR)
+	  {
+	  	pthread_mutex_lock(&let_output_node->mutex);
+	    output->callback_info->deadline_passed = NO_ERROR;
+	    pthread_mutex_unlock(&let_output_node->mutex);
+	  }
 
 	  output->timer_triggered = false;
 	}

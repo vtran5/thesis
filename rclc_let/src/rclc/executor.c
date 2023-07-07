@@ -1975,7 +1975,9 @@ _rclc_execute(
       state = INACTIVE;
       printf("Finished index %d %lu\n", period_index%handle->callback_info->num_period_per_let, (unsigned long) executor);
       rc = rclc_set_array(&(handle->callback_info->state), &state, 
-              period_index%handle->callback_info->num_period_per_let);      
+              period_index%handle->callback_info->num_period_per_let);    
+      if (handle->callback_info->deadline_passed == OVERRUN)
+          handle->callback_info->deadline_passed = HANDLING_ERROR;
       pthread_mutex_unlock(&executor->let_executor->let_output_node.mutex);
     }
   }
@@ -2100,7 +2102,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       rclc_callback_state_t state;
       rclc_get_array(&executor->handles[i].callback_info->state, &state, executor->let_executor->spin_index);  
       // Skip if callback is not released
-      if (state != RELEASED || executor->handles[i].callback_info->deadline_passed)
+      if (state != RELEASED || (executor->handles[i].callback_info->deadline_passed == OVERRUN))
       {
         printf("true, skipped\n");
         continue;
@@ -2277,8 +2279,10 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     {
       // If deadline is passed, skip all input that has been received (by incrementing spin_index)    
       executor->let_executor->state = WAIT_INPUT;
-      while(executor->invocation_time < end_time_point + period_ns)
+      while(executor->invocation_time < end_time_point)
       {
+        ret = rcutils_steady_time_now(&now);
+        printf("Increase invocation time %lu %ld\n", (unsigned long) executor, now);
         executor->invocation_time += period_ns;
         executor->let_executor->spin_index++;
       }         
@@ -2406,6 +2410,7 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
   if (executor->data_comm_semantics == LET)
   {
     pthread_mutex_lock(&executor->let_executor->mutex);
+    printf("Set state to %lu %d\n", (unsigned long) executor, executor->let_executor->state);
     executor->let_executor->state = IDLE;
     pthread_mutex_unlock(&executor->let_executor->mutex);
     pthread_join(thread_id_input, NULL);
@@ -2562,11 +2567,16 @@ rclc_executor_let_init(
     return RCL_RET_BAD_ALLOC;
   executor->let_executor->max_let_handles_per_callback = number_of_let_handles;
   executor->let_executor->overrun_option = option;
+  executor->let_executor->state = IDLE;
+  executor->let_executor->spin_index = 0;
+  executor->let_executor->input_index = 0;
+  executor->let_executor->input_invocation_time = 0;
   pthread_mutex_init(&(executor->let_executor->mutex), NULL);
   pthread_cond_init(&(executor->let_executor->let_input_done), NULL);
   // initialize let handle
   for (size_t i = 0; i < executor->max_handles; i++) {
     rclc_executor_let_handle_init(&executor->handles[i]);
+    executor->handles[i].callback_info->spin_index = &executor->let_executor->spin_index;
   }
 
   ret = rclc_let_output_node_init(&executor->let_executor->let_output_node,
@@ -2653,7 +2663,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
         return rc;
       }
-      if (!executor->handles[i].callback_info->deadline_passed)
+      if (executor->handles[i].callback_info->deadline_passed != OVERRUN)
       {
         pthread_mutex_lock(&executor->let_executor->let_output_node.mutex);
         rclc_callback_state_t state = RELEASED;
@@ -2682,6 +2692,7 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
         printf("Reading input failed \n");
 
       pthread_mutex_lock(&executor->let_executor->mutex);
+      printf("Check executor state %d\n", executor->let_executor->state);
       // Increment input_index
       if (executor->let_executor->state != IDLE){
         executor->let_executor->input_index++;
@@ -2934,7 +2945,7 @@ bool _rclc_executor_check_deadline_passed(rclc_executor_t * executor)
 {
   printf("Check deadline\n");
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    if (executor->handles[i].callback_info->deadline_passed)
+    if (executor->handles[i].callback_info->deadline_passed == HANDLING_ERROR)
     {
       printf("ex deadline passed\n");
       return true;

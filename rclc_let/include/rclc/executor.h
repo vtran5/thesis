@@ -80,8 +80,6 @@ typedef struct
   rclc_executor_let_overrun_option_t overrun_option;
   /// Maximum number of 'let_handles' per callback (private)
   size_t max_let_handles_per_callback;
-  /// Flag to signal overrun
-  bool deadline_passed;
   /// Mutex to protect variable (private)
   pthread_mutex_t mutex;
   /// Condition variables for LET scheduling input (private)

@@ -122,6 +122,13 @@ typedef enum
   INACTIVE
 } rclc_callback_state_t;
 
+typedef enum 
+{
+  OVERRUN,        // Callback is running past its deadline
+  HANDLING_ERROR, // Callback is finished but output isn't published
+  NO_ERROR        // Error is handled or no error detected
+} rclc_overrun_status_t;
+
 typedef struct {
   /// Stores the let (i.e deadline) of the callback
   rcutils_time_point_value_t callback_let_ns;
@@ -133,9 +140,11 @@ typedef struct {
   int num_period_per_let;
   /// Set to true when deadline has passed but the callback is still executed
   /// Should not read any new callback input while true
-  bool deadline_passed;
+  rclc_overrun_status_t deadline_passed;
   /// State of the callback
   rclc_array_t state;
+  /// Spin index
+  uint64_t * spin_index;
 } rclc_callback_let_info_t;
 
 /// Container for a handle.

@@ -170,7 +170,7 @@ rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
     return RCL_RET_ERROR;
   handle->callback_info->callback_let_ns = 0;
   handle->callback_info->num_period_per_let = 0;
-  handle->callback_info->deadline_passed = false;
+  handle->callback_info->deadline_passed = NO_ERROR;
   
   return RCL_RET_OK;
 }
