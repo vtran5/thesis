@@ -167,7 +167,7 @@ rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
     (sizeof(rclc_callback_let_info_t)),
     allocator.state);
   if (handle->callback_info == NULL)
-    return RCL_RET_ERROR;
+    return RCL_RET_BAD_ALLOC;
   handle->callback_info->callback_let_ns = 0;
   handle->callback_info->num_period_per_let = 0;
   handle->callback_info->deadline_passed = NO_ERROR;
