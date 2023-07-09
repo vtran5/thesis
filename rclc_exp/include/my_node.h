@@ -161,14 +161,15 @@ void init_node_publisher(
   my_node_t * node, 
   rosidl_message_type_support_t * my_type_support, 
   char ** topic_name,
-  rmw_qos_profile_t * profile)
+  rmw_qos_profile_t * profile,
+  rclc_executor_semantics_t semantics)
 {
   if((node == NULL) || (my_type_support == NULL) | (topic_name == NULL) | (profile == NULL))
     return;
   for (int i = 0; i < node->pub_num; i++)
   {
     RCCHECK(rclc_publisher_init(&node->publisher[i], 
-      &node->rcl_node, my_type_support, topic_name[i], profile));
+      &node->rcl_node, my_type_support, topic_name[i], profile, semantics));
   }
 }
 
@@ -220,7 +221,8 @@ void destroy_node(my_node_t * node)
   {
     for (int i = 0; i < node->pub_num; i++)
     {
-      RCCHECK(rclc_publisher_fini(&node->publisher[i]));
+      RCCHECK(rclc_publisher_fini(&node->publisher[i], &node->rcl_node));
+      RCCHECK(rclc_publisher_let_fini(&node->publisher[i]));
     }    
     free(node->publisher);
   }

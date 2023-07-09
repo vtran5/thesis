@@ -209,15 +209,15 @@ int main(int argc, char const *argv[])
     profile.depth = 1;
     // Init node 1
     init_node_timer(node1, &support, timer_timeout_ns);
-    init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile);
+    init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics);
 
     // Init node 2
     init_node_subscriber(node2, my_type_support, node2_sub_topic_name, &profile);
-    init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile);
+    init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile, semantics);
 
     // Init node 3
     init_node_subscriber(node3, my_type_support, node3_sub_topic_name, &profile);
-    init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile);
+    init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile, semantics);
 
     // Init node 4
     init_node_subscriber(node4, my_type_support, node4_sub_topic_name, &profile);

@@ -2956,7 +2956,7 @@ rclc_executor_add_publisher_LET(
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
-  publisher->executor_index = &executor->let_executor->spin_index;
+  publisher->let_publisher->executor_index = &executor->let_executor->spin_index;
   CHECK_RCL_RET(rclc_let_output_node_add_publisher(&executor->let_executor->let_output_node,
     executor->handles, executor->max_handles, publisher,
     max_number_per_callback, handle_ptr, type), (unsigned long) executor);

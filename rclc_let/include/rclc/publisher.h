@@ -28,18 +28,23 @@ extern "C"
 #include <rclc/types.h>
 #include "rclc/visibility_control.h"
 
-
 typedef struct 
 {
-  rcl_publisher_t rcl_publisher;
   char * topic_name;
-  rcl_publisher_options_t option;
+  rmw_qos_profile_t * qos_profile;
   rosidl_message_type_support_t * type_support;
   rcl_node_t * node;
   uint64_t * executor_index; // This should point to the executor spin_index
   rcl_publisher_t * let_publishers;
-  int num_period_per_let;
+  int num_period_per_let;  
+} rclc_publisher_let_t;
+
+typedef struct 
+{
+  rcl_publisher_t rcl_publisher;
+  rclc_publisher_let_t * let_publisher;
 } rclc_publisher_t;
+
 /**
  *  Creates an rcl publisher.
  *
@@ -64,7 +69,8 @@ rclc_publisher_init_default(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  rclc_executor_semantics_t semantics);
 
 /**
  *  Creates an rcl publisher with quality-of-service option best effort
@@ -90,7 +96,8 @@ rclc_publisher_init_best_effort(
   rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  rclc_executor_semantics_t semantics);
 
 /**
  *  Creates an rcl publisher with defined QoS
@@ -118,7 +125,8 @@ rclc_publisher_init(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  const rmw_qos_profile_t * qos_profile);
+  const rmw_qos_profile_t * qos_profile,
+  rclc_executor_semantics_t semantics);
 
 RCLC_PUBLIC
 rcl_ret_t
@@ -130,7 +138,7 @@ rclc_publish(
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_publisher_fini(rclc_publisher_t * publisher);
+rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node);
 
 #if __cplusplus
 }

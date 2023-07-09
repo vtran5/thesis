@@ -37,32 +37,35 @@ rcl_ret_t _rclc_output_handle_init(
 		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &output->data_consumed, num_period_per_let*sizeof(bool)),
 									 (unsigned long) output);
 
-		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &output->handle.publisher->let_publishers, num_period_per_let*sizeof(rcl_publisher_t)),
+		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &output->handle.publisher->let_publisher->let_publishers, num_period_per_let*sizeof(rcl_publisher_t)),
 									 (unsigned long) output);
 
-		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &intermediate_topic, strlen(output->handle.publisher->topic_name)+ 13),
+		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &intermediate_topic, strlen(output->handle.publisher->let_publisher->topic_name)+ 13),
 									 (unsigned long) output);
+
+		rcl_publisher_options_t option = rcl_publisher_get_default_options();
+		option.qos = *output->handle.publisher->let_publisher->qos_profile;
 
 		for(int i = 0; i < num_period_per_let; i++)
 		{
 			// Initialize the publisher to the intermediate topic, one for each period of its callback's LET
-			CHECK_RCL_RET(_rclc_create_intermediate_topic(&intermediate_topic, output->handle.publisher->topic_name, i),
+			CHECK_RCL_RET(_rclc_create_intermediate_topic(&intermediate_topic, output->handle.publisher->let_publisher->topic_name, i),
 										(unsigned long) output);
 
-			output->handle.publisher->let_publishers[i] = rcl_get_zero_initialized_publisher();
-			CHECK_RCL_RET(rcl_publisher_init(&output->handle.publisher->let_publishers[i], 
-				output->handle.publisher->node,
-				output->handle.publisher->type_support,
+			output->handle.publisher->let_publisher->let_publishers[i] = rcl_get_zero_initialized_publisher();
+			CHECK_RCL_RET(rcl_publisher_init(&output->handle.publisher->let_publisher->let_publishers[i], 
+				output->handle.publisher->let_publisher->node,
+				output->handle.publisher->let_publisher->type_support,
 				intermediate_topic,
-				&output->handle.publisher->option),
+				&option),
 				(unsigned long) output);
 
 			// Initialize the subscriber for the intermediate topic
 			CHECK_RCL_RET(rclc_subscription_init(&output->subscriber_arr[i],
-				output->handle.publisher->node,
-				output->handle.publisher->type_support,
+				output->handle.publisher->let_publisher->node,
+				output->handle.publisher->let_publisher->type_support,
 				intermediate_topic,
-				&output->handle.publisher->option.qos),
+				output->handle.publisher->let_publisher->qos_profile),
 				(unsigned long) output);
 			
 			output->data_consumed[i] = true;
@@ -76,15 +79,16 @@ rcl_ret_t _rclc_output_handle_init(
 
 		// Initialize the intermediate publisher to the original topic
 		CHECK_RCL_RET(rclc_publisher_init(&output->publisher, 
-				handle.publisher->node, 
-				handle.publisher->type_support,
-				handle.publisher->topic_name,
-				&(handle.publisher->option.qos)),
+				handle.publisher->let_publisher->node, 
+				handle.publisher->let_publisher->type_support,
+				handle.publisher->let_publisher->topic_name,
+				handle.publisher->let_publisher->qos_profile,
+				RCLCPP_EXECUTOR),
 				(unsigned long) output);
 
 		// Disconnect the original publisher to the original topic
-		CHECK_RCL_RET(rclc_publisher_fini(handle.publisher), (unsigned long) output);
-		output->handle.publisher->num_period_per_let = num_period_per_let;
+		CHECK_RCL_RET(rclc_publisher_fini(handle.publisher, handle.publisher->let_publisher->node), (unsigned long) output);
+		output->handle.publisher->let_publisher->num_period_per_let = num_period_per_let;
 		break;
 	default:
 		break;
@@ -103,20 +107,33 @@ rcl_ret_t _rclc_output_handle_fini(
 	case RCLC_PUBLISHER:	
 		for(int i = 0; i < num_period_per_let; i++)
 		{
-			CHECK_RCL_RET(rcl_publisher_fini(&output->handle.publisher->let_publishers[i], output->handle.publisher->node),
+			CHECK_RCL_RET(rcl_publisher_fini(&output->handle.publisher->let_publisher->let_publishers[i], 
+										 output->handle.publisher->let_publisher->node),
 										 (unsigned long) output);
-			CHECK_RCL_RET(rcl_subscription_fini(&output->subscriber_arr[i], output->handle.publisher->node), 
+			CHECK_RCL_RET(rcl_subscription_fini(&output->subscriber_arr[i], output->handle.publisher->let_publisher->node), 
 										 (unsigned long) output);
 		}
 		CHECK_RCL_RET(rclc_fini_array(&output->data_arr), (unsigned long) output);
 		// Initialize the intermediate publisher to the original topic
-		CHECK_RCL_RET(rclc_publisher_fini(&output->publisher), (unsigned long) output); 
+		CHECK_RCL_RET(rclc_publisher_fini(&output->publisher, output->handle.publisher->let_publisher->node), 
+										 (unsigned long) output); 
+
+		// Re-initialize the original publisher
+		rcl_publisher_options_t option = rcl_publisher_get_default_options();
+  	option.qos = *output->handle.publisher->let_publisher->qos_profile;
+		CHECK_RCL_RET(rcl_publisher_init(&output->handle.publisher->rcl_publisher, 
+				output->handle.publisher->let_publisher->node, 
+				output->handle.publisher->let_publisher->type_support,
+				output->handle.publisher->let_publisher->topic_name,
+				&option),
+				(unsigned long) output);	
+
 		allocator->deallocate(output->subscriber_arr, allocator->state);
 		output->subscriber_arr = NULL;
 		allocator->deallocate(output->data_consumed, allocator->state);
 		output->data_consumed = NULL;
-		allocator->deallocate(output->handle.publisher->let_publishers, allocator->state);
-		output->handle.publisher->let_publishers = NULL;
+		allocator->deallocate(output->handle.publisher->let_publisher->let_publishers, allocator->state);
+		output->handle.publisher->let_publisher->let_publishers = NULL;
 		break;
 	default:
 		break;
