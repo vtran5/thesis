@@ -28,6 +28,39 @@ extern "C"
 #include <rclc/action_server.h>
 #include <rclc/publisher.h>
 
+#define CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
+{                                                       \
+    rcl_ret_t ret = FUNCTION_CALL;                      \
+    if (ret != RCL_RET_OK) {                            \
+        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
+        print_ret(ret, ADDITIONAL_ARG);                 \
+        return ret;                                     \
+    }                                                   \
+}
+
+#define VOID_CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
+{                                                       \
+    rcl_ret_t ret = FUNCTION_CALL;                      \
+    if (ret != RCL_RET_OK) {                            \
+        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
+        print_ret(ret, ADDITIONAL_ARG);                 \
+        return;                                         \
+    }                                                   \
+}
+
+rcl_ret_t
+rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size)
+{
+  *ptr = allocator->allocate(size, allocator->state);
+  if (*ptr == NULL)
+  {
+    // try again
+    *ptr = allocator->allocate(size, allocator->state);
+    if (*ptr == NULL)
+      return RCL_RET_BAD_ALLOC;
+  }
+  return RCL_RET_OK;
+}
 /// TODO (jst3si) Where is this defined? - in my build environment this variable is not set.
 // #define ROS_PACKAGE_NAME "rclc"
 
