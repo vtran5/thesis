@@ -537,7 +537,7 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
     array->elem_size = elem_size;
     rcl_allocator_t allocator = rcl_get_default_allocator();
     array->buffer = allocator.allocate(capacity * sizeof(rclc_array_element_t), allocator.state);
-    if (array->buffer == NULL) {
+    if (array->buffer == NULL && array->capacity != 0) {
         return RCL_RET_BAD_ALLOC;
     }
     for(int i = 0; i < capacity; i++) {

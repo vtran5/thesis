@@ -259,9 +259,10 @@ rclc_executor_add_subscription(
       bool data_available = false;
       rclc_callback_state_t state = INACTIVE;
       executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
+
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
                       (unsigned long) executor);
-
+      printf("Init array elem_size %d capacity %d\n", executor->handles[executor->index].callback_info->data.elem_size, num_period_per_let);
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
                       (unsigned long) executor);
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
@@ -2586,7 +2587,6 @@ rclc_executor_let_init(
   CHECK_RCL_RET(rclc_allocate(executor->allocator, (void **) &executor->let_executor, 
                 sizeof(rclc_executor_let_t)), (unsigned long) executor);
 
-  executor->let_executor->max_let_handles_per_callback = number_of_let_handles;
   executor->let_executor->overrun_option = option;
   executor->let_executor->state = IDLE;
   executor->let_executor->spin_index = 0;
@@ -2621,7 +2621,6 @@ rclc_executor_let_fini(rclc_executor_t * executor)
 {
   rcl_ret_t ret = RCL_RET_OK;
   if (_rclc_executor_let_is_valid(executor)) {
-    executor->let_executor->max_let_handles_per_callback = 0;
     pthread_mutex_destroy(&(executor->let_executor->mutex));
     pthread_cond_destroy(&(executor->let_executor->let_input_done));
     ret = rclc_let_output_node_fini(&executor->let_executor->let_output_node);
@@ -2949,6 +2948,7 @@ rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
   rclc_publisher_t * publisher,
+  const int message_size,
   const int max_number_per_callback,
   void * handle_ptr,
   rclc_executor_handle_type_t type)
@@ -2957,6 +2957,7 @@ rclc_executor_add_publisher_LET(
   RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
   RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
   publisher->let_publisher->executor_index = &executor->let_executor->spin_index;
+  publisher->let_publisher->message_size = message_size;
   CHECK_RCL_RET(rclc_let_output_node_add_publisher(&executor->let_executor->let_output_node,
     executor->handles, executor->max_handles, publisher,
     max_number_per_callback, handle_ptr, type), (unsigned long) executor);

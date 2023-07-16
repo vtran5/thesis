@@ -73,8 +73,9 @@ rcl_ret_t _rclc_output_handle_init(
 
 		allocator->deallocate(intermediate_topic, allocator->state);
 
+		printf("Output init array elem_size %d capacity %d\n", output->callback_info->data.elem_size, num_period_per_let);
 		// Allocate memory to store subscriber data
-		CHECK_RCL_RET(rclc_init_array(&output->data_arr, output->callback_info->data.elem_size, num_period_per_let), 
+		CHECK_RCL_RET(rclc_init_array(&output->data_arr, output->handle.publisher->let_publisher->message_size, num_period_per_let), 
 										(unsigned long) output);
 
 		// Initialize the intermediate publisher to the original topic
@@ -88,7 +89,6 @@ rcl_ret_t _rclc_output_handle_init(
 
 		// Disconnect the original publisher to the original topic
 		CHECK_RCL_RET(rclc_publisher_fini(handle.publisher, handle.publisher->let_publisher->node), (unsigned long) output);
-		output->handle.publisher->let_publisher->num_period_per_let = num_period_per_let;
 		break;
 	default:
 		break;
@@ -211,6 +211,9 @@ rclc_let_output_node_add_publisher(
           (handles[i].timer == handle_ptr || handles[i].subscription == handle_ptr))
         {
         	let_output_node->output_arr[let_output_node->index].callback_info = handles[i].callback_info;
+        	publisher->let_publisher->num_period_per_let = handles[i].callback_info->num_period_per_let;
+        	printf("Output1 init array at index %d elem_size %d capacity %d\n", i, handles[i].callback_info->data.elem_size, handles[i].callback_info->num_period_per_let);      	
+        	printf("Output1 init array elem_size %d capacity %d\n", let_output_node->output_arr[let_output_node->index].callback_info->data.elem_size, let_output_node->output_arr[let_output_node->index].callback_info->num_period_per_let);
         	handle_found = true;
         	break;
         }
@@ -228,6 +231,7 @@ rclc_let_output_node_add_publisher(
   let_handle.type = RCLC_PUBLISHER;
   let_handle.publisher = publisher;
   let_output_node->output_arr[let_output_node->index].max_msg_per_period = max_number_per_callback;
+
   CHECK_RCL_RET(_rclc_output_handle_init(&let_output_node->output_arr[let_output_node->index], 
 								let_output_node->allocator, let_handle), (unsigned long) let_output_node);
   let_output_node->index++;

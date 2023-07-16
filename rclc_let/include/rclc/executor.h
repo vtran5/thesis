@@ -78,8 +78,6 @@ typedef struct
   rclc_executor_state_t state;  
   /// Overrun handling option
   rclc_executor_let_overrun_option_t overrun_option;
-  /// Maximum number of 'let_handles' per callback (private)
-  size_t max_let_handles_per_callback;
   /// Mutex to protect variable (private)
   pthread_mutex_t mutex;
   /// Condition variables for LET scheduling input (private)
@@ -1078,6 +1076,7 @@ rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
   rclc_publisher_t * publisher,
+  const int message_size,
   const int max_number_per_callback,
   void * handle_ptr,
   rclc_executor_handle_type_t type);

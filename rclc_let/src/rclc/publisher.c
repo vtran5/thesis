@@ -145,6 +145,7 @@ rclc_publish(
   {
     ret = rcutils_steady_time_now(&now);
     printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
+    printf("Writer %lu %lu %ld\n", (unsigned long) publisher, 0, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;

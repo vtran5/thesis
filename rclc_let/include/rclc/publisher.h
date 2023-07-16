@@ -36,7 +36,8 @@ typedef struct
   rcl_node_t * node;
   uint64_t * executor_index; // This should point to the executor spin_index
   rcl_publisher_t * let_publishers;
-  int num_period_per_let;  
+  int num_period_per_let;
+  int message_size;
 } rclc_publisher_let_t;
 
 typedef struct 
