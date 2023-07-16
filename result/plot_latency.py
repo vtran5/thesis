@@ -32,7 +32,7 @@ merged_df['latency'] = merged_df['Time_receive'] - merged_df['Time_publish']
 latency = merged_df[['FrameID', 'latency']]
 latency.columns = ['frame','latency']
 
-latency = latency.iloc[5:]
+latency = latency.iloc[1:]
 # Calculate the latency range
 median_latency, lower_bound, upper_bound, equal_percentage = pu.calculate_latency_range(latency)
 
