@@ -1,0 +1,10 @@
+{
+    "executors": {
+        "executor1": ["Timer1", "Executor1", "Publisher1", "Timer2", "Publisher4"],
+        "executor2": ["Subscriber1", "Executor2", "Publisher2", "Subscriber4", "Publisher5"],
+        "executor3": ["Subscriber2", "Executor3", "Publisher3", "Subscriber5", "Publisher6"],
+        "executor4": ["Subscriber3", "Executor4", "Subscriber6"]
+    },
+    "other_config": {
+    }
+}

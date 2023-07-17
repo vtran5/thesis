@@ -1,0 +1,14 @@
+{
+    "executors": {
+        "executor1": ["Timer1", "Executor1", "Publisher1", "Timer2", "Publisher2"],
+        "executor2": ["Timer3", "Subscriber1", "Subscriber2", "Executor2", "Publisher3", "Publisher4", "Publisher5", "Publisher6"],
+        "executor3": ["Subscriber3", "Subscriber4", "Subscriber5", "Subscriber6", "Executor3", "Publisher7", "Publisher8", "Publisher9", "Publisher10"],
+        "executor4": ["Executor4", "Subscriber7", "Subscriber8", "Subscriber9", "Subscriber10"]
+    },
+    "callback_chain": {
+        "chain1": ["Timer1", "Subscriber1", "Subscriber3", "Subscriber7"],
+        "chain2": ["Timer2", "Subscriber2", "Subscriber4", "Subscriber8"],
+        "chain3": ["Timer3", "Subscriber5", "Subscriber9"],
+        "chain4": ["Timer2", "Subscriber2", "Subscriber6", "Subscriber10"]
+    }
+}
