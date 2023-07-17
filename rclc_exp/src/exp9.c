@@ -254,10 +254,10 @@ int main(int argc, char const *argv[])
     unsigned int num_handles = 1;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
-    executor_period[0] = RCUTILS_MS_TO_NS(20);
+    executor_period[0] = RCUTILS_MS_TO_NS(10);
     executor_period[1] = RCUTILS_MS_TO_NS(50);
     executor_period[2] = RCUTILS_MS_TO_NS(50);
-    executor_period[3] = RCUTILS_MS_TO_NS(50);
+    executor_period[3] = RCUTILS_MS_TO_NS(10);
 
     executor_semantics[0] = semantics;
     executor_semantics[1] = semantics;
@@ -307,17 +307,17 @@ int main(int argc, char const *argv[])
     {
       for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[0], &node1->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[0], &node1->publisher[i], sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node1->timer[0], RCLC_TIMER));
       }
       for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[1], &node2->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[1], &node2->publisher[i], sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node2->subscriber[0], RCLC_SUBSCRIPTION));
       }
       for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[2], &node3->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[2], &node3->publisher[i], sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node3->subscriber[0], RCLC_SUBSCRIPTION));
       }
     }

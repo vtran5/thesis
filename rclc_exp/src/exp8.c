@@ -56,7 +56,7 @@ void timer_callback(
     sprintf(temp, "StartTime %ld\n", start_time);
     strcat(stat,temp);
   }
-  pub_msg.frame_id = node->count[0]++;
+  pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
   sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
   strcat(stat,temp);
@@ -341,7 +341,7 @@ int main(int argc, char const *argv[])
     executor_period[3] = RCUTILS_MS_TO_NS(50);
 
     const int max_number_per_callback = 3; // Max number of calls per publisher per callback
-    const int num_let_handles = 1; // max number of let handles per callback
+    const int num_let_handles = 2; // max number of let handles per executor
     const int max_intermediate_handles = 10;
 
     executor_semantics[0] = semantics;
@@ -364,6 +364,7 @@ int main(int argc, char const *argv[])
     {
       RCCHECK(rclc_executor_add_timer(&executor[0], &node1->timer[i], callback_let_timer1[i]));
     }
+    printf("Exp8 Init array elem_size %d capacity %d\n", executor[0].handles[0].callback_info->data.elem_size, executor[0].handles[0].callback_info->num_period_per_let);
     for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
     {
       RCCHECK(rclc_executor_add_subscription(
@@ -382,22 +383,23 @@ int main(int argc, char const *argv[])
         &executor[3], &node4->subscriber[i], &node4->sub_msg[i], node4->subscriber_callback[i],
         ON_NEW_DATA, callback_let_subscriber4[i], sizeof(custom_interfaces__msg__Message)));
     }
+    printf("Exp8 Init array elem_size %d capacity %d\n", executor[0].handles[0].callback_info->data.elem_size, executor[0].handles[0].callback_info->num_period_per_let);
 
     if (let)
     {
       for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[0], &node1->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[0], &node1->publisher[i], sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node1->timer[0], RCLC_TIMER));
       }
       for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[1], &node2->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[1], &node2->publisher[i], sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node2->subscriber[0], RCLC_SUBSCRIPTION));
       }
       for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
       {
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[2], &node3->publisher[i],
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[2], &node3->publisher[i],sizeof(custom_interfaces__msg__Message),
           max_number_per_callback, &node3->subscriber[0], RCLC_SUBSCRIPTION));
       }
     }

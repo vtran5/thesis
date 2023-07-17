@@ -2,7 +2,11 @@
 #include <rclc/rclc.h>
 #include <stdio.h>
 #include <stdint.h>
-
+typedef struct 
+{
+  rclc_executor_handle_type_t type;
+  void * handle_ptr;
+} callback_t;
 typedef struct
 {
   rcl_node_t rcl_node;
@@ -12,6 +16,7 @@ typedef struct
   int pub_num;
   int sub_num;
   rclc_publisher_t * publisher;
+  callback_t * callback; // callbacks that calls the publishers
   rcl_subscription_t * subscriber;
   custom_interfaces__msg__Message * sub_msg;
   void (**subscriber_callback)(const void *);
@@ -46,7 +51,7 @@ my_node_t * create_node(
     }
     for (int i = 0; i < callback_chain_num; i++)
     {
-      node->count[i] = 0;
+      node->count[i] = i*500;
     }    
   }
 
@@ -60,6 +65,9 @@ my_node_t * create_node(
       free(node);
       return NULL;
     }
+    node->callback = malloc(sizeof(callback_t)*pub_num);
+    if (node->callback == NULL)
+      return NULL;
   }
 
   if(sub_num > 0)
@@ -203,6 +211,31 @@ void init_node_subscriber(
   }  
 }
 
+void print_id(my_node_t * node, 
+  int * sub_count,
+  int * pub_count,
+  int * timer_count)
+{
+  int j;
+  for (j = 0; j < node->timer_num; j++)
+  {
+    printf("TimerID Timer%d %lu\n", *timer_count, (unsigned long) &node->timer[j]);
+    (*timer_count)++;
+  }
+
+  for (j = 0; j < node->pub_num; j++)
+  {
+    printf("PublisherID Publisher%d %lu\n", *pub_count, (unsigned long) &node->publisher[j]);
+    (*pub_count)++;
+  }
+
+  for (j = 0; j < node->sub_num; j++)
+  {
+    printf("SubscriberID Subscriber%d %lu\n", *sub_count, (unsigned long) &node->subscriber[j]);
+    (*sub_count)++;
+  }
+}
+
 void destroy_node(my_node_t * node)
 {
   if(node == NULL)
@@ -225,6 +258,7 @@ void destroy_node(my_node_t * node)
       RCCHECK(rclc_publisher_let_fini(&node->publisher[i]));
     }    
     free(node->publisher);
+    free(node->callback);
   }
 
   if(node->count != NULL)
