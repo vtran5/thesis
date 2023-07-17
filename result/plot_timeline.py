@@ -5,15 +5,25 @@ import matplotlib.ticker as ticker
 import os
 import plot_utils as pu
 import numpy as np
+import json
 from matplotlib.lines import Line2D
-#import os; os.chdir('/home/oem/thesis_ws/src/result'); input_file = '/home/oem/thesis_ws/src/result/temp.txt'; import plot_utils as pu; import numpy as np
+#import os; os.chdir('/home/oem/thesis_ws/src/result'); input_file = '/home/oem/thesis_ws/src/result/temp.txt'; import plot_utils as pu; import numpy as np; import json; json_file = '/home/oem/thesis_ws/src/result/test1.json'
 #os.chdir('/home/oem/thesis_ws/src/result')
 #input_file = '/home/oem/thesis_ws/src/result/exp7_tp50_epdynamic_let_c.txt'
-if len(sys.argv) != 2:
-    print("Usage: python plot.py <input_file>")
+if len(sys.argv) != 3:
+    print("Usage: python plot.py <input_file> <config_file>")
     sys.exit(1)
 
 input_file = sys.argv[1]
+json_file = sys.argv[2]
+with open(json_file, 'r') as f:
+    json_data = json.load(f)
+
+# Extract executors data
+executors = json_data.get('executors', {})
+if not executors:
+    print("No 'executors' data found in the JSON file.")
+    sys.exit(1)
 
 # Read the file line by line and determine the maximum number of fields
 df = pu.read_input_file(input_file)
@@ -30,7 +40,7 @@ publisher_map = pu.find_map(df, 'Publisher')
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
 executor = pu.process_dataframe(df, 'Executor', executor_map, start_time, frame_id=False)
-publisher = pu.process_dataframe(df, 'Publisher', publisher_map, start_time, frame_id=False)
+publisher = pu.process_dataframe(df, 'Publisher', publisher_map, start_time, frame_id=True)
 listener = pu.process_dataframe(df, 'Listener', executor_map, start_time, frame_id=True)
 writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=True)
 
@@ -53,17 +63,12 @@ filtered_publisher = pu.get_filtered_times(publisher, x_min, max_time)
 filtered_listener = pu.get_filtered_times(listener, x_min, max_time)
 filtered_writer = pu.get_filtered_times(writer, x_min, max_time)
 
-#executor1 = ['Timer1', 'Executor1', 'Publisher1']
-#executor2 = ['Subscriber1', 'Executor2', 'Publisher2']
-#executor3 = ['Subscriber2', 'Executor3', 'Publisher3']
-#executor4 = ['Subscriber3', 'Executor4']
-
-executors = {
-    'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher4'],
-    'Executor2': ['Subscriber1', 'Executor2', 'Publisher2', 'Subscriber4', 'Publisher5'],
-    'Executor3': ['Subscriber2', 'Executor3', 'Publisher3', 'Subscriber5', 'Publisher6'],
-    'Executor4': ['Subscriber3', 'Executor4', 'Subscriber6']
-}
+#executors = {
+#    'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher4'],
+#    'Executor2': ['Subscriber1', 'Executor2', 'Publisher2', 'Subscriber4', 'Publisher5'],
+#    'Executor3': ['Subscriber2', 'Executor3', 'Publisher3', 'Subscriber5', 'Publisher6'],
+#    'Executor4': ['Subscriber3', 'Executor4', 'Subscriber6']
+#}
 
 data_mapping = {
     'Timer': [{'data': filtered_timer, 'line_style': '--', 'color': 'cyan', 'frame_id': True}],
@@ -74,7 +79,7 @@ data_mapping = {
     ],
     'Publisher': [
         {'data': filtered_publisher, 'line_style': ':', 'color': 'black'},
-        {'data': filtered_writer, 'line_style': '-.', 'color': 'black'}
+#        {'data': filtered_writer, 'line_style': '-.', 'color': 'black'}
     ]
 }
 
