@@ -116,10 +116,13 @@ rclc_executor_init(
   const size_t number_of_handles,
   const rcl_allocator_t * allocator)
 {
+  printf("Check NULL init\n");
   RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor is NULL", return RCL_RET_INVALID_ARGUMENT);
+  printf("Check NULL init\n");
   RCL_CHECK_FOR_NULL_WITH_MSG(context, "context is NULL", return RCL_RET_INVALID_ARGUMENT);
+  printf("Check NULL init\n");
   RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
-
+  printf("Check NULL init\n");
   if (number_of_handles == 0) {
     RCL_SET_ERROR_MSG("number_of_handles is 0. Must be larger or equal to 1");
     return RCL_RET_INVALID_ARGUMENT;
@@ -248,7 +251,7 @@ rclc_executor_add_subscription(
   executor->handles[executor->index].initialized = true;
   executor->handles[executor->index].callback_context = NULL;
   executor->handles[executor->index].data_available = false;
-
+  printf("Adding sub %lu with type %d\n", (unsigned long) executor->handles[executor->index].subscription, executor->handles[executor->index].type);
   if(executor->data_comm_semantics == LET)
   {
     executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
@@ -262,7 +265,6 @@ rclc_executor_add_subscription(
 
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
                       (unsigned long) executor);
-      printf("Init array elem_size %d capacity %d\n", executor->handles[executor->index].callback_info->data.elem_size, num_period_per_let);
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
                       (unsigned long) executor);
       CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
@@ -1347,6 +1349,7 @@ _rclc_take_new_data(
           if (rc != RCL_RET_OK)
             return rc;
           rc = rcl_take(handle->subscription, data, &messageInfo, NULL);
+          printf("Data taken\n");
         }
         else
         {
@@ -2119,14 +2122,24 @@ _rclc_let_scheduling(rclc_executor_t * executor)
     rc = rcutils_steady_time_now(&now);
     printf("Triggered %lu %ld\n", (unsigned long) executor, now);
     // step 2:  process (execute)
+    int period_index;
+    rclc_callback_state_t state;
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-      printf("Check deadline %lu\n", (unsigned long) executor);
-      rclc_callback_state_t state;
-      rclc_get_array(&executor->handles[i].callback_info->state, &state, executor->let_executor->spin_index);  
+      printf("Check state %lu\n", (unsigned long) executor);
+      period_index = executor->let_executor->spin_index%executor->handles[i].callback_info->num_period_per_let;
+      rclc_get_array(&executor->handles[i].callback_info->state, &state, period_index);  
       // Skip if callback is not released
       if (state != RELEASED || (executor->handles[i].callback_info->deadline_passed == OVERRUN))
       {
-        printf("true, skipped\n");
+        if(state != RELEASED)
+          printf("not released, skipped\n");
+        else if(executor->handles[i].callback_info->deadline_passed == OVERRUN)
+        {
+          pthread_mutex_lock(&executor->let_executor->let_output_node.mutex);
+          executor->handles[i].callback_info->deadline_passed = NO_ERROR;
+          pthread_mutex_unlock(&executor->let_executor->let_output_node.mutex);
+          printf("overrun, skipped\n");
+        }
         continue;
       }
 
@@ -2669,27 +2682,35 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
   rc = rcutils_steady_time_now(&now);
 
   printf("Listener %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+  
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
       executor->handles, executor->max_handles,
       executor->trigger_object, executor->data_comm_semantics, executor->let_executor->input_index))
   {
+    rclc_callback_state_t state = RELEASED;
+    int period_index;
     printf("Reader %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, LET, executor->let_executor->input_index);
       printf("Take data %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+      period_index = executor->let_executor->input_index%executor->handles[i].callback_info->num_period_per_let;
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
         return rc;
       }
-      if (executor->handles[i].callback_info->deadline_passed != OVERRUN)
+  
+      if (executor->handles[i].callback_info->deadline_passed != OVERRUN && executor->handles[i].data_available)
       {
         pthread_mutex_lock(&executor->let_executor->let_output_node.mutex);
+        printf("Change state to released\n");
         rclc_callback_state_t state = RELEASED;
-        rclc_set_array(&(executor->handles[i].callback_info->state), &state, executor->let_executor->input_index);
+        CHECK_RCL_RET(rclc_set_array(&(executor->handles[i].callback_info->state), &state, period_index), (unsigned long) executor);
         pthread_mutex_unlock(&executor->let_executor->let_output_node.mutex);
       }
+
+
     }
   }
   return rc;

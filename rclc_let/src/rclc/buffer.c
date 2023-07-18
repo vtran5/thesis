@@ -573,12 +573,11 @@ rcl_ret_t rclc_set_array(rclc_array_t * array, const void* item, int index) {
         return RCL_RET_ERROR;
     }
     memcpy(array->buffer[index].item, item, array->elem_size);
-    array->buffer[index].status = AVAILABLE;
     return RCL_RET_OK;
 }
 
 rcl_ret_t rclc_get_array(rclc_array_t * array, void * item, int index) {
-    if(index < 0 || index >= array->capacity || array->buffer[index].status == UNAVAILABLE) {
+    if(index < 0 || index >= array->capacity) {
         return RCL_RET_ERROR;
     }
     memcpy(item, array->buffer[index].item, array->elem_size);

@@ -88,6 +88,8 @@ rclc_publisher_init(
     if(publisher->let_publisher == NULL)
       return RCL_RET_BAD_ALLOC;    
 
+    publisher->let_publisher->let_publishers = NULL;
+    publisher->let_publisher->executor_index = NULL;
     publisher->let_publisher->qos_profile = qos_profile;
     publisher->let_publisher->type_support = type_support;
     publisher->let_publisher->node = node;
@@ -116,16 +118,30 @@ _rclc_publish_LET(
   rmw_publisher_allocation_t * allocation)
 {
   RCLC_UNUSED(allocation);
+  if (publisher->let_publisher == NULL)
+  {
+    printf("Invalid let_publisher\n");
+    return RCL_RET_ERROR;
+  }
+
+  if (publisher->let_publisher->executor_index == NULL)
+  {
+    printf("Invalid executor_index\n");
+    return RCL_RET_ERROR;
+  }
+
   uint64_t executor_index = *(publisher->let_publisher->executor_index);
   int index = (int) (executor_index%publisher->let_publisher->num_period_per_let);
+
   if((publisher->let_publisher->let_publishers == NULL) || !rcl_publisher_is_valid(&(publisher->let_publisher->let_publishers[index])))
   {
     printf("Invalid publisher at index %d\n", index);
     return RCL_RET_ERROR;
   }
+
   rcl_ret_t ret = rcl_publish(&(publisher->let_publisher->let_publishers[index]), ros_message, allocation);
   printf("Publish internal at index %d %ld\n", index, (unsigned long) publisher);
-  return ret;
+  return RCL_RET_OK;
 }
 
 rcl_ret_t
@@ -135,6 +151,8 @@ rclc_publish(
   rmw_publisher_allocation_t * allocation,
   rclc_executor_semantics_t semantics)
 {
+  RCL_CHECK_ARGUMENT_FOR_NULL(publisher, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(ros_message, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
   if (semantics == LET)

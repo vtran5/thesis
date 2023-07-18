@@ -15,6 +15,15 @@ rcl_ret_t _rclc_create_intermediate_topic(
 	return RCL_RET_OK;
 }
 
+rcl_ret_t _rclc_output_handle_zero_init(rclc_let_output_t * output)
+{
+	output->data_consumed = NULL;
+	output->initialized = false;
+	output->subscriber_arr = NULL;
+	output->callback_info = NULL;
+	return RCL_RET_OK;
+}
+
 // The callback needs to be added before initialize the output handle (requires num_period_per_let)
 rcl_ret_t _rclc_output_handle_init(
 	rclc_let_output_t * output, 
@@ -73,7 +82,6 @@ rcl_ret_t _rclc_output_handle_init(
 
 		allocator->deallocate(intermediate_topic, allocator->state);
 
-		printf("Output init array elem_size %d capacity %d\n", output->callback_info->data.elem_size, num_period_per_let);
 		// Allocate memory to store subscriber data
 		CHECK_RCL_RET(rclc_init_array(&output->data_arr, output->handle.publisher->let_publisher->message_size, num_period_per_let), 
 										(unsigned long) output);
@@ -155,9 +163,15 @@ rclc_let_output_node_init(
 									(unsigned long) let_output_node);
 	let_output_node->max_output_handles = max_number_of_let_handles;
 	let_output_node->max_intermediate_handles = max_intermediate_handles;
+	let_output_node->num_intermediate_handles = 0;
 	let_output_node->index = 0;
+
 	CHECK_RCL_RET(rclc_allocate(allocator, (void **) &let_output_node->output_arr, max_number_of_let_handles*sizeof(rclc_let_output_t)), 
 									(unsigned long) let_output_node);
+	for (int i = 0; i < max_number_of_let_handles; i++)
+	{
+		_rclc_output_handle_zero_init(&let_output_node->output_arr[i]);
+	}
 	pthread_mutex_init(&(let_output_node->mutex), NULL);
   return RCL_RET_OK;
 }
@@ -195,6 +209,7 @@ rclc_let_output_node_add_publisher(
   RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
   const char* error_message = NULL;
   bool handle_found = false;
+  printf("Adding publisher\n");
   switch(type)
   {
     case RCLC_SUBSCRIPTION:
@@ -204,7 +219,6 @@ rclc_let_output_node_add_publisher(
       if (error_message == NULL) {
           error_message = "Timer has not been added to the executor";
       }
-
       for (size_t i = 0; (i < max_handles && handles[i].initialized); i++)
       {
         if (handles[i].type == type && 
@@ -212,14 +226,15 @@ rclc_let_output_node_add_publisher(
         {
         	let_output_node->output_arr[let_output_node->index].callback_info = handles[i].callback_info;
         	publisher->let_publisher->num_period_per_let = handles[i].callback_info->num_period_per_let;
-        	printf("Output1 init array at index %d elem_size %d capacity %d\n", i, handles[i].callback_info->data.elem_size, handles[i].callback_info->num_period_per_let);      	
-        	printf("Output1 init array elem_size %d capacity %d\n", let_output_node->output_arr[let_output_node->index].callback_info->data.elem_size, let_output_node->output_arr[let_output_node->index].callback_info->num_period_per_let);
+        	let_output_node->num_intermediate_handles += handles[i].callback_info->num_period_per_let;
+        	let_output_node->num_intermediate_handles++;
         	handle_found = true;
         	break;
         }
       }
       if (!handle_found)
       {
+      	printf(error_message);
 	      RCL_SET_ERROR_MSG(error_message);
 	      return RCL_RET_ERROR;        	
       }
@@ -231,7 +246,7 @@ rclc_let_output_node_add_publisher(
   let_handle.type = RCLC_PUBLISHER;
   let_handle.publisher = publisher;
   let_output_node->output_arr[let_output_node->index].max_msg_per_period = max_number_per_callback;
-
+  printf("num_intermediate_handles %d\n", let_output_node->num_intermediate_handles);
   CHECK_RCL_RET(_rclc_output_handle_init(&let_output_node->output_arr[let_output_node->index], 
 								let_output_node->allocator, let_handle), (unsigned long) let_output_node);
   let_output_node->index++;
@@ -261,6 +276,9 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 {
 	rclc_let_data_subscriber_callback_context_t * context_obj = context;
 	rclc_let_output_t * output = context_obj->output;
+	if (!output->timer_triggered)
+		return;
+
 	int subscriber_period_id = context_obj->subscriber_period_id;
 	pthread_mutex_t * mutex = context_obj->mutex;
 	int period_id = (output->period_index - 1)%output->callback_info->num_period_per_let; // Minus 1 because output->period_index is incremented before output send
@@ -270,9 +288,8 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 											(unsigned long) output->handle.publisher);
 	printf("Sub output callback index %d\n", subscriber_period_id);
 
-	if (output->timer_triggered && subscriber_period_id == period_id)
+	if (subscriber_period_id == period_id)
 	{
-
 		printf("Sub output callback triggered\n");
 		if (state == RUNNING || state == RELEASED)
 		{
@@ -285,7 +302,6 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 			}
 			output->callback_info->deadline_passed = OVERRUN;
 			pthread_mutex_unlock(mutex);
-			printf("OutEx running index %d\n", subscriber_period_id);
 			printf("deadline passed %lu\n", (unsigned long) output->handle.publisher);
 			return;			
 		}
@@ -306,10 +322,6 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 	else
 	{
 		printf("Sub output callback not triggered\n");
-		if (data_available)
-			printf("data_available true\n");
-		if (output->data_consumed[subscriber_period_id])
-			printf("data_consumed true\n");
 		if (data_available || (output->data_consumed[subscriber_period_id] == false))
 			{
 				// have new data but not for this deadline
@@ -363,7 +375,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 {
 	rclc_executor_t output_executor = rclc_executor_get_zero_initialized_executor();
 	CHECK_RCL_RET((rclc_executor_init(&output_executor, &let_output_node->support.context, 
-						let_output_node->max_intermediate_handles, let_output_node->allocator)), (unsigned long) &output_executor);
+						let_output_node->num_intermediate_handles, let_output_node->allocator)), (unsigned long) &output_executor);
 	CHECK_RCL_RET(rclc_executor_set_timeout(&output_executor, RCL_MS_TO_NS(5000)),
 									(unsigned long) &output_executor);
 	CHECK_RCL_RET(rclc_executor_set_semantics(&output_executor, LET_OUTPUT),
@@ -377,7 +389,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 									(unsigned long) &output_executor);
 
 	CHECK_RCL_RET(rclc_allocate(let_output_node->allocator, (void **) &sub_context, 
-									sizeof(rclc_let_data_subscriber_callback_context_t)*let_output_node->max_intermediate_handles),
+									sizeof(rclc_let_data_subscriber_callback_context_t)*let_output_node->num_intermediate_handles),
 									(unsigned long) &output_executor);
 
 	int intermediate_handles_count = 0;

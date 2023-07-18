@@ -91,6 +91,7 @@ typedef struct
   size_t max_output_handles;
   // Maximum total number of intermediate handles (timer + subscriber)
   size_t max_intermediate_handles;
+  size_t num_intermediate_handles;
   // Index to the next free element in array handles
   size_t index;
   /// Mutex to protect callback state variable (private)
