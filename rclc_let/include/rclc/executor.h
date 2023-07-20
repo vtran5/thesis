@@ -90,6 +90,8 @@ typedef struct
   pthread_cond_t let_input_done;
   /// Mutex to protect variable (private)
   pthread_mutex_t mutex;
+  /// Mutex to protect callback state
+  pthread_mutex_t mutex_state;
     /// Id of the next added handle (private)
   int next_callback_id;
   /// period index of the executor
@@ -283,7 +285,7 @@ rclc_executor_fini(rclc_executor_t * executor);
  * \param [in] msg pointer to an allocated message
  * \param [in] callback    function pointer to a callback
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
- * \param [in] callback_let the let duration of the associated callback
+ * \param [in] callback_let_ns the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -296,7 +298,7 @@ rclc_executor_add_subscription(
   void * msg,
   rclc_subscription_callback_t callback,
   rclc_executor_handle_invocation_t invocation,
-  rcutils_time_point_value_t callback_let,
+  rcutils_time_point_value_t callback_let_ns,
   int message_size);
 
 /**
@@ -319,7 +321,7 @@ rclc_executor_add_subscription(
  * \param [in] callback    function pointer to a callback
  * \param [in] context     type-erased ptr to additional callback context
  * \param [in] invocation  invocation type for the callback (ALWAYS or only ON_NEW_DATA)
- * \param [in] callback_let the let duration of the associated callback
+ * \param [in] callback_let_ns the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer (NULL context is ignored)
  * \return `RCL_RET_ERROR` if any other error occured
@@ -333,7 +335,7 @@ rclc_executor_add_subscription_with_context(
   rclc_subscription_callback_with_context_t callback,
   void * context,
   rclc_executor_handle_invocation_t invocation,
-  rcutils_time_point_value_t callback_let,
+  rcutils_time_point_value_t callback_let_ns,
   int message_size);
 
 /**
@@ -352,7 +354,7 @@ rclc_executor_add_subscription_with_context(
  *
  * \param [inout] executor pointer to initialized executor
  * \param [in] timer pointer to an allocated timer
- * \param [in] callback_let the let duration of the associated callback
+ * \param [in] callback_let_ns the let duration of the associated callback
  * \return `RCL_RET_OK` if add-operation was successful
  * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
  * \return `RCL_RET_ERROR` if any other error occured
@@ -362,7 +364,7 @@ rcl_ret_t
 rclc_executor_add_timer(
   rclc_executor_t * executor,
   rcl_timer_t * timer,
-  rcutils_time_point_value_t callback_let);
+  rcutils_time_point_value_t callback_let_ns);
 
 
 /**

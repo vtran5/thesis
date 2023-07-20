@@ -28,39 +28,6 @@ extern "C"
 #include <rclc/action_server.h>
 #include <rclc/publisher.h>
 
-#define CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
-{                                                       \
-    rcl_ret_t ret = FUNCTION_CALL;                      \
-    if (ret != RCL_RET_OK) {                            \
-        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
-        print_ret(ret, ADDITIONAL_ARG);                 \
-        return ret;                                     \
-    }                                                   \
-}
-
-#define VOID_CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
-{                                                       \
-    rcl_ret_t ret = FUNCTION_CALL;                      \
-    if (ret != RCL_RET_OK) {                            \
-        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
-        print_ret(ret, ADDITIONAL_ARG);                 \
-        return;                                         \
-    }                                                   \
-}
-
-rcl_ret_t
-rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size)
-{
-  *ptr = allocator->allocate(size, allocator->state);
-  if (*ptr == NULL)
-  {
-    // try again
-    *ptr = allocator->allocate(size, allocator->state);
-    if (*ptr == NULL)
-      return RCL_RET_BAD_ALLOC;
-  }
-  return RCL_RET_OK;
-}
 /// TODO (jst3si) Where is this defined? - in my build environment this variable is not set.
 // #define ROS_PACKAGE_NAME "rclc"
 
@@ -134,6 +101,20 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
+typedef enum 
+{
+  RELEASED,
+  RUNNING,
+  INACTIVE
+} rclc_callback_state_t;
+
+typedef enum 
+{
+  OVERRUN,        // Callback is running past its deadline
+  HANDLING_ERROR, // Callback is finished but output isn't published
+  NO_ERROR        // Error is handled or no error detected
+} rclc_overrun_status_t;
+
 /// Enumeration for publisher, server, client, etc that will send messages
 typedef enum
 {
@@ -163,11 +144,15 @@ typedef struct {
   /// id of the handle/callback in the executor (should be unique per callback)
   int callback_id;
   /// Stores the let (i.e deadline) of the callback
-  rcutils_time_point_value_t callback_let;
+  rcutils_time_point_value_t callback_let_ns;
   /// Array to store input data for different periods during its LET
   rclc_array_t data;
   /// Array to store data_available flag for different periods during its LET
   rclc_array_t data_available;
+  /// State of the callback
+  rclc_array_t state;
+  /// Overrun status
+  rclc_overrun_status_t overrun_status;
   /// Array to store the callback let handles
   rclc_executor_let_handle_t * let_handles;
   /// Number of let handles stored in the array
@@ -177,7 +162,7 @@ typedef struct {
   /// Number of executor period per callback LET
   int num_period_per_let;
 } rclc_callback_let_info_t;
-#define CALLBACK_INDEX_MAX_VALUE 100 // index and output_index will be wrapped around this value to prevent overflow
+
 /// Container for a handle.
 typedef struct
 {
