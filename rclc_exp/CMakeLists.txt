@@ -53,6 +53,12 @@ ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 add_executable(mytest src/test.c src/utilities.c)
 ament_target_dependencies(mytest rcl rclc custom_interfaces)
 
+add_executable(exp9 src/exp9.c src/utilities.c)
+ament_target_dependencies(exp9 rcl rclc_let custom_interfaces)
+
+add_executable(test1 src/test1.c src/utilities.c)
+ament_target_dependencies(test1 rcl rclc_let custom_interfaces)
+
 # find dependencies
 # find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
@@ -82,6 +88,8 @@ install(TARGETS
   exp5
   exp6
   exp7
+  exp9
+  test1
   DESTINATION lib/${PROJECT_NAME}
 )
 

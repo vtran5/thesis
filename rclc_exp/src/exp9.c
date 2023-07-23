@@ -1,4 +1,5 @@
 #include "custom_interfaces/msg/message.h"
+#include "utilities.h"
 #include <stdlib.h>
 #include "my_node.h"
 #define NODE1_PUBLISHER_NUMBER 1
@@ -21,6 +22,7 @@
 
 #define LOGGER_DIM0 6
 
+// Experiment with deadline violation
 
 rclc_support_t support;
 volatile rcl_time_point_value_t start_time;
@@ -110,8 +112,7 @@ void node2_subscriber1_callback(const void * msgin)
   int pub_index = 0;
   int min_run_time_ms = 5;
   int max_run_time_ms = 15;
-  rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, semantics);
 }
 
 void node3_subscriber1_callback(const void * msgin)
@@ -124,9 +125,8 @@ void node3_subscriber1_callback(const void * msgin)
   int sub_index = 0;
   int pub_index = 0;
   int min_run_time_ms = 5;
-  int max_run_time_ms = 80;
-  rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  int max_run_time_ms = 60;
+  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, semantics);
 }
 
 void node4_subscriber1_callback(const void * msgin)
@@ -140,8 +140,7 @@ void node4_subscriber1_callback(const void * msgin)
   int pub_index = -1;
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
-  rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, semantics);
 }
 
 /******************** MAIN PROGRAM ****************************************/
@@ -245,14 +244,14 @@ int main(int argc, char const *argv[])
 
     callback_let_timer1[0] = RCUTILS_MS_TO_NS(10);
     callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(20);
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(105);
-    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(10);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(60);
+    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(60);
 
     unsigned int num_handles = 1;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
-    executor_period[0] = RCUTILS_MS_TO_NS(20);
-    executor_period[1] = RCUTILS_MS_TO_NS(20);
+    executor_period[0] = RCUTILS_MS_TO_NS(10);
+    executor_period[1] = RCUTILS_MS_TO_NS(50);
     executor_period[2] = RCUTILS_MS_TO_NS(50);
     executor_period[3] = RCUTILS_MS_TO_NS(10);
 
@@ -263,6 +262,7 @@ int main(int argc, char const *argv[])
 
     const int max_number_per_callback = 3; // Max number of calls per publisher per callback
     const int num_let_handles = 1; // max number of let handles per callback
+    const int max_intermediate_handles = 5;
 
     int i;
     for (i = 0; i < num_executor; i++)
@@ -358,6 +358,9 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
+
+
+    //thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);
 
     sleep_ms(experiment_duration);
     exit_flag = true;

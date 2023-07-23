@@ -128,8 +128,10 @@ void busy_wait(int duration)
 
 void busy_wait_random(int min_time, int max_time)
 {
+    if (max_time == 0)
+        return;
 	int duration = (rand() % (max_time - min_time + 1)) + min_time;
-  busy_wait(duration);
+    busy_wait(duration);
 }
 
 /*
