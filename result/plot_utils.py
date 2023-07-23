@@ -48,10 +48,10 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
 
     else:
         if frame_id:
-            assert filtered_df.shape[1] == 4, "DataFrame doesn't have the correct number of columns (4)"
+            assert filtered_df.shape[1] == 4, f"DataFrame doesn't have the correct number of columns (4). It has {filtered_df.shape[1]} columns"
             col_names = ['Keyword', 'ExecutorID','FrameID', 'Time']
         else:
-            assert filtered_df.shape[1] == 3, "DataFrame doesn't have the correct number of columns (3)"
+            assert filtered_df.shape[1] == 3, f"DataFrame doesn't have the correct number of columns (3). It has {filtered_df.shape[1]} columns"
             col_names = ['Keyword', 'ExecutorID', 'Time']
 
         filtered_df.columns = col_names
@@ -64,14 +64,15 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
         filtered_df = filtered_df.round(1)
 
     filtered_df = filtered_df.reset_index(drop=True)
+    filtered_df = filtered_df.sort_values(by='Time')
     return filtered_df
 
 
 def get_filtered_times(df, min_time, max_time):
     return df[(df['Time'] >= min_time) & (df['Time'] <= max_time)]
 
-def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False):
-    subset = filtered_data[filtered_data['ExecutorID'] == node]
+def plot_filtered_data(ax, filtered_data, label, linestyle, color, frame_id=False):
+    subset = filtered_data[filtered_data['ExecutorID'] == label]
     times = subset['Time']
     frameIDs = subset['FrameID'] if frame_id else ["" for _ in range(len(times))]
 
@@ -90,51 +91,6 @@ def plot_filtered_data(ax, filtered_data, node, linestyle, color, frame_id=False
     for label in ax.get_xticklabels():
         label.set_rotation(30)
 
-
-
-
-def plot_timeline(data, figure_name, filtered_executor=None, filtered_publisher=None, filtered_listener=None, filtered_writer=None):
-    fig, ax = plt.subplots(4, figsize=(10, 6), sharex=True)
-
-    for i, node in enumerate(['Executor1', 'Executor2', 'Executor3', 'Executor4']):
-        ax[i].set_title(node)
-        ax[i].set_yticks([])
-
-        if filtered_executor is not None:
-            plot_filtered_data(ax[i], filtered_executor, node, '--', 'k')
-        if filtered_publisher is not None:
-            plot_filtered_data(ax[i], filtered_publisher, node, '-.', 'cyan')
-        if filtered_listener is not None:
-            plot_filtered_data(ax[i], filtered_listener, node, ':', 'magenta')
-        if filtered_writer is not None:
-            plot_filtered_data(ax[i], filtered_writer, node, '--', 'yellow')
-        
-        if node == 'Executor1':
-            for val in data['1']:
-                ax[i].axvline(val, color='b', linestyle='-', linewidth=2)
-                ax[i].text(val, 0.5, f"{val:.1f}", ha='center', va='bottom', fontsize=8)
-        elif node == 'Executor2':
-            for index, row in data.iterrows():
-                ax[i].axvspan(row['2'], row['3'], color='r', alpha=0.3)
-                ax[i].text(row['2'], 0.5, f"{row['2']:.1f}", ha='center', va='bottom', fontsize=8)
-                ax[i].text(row['3'], 0.5, f"{row['3']:.1f}", ha='center', va='bottom', fontsize=8)
-        elif node == 'Executor3':
-            for index, row in data.iterrows():
-                ax[i].axvspan(row['4'], row['5'], color='g', alpha=0.3)
-                ax[i].text(row['4'], 0.5, f"{row['4']:.1f}", ha='center', va='bottom', fontsize=8)
-                ax[i].text(row['5'], 0.5, f"{row['5']:.1f}", ha='center', va='bottom', fontsize=8)
-        elif node == 'Executor4':
-            for val in data['latency']:
-                ax[i].axvline(val, color='m', linestyle='-', linewidth=2)
-                ax[i].text(val, 0.5, f"{val:.1f}", ha='center', va='bottom', fontsize=8)
-
-    plt.xlabel("Time (microseconds)")
-    plt.tight_layout()
-
-    plt.savefig(figure_name)
-
-    plt.show()
-
 def calculate_latency_range(df):
     median_latency = df['latency'].median()
     min_latency = df['latency'].min()
@@ -143,6 +99,16 @@ def calculate_latency_range(df):
     lower_percentage = (median_latency - min_latency) / median_latency
     upper_percentage = (max_latency - median_latency) / median_latency
 
+    if math.isnan(lower_percentage):
+        print("Warning: lower_percentage is NaN. Check your data.")
+        # Set it to some default value or handle it in a different way, as per your logic
+        lower_percentage = 0.0
+
+    if math.isnan(upper_percentage):
+        print("Warning: lower_percentage is NaN. Check your data.")
+        # Set it to some default value or handle it in a different way, as per your logic
+        upper_percentage = 0.0
+            
     rounded_lower_percentage = math.ceil(lower_percentage * 100) / 100
     rounded_upper_percentage = math.ceil(upper_percentage * 100) / 100
     equal_percentage = max(rounded_lower_percentage, rounded_upper_percentage)
@@ -153,16 +119,14 @@ def calculate_latency_range(df):
     return median_latency, lower_bound, upper_bound, equal_percentage
 
 
-def plot_latency(df, median_latency, lower_bound, upper_bound, equal_percentage, figure_name):
-    plt.scatter(df['frame'], df['latency'])
-    plt.axhline(median_latency, color='r', linestyle='--', label=f"Median latency: {median_latency:.2f}")
-    plt.axhline(lower_bound, color='g', linestyle=':', label=f"Range from median (±{equal_percentage * 100:.0f}%): {lower_bound:.2f} - {upper_bound:.2f}")
-    plt.axhline(upper_bound, color='g', linestyle=':',)
-    plt.ylabel('End-to-end latency (ms)')
-    plt.xlabel('Chain number')
-    plt.ylim(bottom=0)
-    plt.ylim(top=400)
-    plt.legend(loc='lower left')
-
-    plt.savefig(figure_name)
-    plt.show()
+def plot_latency(ax, df, median_latency, lower_bound, upper_bound, equal_percentage, title):
+    ax.scatter(df['frame'], df['latency'])
+    ax.axhline(median_latency, color='r', linestyle='--', label=f"Median latency: {median_latency:.2f}")
+    ax.axhline(lower_bound, color='g', linestyle=':', label=f"Range from median (±{equal_percentage * 100:.0f}%): {lower_bound:.2f} - {upper_bound:.2f}")
+    ax.axhline(upper_bound, color='g', linestyle=':')
+    ax.set_ylabel('End-to-end latency (ms)')
+    ax.set_xlabel('Chain number')
+    ax.set_ylim(bottom=100)
+    ax.set_ylim(top=400)
+    ax.legend(loc='lower left')
+    ax.set_title(title)

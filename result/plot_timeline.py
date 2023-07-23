@@ -5,13 +5,32 @@ import matplotlib.ticker as ticker
 import os
 import plot_utils as pu
 import numpy as np
+import json
 from matplotlib.lines import Line2D
 
-if len(sys.argv) != 2:
-    print("Usage: python plot.py <input_file>")
+def print_dataframe(df, df_name):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    print(f"Dataframe name: {df_name}\n")
+    print(df)
+#import os; os.chdir('/home/oem/thesis_ws/src/result'); input_file = '/home/oem/thesis_ws/src/result/temp.txt'; import plot_utils as pu; import numpy as np; import json; json_file = '/home/oem/thesis_ws/src/result/test1.json'
+#os.chdir('/home/oem/thesis_ws/src/result')
+#input_file = '/home/oem/thesis_ws/src/result/exp7_tp50_epdynamic_let_c.txt'
+if len(sys.argv) != 3:
+    print("Usage: python plot.py <input_file> <config_file>")
     sys.exit(1)
 
 input_file = sys.argv[1]
+json_file = sys.argv[2]
+with open(json_file, 'r') as f:
+    json_data = json.load(f)
+
+# Extract executors data
+executors = json_data.get('executors', {})
+if not executors:
+    print("No 'executors' data found in the JSON file.")
+    sys.exit(1)
 
 # Read the file line by line and determine the maximum number of fields
 df = pu.read_input_file(input_file)
@@ -28,13 +47,13 @@ publisher_map = pu.find_map(df, 'Publisher')
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
 executor = pu.process_dataframe(df, 'Executor', executor_map, start_time, frame_id=False)
-publisher = pu.process_dataframe(df, 'Publisher', publisher_map, start_time, frame_id=False)
+publisher = pu.process_dataframe(df, 'Publisher', publisher_map, start_time, frame_id=True)
 listener = pu.process_dataframe(df, 'Listener', executor_map, start_time, frame_id=True)
-writer = pu.process_dataframe(df, 'Writer', executor_map, start_time, frame_id=True)
+writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=True)
 
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
-start_index = 6
+start_index = 0
 # get the 3 consecutive rows starting from the random start index
 filtered_timer = timer.iloc[start_index:start_index+12]
 
@@ -51,55 +70,59 @@ filtered_publisher = pu.get_filtered_times(publisher, x_min, max_time)
 filtered_listener = pu.get_filtered_times(listener, x_min, max_time)
 filtered_writer = pu.get_filtered_times(writer, x_min, max_time)
 
-executor1 = ['Timer1', 'Executor1', 'Publisher1']
-executor2 = ['Subscriber1', 'Executor2', 'Publisher2']
-executor3 = ['Subscriber2', 'Executor3', 'Publisher3']
-executor4 = ['Subscriber3', 'Executor4']
-filtered_subscriber2 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor2)]
-filtered_subscriber3 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor3)]
-filtered_subscriber4 = filtered_subscriber[filtered_subscriber['ExecutorID'].isin(executor4)]
+# print_dataframe(filtered_subscriber, 'filtered_subscriber')
+# print_dataframe(filtered_executor, 'filtered_executor')
+# print_dataframe(filtered_publisher, 'filtered_publisher')
+# print_dataframe(filtered_listener, 'filtered_listener')
+# print_dataframe(filtered_writer, 'filtered_writer')
+# print_dataframe(filtered_timer, 'filtered_timer')
 
-filtered_executor1 = filtered_executor[filtered_executor['ExecutorID'].isin(executor1)]
-filtered_executor2 = filtered_executor[filtered_executor['ExecutorID'].isin(executor2)]
-filtered_executor3 = filtered_executor[filtered_executor['ExecutorID'].isin(executor3)]
-filtered_executor4 = filtered_executor[filtered_executor['ExecutorID'].isin(executor4)]
+# executors = {
+#    'Executor1': ['Timer1', 'Executor1', 'Publisher1'],
+#    'Executor2': ['Subscriber1', 'Executor2', 'Publisher2'],
+#    'Executor3': ['Subscriber2', 'Executor3', 'Publisher3'],
+#    'Executor4': ['Subscriber3', 'Executor4']
+# }
 
-filtered_publisher1 = filtered_publisher[filtered_publisher['ExecutorID'].isin(executor1)]
-filtered_publisher2 = filtered_publisher[filtered_publisher['ExecutorID'].isin(executor2)]
-filtered_publisher3 = filtered_publisher[filtered_publisher['ExecutorID'].isin(executor3)]
+data_mapping = {
+    'Timer': [{'data': filtered_timer, 'line_style': '--', 'color': 'cyan', 'frame_id': True}],
+    'Subscriber': [{'data': filtered_subscriber, 'line_style': '--', 'color': 'cyan', 'frame_id': True}],
+    'Executor': [
+        {'data': filtered_executor, 'line_style': ':', 'color': 'red'},
+        {'data': filtered_listener, 'line_style': '-.', 'color': 'green'}
+    ],
+    'Publisher': [
+        {'data': filtered_publisher, 'line_style': ':', 'color': 'black'},
+#        {'data': filtered_writer, 'line_style': '-.', 'color': 'black'}
+    ]
+}
 
-filtered_listener2 = filtered_listener[filtered_listener['ExecutorID'].isin(executor2)]
-filtered_listener3 = filtered_listener[filtered_listener['ExecutorID'].isin(executor3)]
-filtered_listener4 = filtered_listener[filtered_listener['ExecutorID'].isin(executor4)]
+fig, axs = plt.subplots(len(executors), sharex=False)
 
-filtered_writer2 = filtered_writer[filtered_writer['ExecutorID'].isin(executor2)]
-filtered_writer3 = filtered_writer[filtered_writer['ExecutorID'].isin(executor3)]
-filtered_writer4 = filtered_writer[filtered_writer['ExecutorID'].isin(executor4)]
+for i, (executor, labels) in enumerate(executors.items()):
+    # Filter data based on executor
+    filtered_data_mapping = {}
+    for data_type, data_details_list in data_mapping.items():
+        for data_details in data_details_list:
+            filtered_data = data_details['data'][data_details['data']['ExecutorID'].isin(labels)]
+            filtered_data_mapping.setdefault(data_type, []).append({**data_details, 'data': filtered_data})
+    
+    for label in labels:
+        # Extract type from the label
+        label_type = ''.join(filter(str.isalpha, label))
 
-fig, axs = plt.subplots(4, sharex=False)
-pu.plot_filtered_data(axs[0], filtered_publisher1, 'Publisher1', ':', 'black')
-pu.plot_filtered_data(axs[0], filtered_timer, 'Timer1', '--', 'cyan', frame_id=True)
-pu.plot_filtered_data(axs[0], filtered_executor1, 'Executor1', ':', 'red')
-axs[0].set_title('Executor 1')
+        if label_type in filtered_data_mapping:
+            properties_list = filtered_data_mapping[label_type]
 
-pu.plot_filtered_data(axs[1], filtered_listener2, 'Executor2', '-.', 'green')
-pu.plot_filtered_data(axs[1], filtered_writer2, 'Executor2', '-.', 'black')
-pu.plot_filtered_data(axs[1], filtered_publisher2, 'Publisher2', ':', 'black')
-pu.plot_filtered_data(axs[1], filtered_subscriber2, 'Subscriber1', '--', 'cyan', frame_id=True)
-pu.plot_filtered_data(axs[1], filtered_executor2, 'Executor2', ':', 'red')
-axs[1].set_title('Executor 2')
+            for properties in properties_list:
+                data = properties['data']
+                line_style = properties['line_style']
+                color = properties['color']
+                frame_id = properties.get('frame_id', False)
 
-pu.plot_filtered_data(axs[2], filtered_listener3, 'Executor3', '-.', 'green')
-pu.plot_filtered_data(axs[2], filtered_writer3, 'Executor3', '-.', 'black')
-pu.plot_filtered_data(axs[2], filtered_publisher3, 'Publisher3', ':', 'black')
-pu.plot_filtered_data(axs[2], filtered_subscriber3, 'Subscriber2', '--', 'cyan', frame_id=True)
-pu.plot_filtered_data(axs[2], filtered_executor3, 'Executor3', ':', 'red')
-axs[2].set_title('Executor 3')
+                pu.plot_filtered_data(axs[i], data, label, line_style, color, frame_id=frame_id)
 
-pu.plot_filtered_data(axs[3], filtered_listener4, 'Executor4', '-.', 'green')
-pu.plot_filtered_data(axs[3], filtered_subscriber4, 'Subscriber3', '--', 'cyan', frame_id=True)
-pu.plot_filtered_data(axs[3], filtered_executor4, 'Executor4', ':', 'red')
-axs[3].set_title('Executor 4')
+    axs[i].set_title(executor)
 
 print(f"Start Program at: {start_program_time:.2f}")
 

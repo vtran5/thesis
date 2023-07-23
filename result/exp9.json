@@ -1,0 +1,11 @@
+{
+    "executors": {
+        "executor1": ["Timer1", "Executor1", "Publisher1"],
+        "executor2": ["Subscriber1", "Executor2", "Publisher2"],
+        "executor3": ["Subscriber2", "Executor3", "Publisher3"],
+        "executor4": ["Subscriber3", "Executor4"]
+    },
+    "callback_chain": {
+        "chain1": ["Timer1", "Subscriber1", "Subscriber2", "Subscriber3"]
+    }
+}
