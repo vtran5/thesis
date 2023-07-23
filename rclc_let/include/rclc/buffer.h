@@ -56,7 +56,7 @@ rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_lock_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_unlock_queue(rclc_circular_queue_t * queue);
 
-// Priority Queue (fixed size - implemented with linked list) 
+// Priority Queue (fixed size - implemented with linked list - smallest priority goes first) 
 typedef struct rclc_priority_node_s {
     void* item;
     int64_t priority;

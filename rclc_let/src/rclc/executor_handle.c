@@ -175,6 +175,7 @@ rclc_executor_let_handle_init(
   handle->callback_info->output_index = 0;
   handle->callback_info->let_num = 0;
   handle->callback_info->num_period_per_let = 0;
+  handle->callback_info->overrun_status = NO_ERROR;
   
   handle->callback_info->let_handles = allocator.allocate(
     (max_let_handles_per_callback * sizeof(rclc_executor_let_handle_t)),

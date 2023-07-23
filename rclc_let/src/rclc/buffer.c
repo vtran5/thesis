@@ -396,12 +396,12 @@ rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* 
     node->in_use = true;
 
     // Insert the node into the queue
-    if (queue->head == NULL || queue->head->priority < priority) {
+    if (queue->head == NULL || queue->head->priority > priority) {
         node->next = queue->head;
         queue->head = node;
     } else {
         rclc_priority_node_t* current = queue->head;
-        while (current->next != NULL && current->next->priority >= priority) {
+        while (current->next != NULL && current->next->priority <= priority) {
             current = current->next;
         }
         node->next = current->next;
@@ -688,8 +688,12 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
 }
 
 rcl_ret_t rclc_fini_array(rclc_array_t * array) {
+    if (array->buffer == NULL || array->capacity == 0)
+        return RCL_RET_OK;
     rcl_allocator_t allocator = rcl_get_default_allocator();
     for(int i = 0; i < array->capacity; i++) {
+        if (array->buffer[i].item == NULL)
+            continue;
         allocator.deallocate(array->buffer[i].item, allocator.state);
         array->buffer[i].item = NULL;
     }
@@ -709,7 +713,7 @@ rcl_ret_t rclc_set_array(rclc_array_t * array, const void* item, int index) {
 }
 
 rcl_ret_t rclc_get_array(rclc_array_t * array, void * item, int index) {
-    if(index < 0 || index >= array->capacity || array->buffer[index].status == UNAVAILABLE) {
+    if(index < 0 || index >= array->capacity) {
         return RCL_RET_ERROR;
     }
     memcpy(item, array->buffer[index].item, array->elem_size);

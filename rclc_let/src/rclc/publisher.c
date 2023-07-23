@@ -118,7 +118,7 @@ rclc_publish(
   else if (semantics == RCLCPP_EXECUTOR)
   {
     ret = rcutils_steady_time_now(&now);
-    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
+    printf("Output %lu %ld\n", (unsigned long) publisher, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;
@@ -147,7 +147,7 @@ rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
   while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
   {
     ret = rcutils_steady_time_now(&now);
-    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
+    printf("Output %lu %ld\n", (unsigned long) publisher, now);
     unsigned char array[rclc_get_queue(&(publisher->message_buffer), queue_index)->elem_size];
     rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), array, queue_index);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
