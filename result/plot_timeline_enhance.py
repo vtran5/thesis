@@ -59,9 +59,9 @@ writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=
 period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=True)
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
-start_index = 0
+start_index = 10
 # get the 3 consecutive rows starting from the random start index
-filtered_timer = timer.iloc[start_index:start_index+40]
+filtered_timer = timer.iloc[start_index:start_index+20]
 
 # Find min and max time from these random rows
 min_time = np.min(filtered_timer['Time'])
@@ -106,32 +106,21 @@ publisher_mapping = {
 }
 
 colors = {
-    'Executor': '#7f7f7f',
-    'Input': '#e377c2',
-    'Subscriber': 'blue',
-    'Writer': 'cyan',
-    'Output': 'black',
-    'Timer': 'magenta'
+    'Period': '#7f7f7f',
+    'Input': '#e377c2'
 }
 
-linestyles = {
-    'Executor': '-',
-    'Input': '-',
-    'Subscriber': '-',
-    'Writer': '-',
-    'Output': '-',
-    'Timer': '-'
-}
+linestyle = '-'
 
 y_positions = {
     'Output': 0.1,
     'Subscriber': 0.3,
     'Timer': 0.5,
     'Input': 0.7,
-    'Executor': 0.9
+    'Period': 0.9
 }
 
-sequence = ['Output', 'Subscriber', 'Timer', 'Input', 'Executor']
+sequence = ['Output', 'Subscriber', 'Timer', 'Input', 'Period']
 
 # Defining a darker color palette using the specified xkcd colors
 darker_palette = [
@@ -158,24 +147,10 @@ for chain, entities in callback_chains.items():
 
 # Update the original colors dictionary with these new colors based on callback chains
 colors.update(color_mapping_entities)
-
-# # Generate unique colors for only Timers and Subscribers
-# all_colors = list(mcolors.XKCD_COLORS.values())
-# unique_timer_subscriber_labels = set(dataframes['filtered_subscriber']['ExecutorID'].unique()).union(
-#     set(dataframes['filtered_timer']['ExecutorID'].unique()))
-# sorted_timer_subscriber_labels = sorted(list(unique_timer_subscriber_labels))
-# color_mapping_timers_subscribers = {label: all_colors[i % len(all_colors)] for i, label in enumerate(sorted_timer_subscriber_labels)}
-
-# # Map the publishers to their corresponding timer or subscriber color
-# for timer_subscriber, publishers in publisher_mapping.items():
-#     for publisher in publishers:
-#         color_mapping_timers_subscribers[publisher] = color_mapping_timers_subscribers.get(timer_subscriber, 'black')
-
-# # Update the original colors dictionary with these stable colors
-# colors.update(color_mapping_timers_subscribers)
+print(colors)
 
 # Improved plotting function
-def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, frame_id=False):
+def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, custom_handles, custom_labels, frame_id=False):
     subset = filtered_data[filtered_data['ExecutorID'] == label]
     times = subset['Time'].astype(float) 
     frameIDs = subset['FrameID'] if (frame_id and 'FrameID' in subset.columns) else [None for _ in range(len(times))]
@@ -197,27 +172,36 @@ def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, fra
                 seen_frameIDs[frameID] = time
         # Plotting remaining timestamps as lines (those without matching end timestamps)
         for frameID, remaining_time in seen_frameIDs.items():
-            ax.axvline(remaining_time, color=color, label=label_name, linestyle=linestyle, linewidth=2, ymin=y_position - 0.05, ymax=y_position + 0.02)
+            ax.axvline(remaining_time, color=color, linestyle=linestyle, linewidth=2, ymin=y_position - 0.05, ymax=y_position + 0.02)
+            vline_legend_handle = Line2D([0], [0], color=color, linestyle='None', marker='|', markersize=10, markeredgewidth=2)
+            vline_legend_label = label_name
+            custom_handles.append(vline_legend_handle)
+            custom_labels.append(vline_legend_label)
             ax.text(remaining_time, y_position + 0.14, '{}'.format(int(frameID)), verticalalignment='center', horizontalalignment='center', fontsize=10, color=color)
     else:
         for time in times:
-            ax.axvline(time, color=color, label=label_name, linestyle=linestyle, linewidth=2, ymin=y_position - 0.02, ymax=y_position + 0.05)
+            ax.axvline(time, color=color, linestyle=linestyle, linewidth=2, ymin=y_position - 0.02, ymax=y_position + 0.05)
+            if label_name == None:
+                continue
+            vline_legend_handle = Line2D([0], [0], color=color, linestyle='None', marker='|', markersize=8, markeredgewidth=2)
+            vline_legend_label = label_name
+            custom_handles.append(vline_legend_handle)
+            custom_labels.append(vline_legend_label)
 
 # Plotting
 fig, axs = plt.subplots(len(executors), figsize=(14, 10), sharex=True, gridspec_kw={'hspace': 0.5})
 
 for i, (executor, labels) in enumerate(executors.items()):
-    all_labels = set([f"{key}{i+1}" for key in sequence])
+    custom_handles = []
+    custom_labels = []
     for label_type in sequence:
         data = dataframes[f"filtered_{label_type.lower()}"]
         for label in labels:
-            if label_type in label or (label_type == "Input" and "Executor" in label) or (label_type == "Output" and "Publisher" in label):
-                if label_type == "Input" or label_type == "Executor":
-                    improved_plot_v2(axs[i], data, label, linestyles[label_type], colors.get(label_type, 'black'), y_positions[label_type], frame_id=True)
-                else:
-                    improved_plot_v2(axs[i], data, label, linestyles[label_type], colors.get(label, 'black'), y_positions[label_type], frame_id=True)
+            if (label_type in label) or (label_type == "Output" and "Publisher" in label):
+                improved_plot_v2(axs[i], data, label, linestyle, colors.get(label, 'black'), y_positions[label_type], custom_handles, custom_labels, frame_id=True)
+            elif (label_type == "Input" or label_type == "Period") and "Executor" in label :
+                improved_plot_v2(axs[i], data, label, linestyle, colors.get(label_type, 'black'), y_positions[label_type], custom_handles, custom_labels)
 
-    
     axs[i].set_title(executor, fontsize=14)
     axs[i].set_yticks(list(y_positions.values()))
     axs[i].set_yticklabels(sequence)
@@ -227,6 +211,10 @@ for i, (executor, labels) in enumerate(executors.items()):
     # Get existing handles and labels
     handles, labels = axs[i].get_legend_handles_labels()
     
+    # Append custom handles and labels
+    handles.extend(custom_handles)
+    labels.extend(custom_labels)
+
     # Filter out duplicate labels while keeping the order
     unique_handles, unique_labels = [], []
     seen_labels = set()
