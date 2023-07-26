@@ -38,12 +38,16 @@ if not callback_chains:
     print("No 'callback_chains' data found in the JSON file.")
     sys.exit(1)
 
+publisher_mapping = json_data["publisher_mapping"]
+if not publisher_mapping:
+    print("No 'publisher_mapping' data found in the JSON file.")
+    sys.exit(1)
+
 # Read the file line by line and determine the maximum number of fields
 df = pu.read_input_file(input_file)
 
 start_time = pu.find_start_time(df)
-start_program_time = pu.find_program_start_time(df)
-start_program_time = (start_program_time - start_time)/1000000
+start_program_time = 0
 
 subscriber_map = pu.find_map(df, 'Subscriber')
 timer_map = pu.find_map(df, 'Timer')
@@ -59,17 +63,23 @@ writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=
 period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=True)
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
-start_index = 10
-# get the 3 consecutive rows starting from the random start index
-filtered_timer = timer.iloc[start_index:start_index+20]
+# start_index = 5
+# # get the 3 consecutive rows starting from the random start index
+# filtered_timer = timer.iloc[start_index:start_index+20]
 
 # Find min and max time from these random rows
-min_time = np.min(filtered_timer['Time'])
-max_time = np.max(filtered_timer['Time'])
-if start_index == 0:
-    x_min = start_program_time
-else:
-    x_min = min_time - 20
+# min_time = np.min(filtered_timer['Time'])
+# max_time = np.max(filtered_timer['Time'])
+
+# if start_index == 0:
+#     x_min = start_program_time
+# else:
+#     x_min = min_time - 20
+x_min = 7400
+#x_min = 11600
+#x_min = 9000
+max_time = 13750
+filtered_timer = pu.get_filtered_times(timer, x_min, max_time)
 filtered_subscriber = pu.get_filtered_times(subscriber, x_min, max_time)
 filtered_executor = pu.get_filtered_times(executor, x_min, max_time)
 filtered_output = pu.get_filtered_times(output_write, x_min, max_time)
@@ -86,24 +96,24 @@ dataframes['filtered_input'] = filtered_input
 dataframes['filtered_writer'] = filtered_writer
 dataframes['filtered_period'] = filtered_period
 
-executors = {
- 'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher2'],
- 'Executor2': ['Timer3', 'Subscriber1', 'Subscriber2', 'Executor2', 'Publisher3', 'Publisher4', 'Publisher5', 'Publisher6'],
- 'Executor3': ['Subscriber3', 'Subscriber4', 'Subscriber5', 'Subscriber6', 'Executor3', 'Publisher7', 'Publisher8', 'Publisher9', 'Publisher10'],
- 'Executor4': ['Executor4', 'Subscriber7', 'Subscriber8', 'Subscriber9', 'Subscriber10']
-}
+# executors = {
+#  'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher2'],
+#  'Executor2': ['Timer3', 'Subscriber1', 'Subscriber2', 'Executor2', 'Publisher3', 'Publisher4', 'Publisher5', 'Publisher6'],
+#  'Executor3': ['Subscriber3', 'Subscriber4', 'Subscriber5', 'Subscriber6', 'Executor3', 'Publisher7', 'Publisher8', 'Publisher9', 'Publisher10'],
+#  'Executor4': ['Executor4', 'Subscriber7', 'Subscriber8', 'Subscriber9', 'Subscriber10']
+# }
 
-publisher_mapping = {
-    'Timer1' : ['Publisher1'],
-    'Timer2' : ['Publisher2'],
-    'Subscriber1' : ['Publisher3'],
-    'Subscriber2' : ['Publisher4', 'Publisher5'],
-    'Timer3' : ['Publisher6'],
-    'Subscriber3' : ['Publisher7'],
-    'Subscriber4' : ['Publisher8'],
-    'Subscriber5' : ['Publisher9'],
-    'Subscriber6' : ['Publisher10']
-}
+# publisher_mapping = {
+#     'Timer1' : ['Publisher1'],
+#     'Timer2' : ['Publisher2'],
+#     'Subscriber1' : ['Publisher3'],
+#     'Subscriber2' : ['Publisher4', 'Publisher5'],
+#     'Timer3' : ['Publisher6'],
+#     'Subscriber3' : ['Publisher7'],
+#     'Subscriber4' : ['Publisher8'],
+#     'Subscriber5' : ['Publisher9'],
+#     'Subscriber6' : ['Publisher10']
+# }
 
 colors = {
     'Period': '#7f7f7f',
@@ -147,7 +157,6 @@ for chain, entities in callback_chains.items():
 
 # Update the original colors dictionary with these new colors based on callback chains
 colors.update(color_mapping_entities)
-print(colors)
 
 # Improved plotting function
 def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, custom_handles, custom_labels, frame_id=False):

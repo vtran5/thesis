@@ -6,6 +6,13 @@ import os
 import plot_utils as pu
 import json
 
+def print_dataframe(df, df_name):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    print(f"Dataframe name: {df_name}\n")
+    print(df)
+
 if len(sys.argv) != 3:
     print("Usage: python plot.py <input_file> <config_file>")
     sys.exit(1)
@@ -28,9 +35,11 @@ start_time = pu.find_start_time(df)
 
 subscriber_map = pu.find_map(df, 'Subscriber')
 timer_map = pu.find_map(df, 'Timer')
+publisher_map = pu.find_map(df, 'Publisher')
 
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
+output = pu.process_dataframe(df, 'Output', publisher_map, start_time, frame_id=False)
 
 # Create the figure with subplots.
 fig, axs = plt.subplots(len(callback_chains), 1, figsize=(10, len(callback_chains)*5))
@@ -41,11 +50,15 @@ axs = np.array(axs).flatten()
 # Loop over each chain.
 for idx, (chain_name, chain) in enumerate(callback_chains.items()):
     # Get the publish and receive times.
+    publisher = output[output['ExecutorID'] == chain[1]]
+    publisher = publisher.reset_index(drop=True)
     publish_time = timer[timer['ExecutorID'] == chain[0]][['FrameID','Time']]
+    publish_time = publish_time.iloc[1::2].reset_index(drop=True)
+    publish_time['Time'] = publisher['Time']
     receive_time = subscriber[subscriber['ExecutorID'] == chain[-1]][['FrameID', 'Time']]
 
     # Merge the dataframes on 'FrameID'
-    merged_df = pd.merge(publish_time, receive_time, on='FrameID', suffixes=('_publish', '_receive'))
+    merged_df = pd.merge(publish_time, receive_time, how='left', on='FrameID', suffixes=('_publish', '_receive'))
 
     # Calculate latency
     merged_df['latency'] = merged_df['Time_receive'] - merged_df['Time_publish']
