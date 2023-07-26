@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "utilities.h"
+rclc_support_t support;
+
 typedef struct 
 {
   rclc_executor_handle_type_t type;
@@ -339,4 +341,104 @@ void destroy_time_array(rcutils_time_point_value_t * array)
   if(array != NULL)
     free(array);
   array = NULL;
+}
+
+void timer_callback(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+}
+
+void subscriber_callback(
+  my_node_t * node, 
+  char * stat,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
+}
+
+void timer_callback_error(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  int min_run_time_ms,
+  int max_run_time_ms,
+  bool error,
+  int error_time,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_error(min_run_time_ms, max_run_time_ms, error, error_time);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+}
+
+void subscriber_callback_error(
+  my_node_t * node, 
+  char * stat,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  bool error,
+  int error_time,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_error(min_run_time_ms, max_run_time_ms, error, error_time);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
 }

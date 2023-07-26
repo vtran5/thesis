@@ -24,7 +24,6 @@
 
 // Experiment with deadline violation
 
-rclc_support_t support;
 volatile rcl_time_point_value_t start_time;
 my_node_t * node1;
 my_node_t * node2;
@@ -39,55 +38,6 @@ char stat3[200000000];
 char stat4[200000000];
 
 /***************************** CALLBACKS ***********************************/
-void timer_callback(
-  my_node_t * node, 
-  char * stat, 
-  int timer_index, 
-  int pub_index, 
-  rclc_executor_semantics_t pub_semantics)
-{
-  char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
-  rcl_time_point_value_t now = rclc_now(&support);
-  if (node->first_run)
-  {
-    start_time = now;
-    node->first_run = false;
-    sprintf(temp, "StartTime %ld\n", start_time);
-    strcat(stat,temp);
-  }
-  pub_msg.frame_id = node->count[0]++;
-  pub_msg.stamp = now;
-  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
-  strcat(stat,temp);
-  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
-}
-
-void subscriber_callback(
-  my_node_t * node, 
-  char * stat,
-  const custom_interfaces__msg__Message * msg,
-  int sub_index,
-  int pub_index,
-  int min_run_time_ms,
-  int max_run_time_ms,
-  rclc_executor_semantics_t pub_semantics)
-{
-  char temp[1000] = "";  
-  rcl_time_point_value_t now;
-  now = rclc_now(&support);
-  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
-  strcat(stat,temp);
-  busy_wait_random(min_run_time_ms, max_run_time_ms);
-  now = rclc_now(&support);
-  if (pub_index >= 0)
-  {
-    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
-    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
-    strcat(stat,temp);     
-  }
-}
-
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
   RCLC_UNUSED(last_call_time);
@@ -98,7 +48,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 0;
-  timer_callback(node1, stat1, timer_index, pub_index, semantics);
+  timer_callback(node1, stat1, timer_index, pub_index, 1, 2, semantics);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -335,7 +285,7 @@ int main(int argc, char const *argv[])
     pthread_t thread4 = 0;
     int policy = SCHED_FIFO;
     rcl_time_point_value_t now = rclc_now(&support);
-    printf("StartProgram %ld\n", now);
+    printf("StartTime %ld\n", now);
 
     if (executor_period_input > 0)
     {

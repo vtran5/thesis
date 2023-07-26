@@ -134,6 +134,14 @@ void busy_wait_random(int min_time, int max_time)
     busy_wait(duration);
 }
 
+void busy_wait_random_error(int min_time, int max_time, bool error, int error_time)
+{
+    if(error)
+        busy_wait(error_time);
+    else
+        busy_wait_random(min_time, max_time);
+}
+
 /*
 void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][dim1])
 {

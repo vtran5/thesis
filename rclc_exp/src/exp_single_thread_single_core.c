@@ -22,7 +22,6 @@
 
 #define LOGGER_DIM0 6
 
-
 const char * topic_name[TOPIC_NUMBER];
 
 // struct to store node variables

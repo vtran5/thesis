@@ -8,7 +8,6 @@
 #include <pthread.h>
 #include <sched.h>
 
-
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc); return 1;}}
 #define VOID_RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc); return;}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Continuing.\n",__LINE__,(int)temp_rc);}}
@@ -106,6 +105,20 @@ int get_thread_time(pthread_t thread_id);
 void busy_wait_random(int min_time, int max_time);
 
 /**
+ *  Busy-wait for a random amount of time between a minimum and maximum value.
+ *  Inject an error with the busy-wait duration greater than max_time while error flag is true
+ *  Use this function to simulate a task varied execution time
+ * 
+ * \param[in] min_time is minimum time value (best case execution time) in miliseconds
+ * \param[in] max_time is maximum time value (worst case execution time) in miliseconds
+ * \param[in] error is a flag to signal the error injection
+ * \param[in] error_time is the busy-wait duration during the error
+ * \param[in] support_ is a pointer to the support struct that contains 
+ * the clock used for the application
+ */
+void busy_wait_random_error(int min_time, int max_time, bool error, int error_time);
+
+/**
  *  Busy-wait for a specified amount of time.
  *  Use this function to simulate a task varied execution time
  * 
@@ -160,5 +173,9 @@ unsigned int min_period(int size, const unsigned int array[size]);
  * \param[out] let indicates if the executor will use LET semantics
  */
 void parse_user_arguments(int argc, char const *argv[], unsigned int *executor_period, unsigned int *timer_period, unsigned int *experiment_duration, bool *let);
+
+/**
+ * Base method for the timer callbacks
+ */
 
 #endif

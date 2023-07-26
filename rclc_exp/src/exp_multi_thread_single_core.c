@@ -22,7 +22,7 @@
 
 #define LOGGER_DIM0 6
 
-
+rclc_support_t support;
 const char * topic_name[TOPIC_NUMBER];
 
 // struct to store node variables
@@ -105,7 +105,6 @@ typedef struct my_node4
 } my_node4_t;
 //custom_interfaces__msg__Message pub_msg2;
 
-rclc_support_t support;
 volatile rcl_time_point_value_t start_time;
 my_node1_t node1;
 my_node2_t node2;
