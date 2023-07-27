@@ -147,9 +147,11 @@ rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
   while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
   {
     ret = rcutils_steady_time_now(&now);
-    printf("Output %lu %ld\n", (unsigned long) publisher, now);
+    
     unsigned char array[rclc_get_queue(&(publisher->message_buffer), queue_index)->elem_size];
     rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), array, queue_index);
+    int64_t * ptr = array;
+    printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
   return ret;

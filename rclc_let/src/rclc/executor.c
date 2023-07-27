@@ -34,6 +34,7 @@
 // default timeout for rcl_wait() is 1000ms
 #define DEFAULT_WAIT_TIMEOUT_NS 1000000000
 
+#define OVERRUN_HANDLING 3
 // declarations of helper functions
 /*
 /// get new data from DDS queue for handle i
@@ -1556,15 +1557,19 @@ _rclc_execute(
 
   // execute callback
   if (invoke_callback) {
+
     printf("Callback %lu invoked mutex %lu\n", (unsigned long) handle->subscription, (unsigned long) executor);
+
     if (semantics == LET)
     {
-      pthread_mutex_lock(&executor->let_executor->mutex_state);
-      state = RUNNING;
       printf("Running index %ld %lu\n", period_index%handle->callback_info->num_period_per_let, (unsigned long) executor);
+#ifdef OVERRUN_HANDLING
+      pthread_mutex_lock(&executor->let_executor->mutex_state);
+      state = RUNNING;     
       rc = rclc_set_array(&(handle->callback_info->state), &state, 
               period_index%handle->callback_info->num_period_per_let);
       pthread_mutex_unlock(&executor->let_executor->mutex_state);
+#endif
     }
 
     switch (handle->type) {
@@ -1838,20 +1843,21 @@ _rclc_execute(
           handle->type);
         return RCL_RET_ERROR;
     }   // switch-case
+
     if (semantics == LET)
     {
       printf("Finished index %ld mutex %lu\n", period_index%handle->callback_info->num_period_per_let, (unsigned long) executor);
+#ifdef OVERRUN_HANDLING
       pthread_mutex_lock(&executor->let_executor->mutex_state);
       state = INACTIVE;
-      
       rc = rclc_set_array(&(handle->callback_info->state), &state, 
               period_index%handle->callback_info->num_period_per_let);    
       if (handle->callback_info->overrun_status == OVERRUN)
           handle->callback_info->overrun_status = HANDLING_ERROR;
       pthread_mutex_unlock(&executor->let_executor->mutex_state);
+#endif
     }
   }
-
   return rc;
 }
 
@@ -1917,6 +1923,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
     rclc_callback_state_t state;
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) 
     {
+#ifdef OVERRUN_HANDLING
       period_index = executor->let_executor->spin_index%executor->handles[i].callback_info->num_period_per_let;
       rclc_get_array(&executor->handles[i].callback_info->state, &state, period_index);  
       // Skip if callback is not released or callback is overrun (released but not started before deadline)        
@@ -1933,6 +1940,7 @@ _rclc_let_scheduling(rclc_executor_t * executor)
         continue;
       }
       printf("no overrun %lu\n", (unsigned long) executor);
+#endif
       if(executor->handles[i].type == RCLC_SUBSCRIPTION || executor->handles[i].type == RCLC_SUBSCRIPTION_WITH_CONTEXT)
       {
         rclc_array_element_status_t status;
@@ -2609,14 +2617,16 @@ static rcl_ret_t _rclc_write_output_single_callback(
   {
       return RCL_RET_OK; // Skip if handle_index is invalid.
   }
-
-  printf("Check callback state %lu\n", (unsigned long) executor->handles[handle_index].timer);
-  rclc_callback_state_t state;
   int period_index = executor->handles[handle_index].callback_info->output_index;
+  rc = rcutils_steady_time_now(&now);
+  printf("Check callback state %lu\n", (unsigned long) executor->handles[handle_index].timer);
+  executor->handles[handle_index].callback_info->output_index = (period_index + 1) % executor->handles[handle_index].callback_info->num_period_per_let;
+
+#ifdef OVERRUN_HANDLING
+   rclc_callback_state_t state;
+  
   CHECK_RCL_RET(rclc_get_array(&executor->handles[handle_index].callback_info->state, &state, period_index), 
                                           (unsigned long) executor);
-  executor->handles[handle_index].callback_info->output_index = (period_index + 1) % executor->handles[handle_index].callback_info->num_period_per_let;
-  rc = rcutils_steady_time_now(&now);
   bool deadline_passed = false;
   if (state == RUNNING || state == RELEASED)
   {
@@ -2638,15 +2648,7 @@ static rcl_ret_t _rclc_write_output_single_callback(
     printf("deadline passed %lu\n", (unsigned long) executor->handles[handle_index].subscription);
     return RCL_RET_OK;         
   }
-  /*
-  if (deadline_passed) {
-      printf("Overrun %lu %ld\n", (unsigned long)executor, now);
-      pthread_mutex_lock(&executor->let_executor->mutex);
-      executor->let_executor->deadline_passed = true;
-      pthread_cond_signal(&executor->let_executor->cond_callback);
-      pthread_mutex_unlock(&executor->let_executor->mutex);
-  }
-  */
+#endif
   printf("Writer %lu %d %ld\n", (unsigned long)executor, period_index, now);
   rclc_executor_let_handle_t let_handle;
   for (int i = 0; i < executor->handles[handle_index].callback_info->let_num; i++) 
@@ -2654,16 +2656,20 @@ static rcl_ret_t _rclc_write_output_single_callback(
     let_handle = executor->handles[handle_index].callback_info->let_handles[i];
     if (let_handle.type == RCLC_PUBLISHER) 
     {
+#ifdef OVERRUN_HANDLING
       // There should not be a case where overrun status is OVERRUN but added a guard just in case
       if (executor->handles[handle_index].callback_info->overrun_status == OVERRUN) 
         continue;   
 
       if (executor->handles[handle_index].callback_info->overrun_status != HANDLING_ERROR)
       {
+#endif
+        printf("Write output\n");
         rc = rclc_LET_output(let_handle.publisher, period_index);
         if (rc != RCL_RET_OK) {
           RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Error: unable to publish let output: %lu", (unsigned long)let_handle.publisher);
         }
+#ifdef OVERRUN_HANDLING
         continue;
       }
 
@@ -2674,6 +2680,7 @@ static rcl_ret_t _rclc_write_output_single_callback(
             RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Error: unable to publish let output: %lu", (unsigned long)let_handle.publisher);
         }
       }
+#endif
     } 
     else
     {
@@ -2682,6 +2689,7 @@ static rcl_ret_t _rclc_write_output_single_callback(
     }
   }
 
+#ifdef OVERRUN_HANDLING
   if (executor->handles[handle_index].callback_info->overrun_status == HANDLING_ERROR)
   {
     printf("Handled output mutex %lu\n", (unsigned long) executor);
@@ -2689,6 +2697,7 @@ static rcl_ret_t _rclc_write_output_single_callback(
     executor->handles[handle_index].callback_info->overrun_status = NO_ERROR;
     pthread_mutex_unlock(&executor->let_executor->mutex_state);
   } 
+#endif
 
   return rc;
 }
@@ -2723,7 +2732,7 @@ rcl_ret_t _rclc_let_scheduling_output(
     *next_wakeup_time = -1;
     return rc;
   }
-  printf("Get next callback\n");
+  printf("Get next callback %lu\n", (unsigned long) executor);
   rc = _rclc_get_next_callback_to_write_output(executor, next_wakeup_time, callback_id);
   if (rc != RCL_RET_OK || callback_id[0] == -1) {
     return rc;
@@ -2785,6 +2794,9 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
           return rc;
       }
 
+      if (executor->handles[i].data_available)
+        printf("data taken %lu %lu index %ld\n", (unsigned long) executor, executor->handles[i].timer, executor->let_executor->input_index);
+#ifdef OVERRUN_HANDLING
       period_index = executor->let_executor->input_index%executor->handles[i].callback_info->num_period_per_let;
       printf("change state\n");
       if (executor->handles[i].callback_info->overrun_status == OVERRUN)
@@ -2799,6 +2811,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
         CHECK_RCL_RET(rclc_set_array(&(executor->handles[i].callback_info->state), &state, period_index), (unsigned long) executor);
         pthread_mutex_unlock(&executor->let_executor->mutex_state);
       }
+#endif
     }
   }
   return rc;
