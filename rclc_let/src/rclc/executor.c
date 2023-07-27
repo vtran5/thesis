@@ -1501,6 +1501,7 @@ bool _rclc_check_handle_data_available(rclc_executor_handle_t * handle,
       break;
     case RCLC_SUBSCRIPTION:
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
+    case RCLC_TIMER:
       if (semantics == LET)
       {
         bool data_available = false;
@@ -1589,17 +1590,25 @@ _rclc_execute(
 
       case RCLC_TIMER:
         // case RCLC_TIMER_WITH_CONTEXT:
-        rc = rcl_timer_call(handle->timer);
-
-        // cancled timer are not handled, return success
-        if (rc == RCL_RET_TIMER_CANCELED) {
-          rc = RCL_RET_OK;
-          break;
+        if (semantics == LET)
+        {
+          rcl_timer_callback_t callback = rcl_timer_get_callback(handle->timer);
+          // Users must ignore the last_call_time value
+          callback(handle->timer, 0);
         }
+        else
+        {
+          rc = rcl_timer_call(handle->timer);
+          // cancled timer are not handled, return success
+          if (rc == RCL_RET_TIMER_CANCELED) {
+            rc = RCL_RET_OK;
+            break;
+          }
 
-        if (rc != RCL_RET_OK) {
-          PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
-          return rc;
+          if (rc != RCL_RET_OK) {
+            PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
+            return rc;
+          }
         }
         break;
 
@@ -2101,6 +2110,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
 
     executor->let_executor->spin_index++;
     executor->invocation_time += period_ns;
+    printf("Increase period %lu %ld\n", (unsigned long) executor, executor->let_executor->spin_index);
     ret = rcutils_system_time_now(&end_time_point);
     
     pthread_mutex_lock(&executor->let_executor->mutex);
@@ -2755,6 +2765,26 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
         return rc;
       }
+
+      if (executor->handles[i].type == RCLC_TIMER && executor->handles[i].data_available)
+      {
+        // Ideally only need to update the next call time of the timer.
+        // However, because the rcl timer library doesn't support this, the timer callback is temporarily set to NULL
+        // to update the next call time only
+        rcl_timer_callback_t temp_callback = rcl_timer_exchange_callback(executor->handles[i].timer, NULL);
+        rc = rcl_timer_call(executor->handles[i].timer);
+        rcl_timer_callback_t temp_callback2 = rcl_timer_exchange_callback(executor->handles[i].timer, temp_callback);
+        RCLC_UNUSED(temp_callback2);
+
+        // cancled timer are not handled, return success
+        if (rc == RCL_RET_TIMER_CANCELED) {
+          rc = RCL_RET_OK;
+          executor->handles[i].data_available = false;
+        }
+        else if (rc != RCL_RET_OK)
+          return rc;
+      }
+
       period_index = executor->let_executor->input_index%executor->handles[i].callback_info->num_period_per_let;
       printf("change state\n");
       if (executor->handles[i].callback_info->overrun_status == OVERRUN)
@@ -2763,9 +2793,8 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
         printf("not avail\n");
       if (executor->handles[i].callback_info->overrun_status != OVERRUN && executor->handles[i].data_available)
       {
-        printf("Change state to released mutex %lu\n", (unsigned long) executor);
+        printf("Change state to released %lu index %ld\n", (unsigned long) executor, executor->let_executor->input_index);
         pthread_mutex_lock(&executor->let_executor->mutex_state);
-        
         rclc_callback_state_t state = RELEASED;
         CHECK_RCL_RET(rclc_set_array(&(executor->handles[i].callback_info->state), &state, period_index), (unsigned long) executor);
         pthread_mutex_unlock(&executor->let_executor->mutex_state);
