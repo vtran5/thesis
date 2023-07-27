@@ -55,7 +55,7 @@ for idx, (chain_name, chain) in enumerate(callback_chains.items()):
     publish_time = timer[timer['ExecutorID'] == chain[0]][['FrameID','Time']]
     publish_time = publish_time.iloc[1::2].reset_index(drop=True)
     publish_time['Time'] = publisher['Time']
-    receive_time = subscriber[subscriber['ExecutorID'] == chain[-1]][['FrameID', 'Time']]
+    receive_time = subscriber[subscriber['ExecutorID'] == chain[-1]][['FrameID', 'Time']].reset_index(drop=True)
 
     # Merge the dataframes on 'FrameID'
     merged_df = pd.merge(publish_time, receive_time, how='left', on='FrameID', suffixes=('_publish', '_receive'))
@@ -67,13 +67,16 @@ for idx, (chain_name, chain) in enumerate(callback_chains.items()):
     # Calculate the latency range
     latency = merged_df[['FrameID', 'latency']]
     latency.columns = ['frame','latency']
-
+    if chain_name == 'chain5':
+        print_dataframe(publish_time, 'publish')
+        print_dataframe(receive_time, 'receive')
+        print_dataframe(merged_df, 'latency')
     #latency = latency.iloc[1:]
     latency = latency.dropna()
     median_latency, lower_bound, upper_bound, equal_percentage = pu.calculate_latency_range(latency)
 
     # Plot the latency
-    pu.plot_latency(axs[idx], latency, median_latency, lower_bound, upper_bound, equal_percentage, chain_name)
+    pu.plot_latency(axs[idx], latency, median_latency, lower_bound, upper_bound, equal_percentage, 'blue', 'o')
     axs[idx].set_title(chain_name)
 
     print(chain_name)
@@ -86,5 +89,5 @@ plt.subplots_adjust(hspace = 0.4)
 # Save the figure with the same name as the input file and a '.png' extension
 figure_name = os.path.splitext(input_file)[0] + '_latency.png'
 
-plt.savefig(figure_name)
-plt.show()
+# plt.savefig(figure_name)
+# plt.show()

@@ -14,7 +14,7 @@ def print_dataframe(df, df_name):
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     print(f"Dataframe name: {df_name}\n")
-    print(df)
+
 #import os; os.chdir('/home/oem/thesis_ws/src/result'); input_file = '/home/oem/thesis_ws/src/result/temp.txt'; import plot_utils as pu; import numpy as np; import json; json_file = '/home/oem/thesis_ws/src/result/test1.json'
 #os.chdir('/home/oem/thesis_ws/src/result')
 #input_file = '/home/oem/thesis_ws/src/result/exp7_tp50_epdynamic_let_c.txt'
@@ -52,15 +52,10 @@ start_program_time = 0
 subscriber_map = pu.find_map(df, 'Subscriber')
 timer_map = pu.find_map(df, 'Timer')
 executor_map = pu.find_map(df, 'Executor')
-publisher_map = pu.find_map(df, 'Publisher')
-
+print(executor_map)
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
-executor = pu.process_dataframe(df, 'Executor', executor_map, start_time, frame_id=False)
-output_write = pu.process_dataframe(df, 'Output', publisher_map, start_time, frame_id=False)
-input_read = pu.process_dataframe(df, 'Input', executor_map, start_time, frame_id=True)
-writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=True)
-period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=True)
+period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=False)
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
 # start_index = 5
@@ -75,21 +70,17 @@ period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=T
 #     x_min = start_program_time
 # else:
 #     x_min = min_time - 20
-#x_min = 3600
-#x_min = 7400
-x_min = 11600
+x_min = 3600
 #x_min = 0
-max_time = x_min + 2000
+#x_min = 11600
+#x_min = 0
+max_time = 5500
 
 dataframes = {}
 dataframes['filtered_timer']  = pu.get_filtered_times(timer, x_min, max_time)
 dataframes['filtered_subscriber'] = pu.get_filtered_times(subscriber, x_min, max_time)
-dataframes['filtered_executor'] = pu.get_filtered_times(executor, x_min, max_time)
-dataframes['filtered_output'] = pu.get_filtered_times(output_write, x_min, max_time)
-dataframes['filtered_input'] = pu.get_filtered_times(input_read, x_min, max_time)
-dataframes['filtered_writer'] = pu.get_filtered_times(writer, x_min, max_time)
 dataframes['filtered_period'] = pu.get_filtered_times(period, x_min, max_time)
-
+print(dataframes['filtered_period'])
 # executors = {
 #  'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher2'],
 #  'Executor2': ['Timer3', 'Subscriber1', 'Subscriber2', 'Executor2', 'Publisher3', 'Publisher4', 'Publisher5', 'Publisher6'],
@@ -117,14 +108,12 @@ colors = {
 linestyle = '-'
 
 y_positions = {
-    'Output': 0.1,
-    'Subscriber': 0.3,
-    'Timer': 0.5,
-    'Input': 0.7,
+    'Subscriber': 0.7,
+    'Timer': 0.1,
     'Period': 0.9
 }
 
-sequence = ['Output', 'Subscriber', 'Timer', 'Input', 'Period']
+sequence = ['Subscriber', 'Timer', 'Period']
 
 # Defining a darker color palette using the specified xkcd colors
 darker_palette = [

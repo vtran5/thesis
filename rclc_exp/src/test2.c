@@ -72,7 +72,7 @@ void node1_timer3_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 2;
   int pub_index = 2;
-  timer_callback_error(node1, stat1, timer_index, pub_index, 1, 2, error_node1_timer3, 45, semantics);
+  timer_callback_error(node1, stat1, timer_index, pub_index, 1, 2, error_node1_timer3, 85, semantics);
 }
 
 void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -115,7 +115,7 @@ void node2_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 45;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback_error(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node2_sub2, 85, pub_semantics);
+  subscriber_callback_error(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node2_sub2, 155, pub_semantics);
   RCSOFTCHECK(rclc_publish(&node2->publisher[3], msg, NULL, pub_semantics));
 }
 
@@ -363,7 +363,7 @@ int main(int argc, char const *argv[])
     
     // Setting the DDS QoS profile to have buffer depth = 1
     rmw_qos_profile_t profile = rmw_qos_profile_default;
-    profile.depth = 1;
+    profile.depth = 4;
     // Init node 1
     init_node_timer(node1, &support, node1_timer_timeout_ns);
     init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics);
@@ -542,7 +542,7 @@ int main(int argc, char const *argv[])
     }
 
     sleep_ms(experiment_duration/4);
-    //error_node1_timer3 = true;
+    error_node1_timer3 = true;
     now = rclc_now(&support);
     printf("Error injected %lu %ld\n", (unsigned long) &executor[0], now);
     sleep_ms(50);
