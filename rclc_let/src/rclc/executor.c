@@ -1511,6 +1511,8 @@ bool _rclc_check_handle_data_available(rclc_executor_handle_t * handle,
         RCLC_UNUSED(ret);
         return data_available;
       }
+      else if (handle->data_available)
+        return true;
       break;
     default:
       if (handle->data_available) {
