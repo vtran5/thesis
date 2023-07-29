@@ -6,9 +6,20 @@
         "executor4": ["Executor4", "Subscriber7", "Subscriber8", "Subscriber9", "Subscriber10"]
     },
     "callback_chain": {
-        "chain1": ["Timer1", "Subscriber1", "Subscriber3", "Subscriber7"],
-        "chain2": ["Timer2", "Subscriber2", "Subscriber4", "Subscriber8"],
-        "chain3": ["Timer3", "Subscriber5", "Subscriber9"],
-        "chain4": ["Timer2", "Subscriber2", "Subscriber6", "Subscriber10"]
+        "chain1": ["Timer1", "Publisher1", "Subscriber1", "Publisher3", "Subscriber3", "Publisher7", "Subscriber7"],
+        "chain2": ["Timer2", "Publisher2", "Subscriber2", "Publisher4", "Subscriber4", "Publisher8", "Subscriber8"],
+        "chain3": ["Timer3", "Publisher5", "Subscriber5", "Publisher9", "Subscriber9"],
+        "chain4": ["Timer2", "Publisher2", "Subscriber2", "Publisher6", "Subscriber6", "Publisher10", "Subscriber10"]
+    },
+    "publisher_mapping" : {
+        "Timer1" : ["Publisher1"],
+        "Timer2" : ["Publisher2"],
+        "Subscriber1" : ["Publisher3"],
+        "Subscriber2" : ["Publisher4", "Publisher5"],
+        "Timer3" : ["Publisher6"],
+        "Subscriber3" : ["Publisher7"],
+        "Subscriber4" : ["Publisher8"],
+        "Subscriber5" : ["Publisher9"],
+        "Subscriber6" : ["Publisher10"]
     }
 }

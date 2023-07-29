@@ -118,15 +118,16 @@ def calculate_latency_range(df):
 
     return median_latency, lower_bound, upper_bound, equal_percentage
 
+def round_to_tens(n):
+    return round(n / 10) * 10
 
-def plot_latency(ax, df, median_latency, lower_bound, upper_bound, equal_percentage, title):
-    ax.scatter(df['frame'], df['latency'])
-    ax.axhline(median_latency, color='r', linestyle='--', label=f"Median latency: {median_latency:.2f}")
-    ax.axhline(lower_bound, color='g', linestyle=':', label=f"Range from median (±{equal_percentage * 100:.0f}%): {lower_bound:.2f} - {upper_bound:.2f}")
+def plot_latency(ax, df, median_latency, lower_bound, upper_bound, equal_percentage, color, marker):
+    ax.scatter(df['frame'], df['latency'], color=color, marker=marker)
+    ax.axhline(median_latency, color='r', linestyle='--', label=f"Median actual latency: {median_latency:.2f}")
+    ax.axhline(lower_bound, color='g', linestyle=':', label=f"Range (±{equal_percentage * 100:.0f}%): {lower_bound:.2f} - {upper_bound:.2f}")
     ax.axhline(upper_bound, color='g', linestyle=':')
     ax.set_ylabel('End-to-end latency (ms)')
     ax.set_xlabel('Chain number')
-    ax.set_ylim(bottom=100)
-    ax.set_ylim(top=300)
-    ax.legend(loc='lower left')
-    ax.set_title(title)
+    ax.set_ylim(bottom=round(lower_bound*0.95))
+    ax.set_ylim(top=round(upper_bound*1.05))
+    ax.legend(loc='center', bbox_to_anchor=(1.1, 0.5), bbox_transform=ax.transAxes)
