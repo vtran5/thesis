@@ -2,6 +2,10 @@
 #include <rclc/rclc.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "utilities.h"
+#include <rclc/buffer.h>
+rclc_support_t support;
+
 typedef struct 
 {
   rclc_executor_handle_type_t type;
@@ -51,7 +55,7 @@ my_node_t * create_node(
     }
     for (int i = 0; i < callback_chain_num; i++)
     {
-      node->count[i] = i*500;
+      node->count[i] = 0;
     }    
   }
 
@@ -162,21 +166,22 @@ void init_node(
   if((node == NULL) || (node_name == NULL))
     return;
   node->rcl_node = rcl_get_zero_initialized_node();
-  RCCHECK(rclc_node_init_default(&node->rcl_node, node_name, "rclc_app", support));  
+  VOID_RCCHECK(rclc_node_init_default(&node->rcl_node, node_name, "rclc_app", support));  
 }
 
 void init_node_publisher(
   my_node_t * node, 
-  rosidl_message_type_support_t * my_type_support, 
+  const rosidl_message_type_support_t * my_type_support, 
   char ** topic_name,
   rmw_qos_profile_t * profile,
   rclc_executor_semantics_t semantics)
 {
+  RCLC_UNUSED(semantics);
   if((node == NULL) || (my_type_support == NULL) | (topic_name == NULL) | (profile == NULL))
     return;
   for (int i = 0; i < node->pub_num; i++)
   {
-    RCCHECK(rclc_publisher_init(&node->publisher[i], 
+    VOID_RCCHECK(rclc_publisher_init(&node->publisher[i], 
       &node->rcl_node, my_type_support, topic_name[i], profile, semantics));
   }
 }
@@ -184,20 +189,20 @@ void init_node_publisher(
 void init_node_timer(
   my_node_t * node,
   rclc_support_t * support,
-  uint64_t * timeout_ns)
+  const uint64_t * timeout_ns)
 {
   if((node == NULL) || (support == NULL) | (timeout_ns == NULL))
     return;
   for (int i = 0; i < node->timer_num; i++)
   {
     node->timer[i] = rcl_get_zero_initialized_timer();
-    RCCHECK(rclc_timer_init_default(&node->timer[i], support, timeout_ns[i], node->timer_callback[i]));
+    VOID_RCCHECK(rclc_timer_init_default(&node->timer[i], support, timeout_ns[i], node->timer_callback[i]));
   }  
 }
 
 void init_node_subscriber(
   my_node_t * node,
-  rosidl_message_type_support_t * my_type_support,
+  const rosidl_message_type_support_t * my_type_support,
   char ** topic_name,
   rmw_qos_profile_t * profile)
 {
@@ -206,7 +211,7 @@ void init_node_subscriber(
   for (int i = 0; i < node->sub_num; i++)
   {
     node->subscriber[i] = rcl_get_zero_initialized_subscription();
-    RCCHECK(rclc_subscription_init(&node->subscriber[i], &node->rcl_node, my_type_support, topic_name[i], profile));
+    VOID_RCCHECK(rclc_subscription_init(&node->subscriber[i], &node->rcl_node, my_type_support, topic_name[i], profile));
     custom_interfaces__msg__Message__init(&node->sub_msg[i]);
   }  
 }
@@ -245,7 +250,7 @@ void destroy_node(my_node_t * node)
   {
     for (int i = 0; i < node->timer_num; i++)
     {
-      RCCHECK(rcl_timer_fini(&node->timer[i]));
+      VOID_RCCHECK(rcl_timer_fini(&node->timer[i]));
     }
     free(node->timer);
   }
@@ -254,8 +259,8 @@ void destroy_node(my_node_t * node)
   {
     for (int i = 0; i < node->pub_num; i++)
     {
-      RCCHECK(rclc_publisher_fini(&node->publisher[i], &node->rcl_node));
-      RCCHECK(rclc_publisher_let_fini(&node->publisher[i]));
+      VOID_RCCHECK(rclc_publisher_fini(&node->publisher[i], &node->rcl_node));
+      //VOID_RCCHECK(rclc_publisher_let_fini(&node->publisher[i]));
     }    
     free(node->publisher);
     free(node->callback);
@@ -268,7 +273,7 @@ void destroy_node(my_node_t * node)
   {
     for (int i = 0; i < node->sub_num; i++)
     {
-      RCCHECK(rcl_subscription_fini(&node->subscriber[i], &node->rcl_node));
+      VOID_RCCHECK(rcl_subscription_fini(&node->subscriber[i], &node->rcl_node));
     }    
     free(node->subscriber);    
   }
@@ -282,7 +287,7 @@ void destroy_node(my_node_t * node)
   if(node->subscriber_callback != NULL)
     free(node->subscriber_callback);
 
-  RCCHECK(rcl_node_fini(&node->rcl_node));
+  VOID_RCCHECK(rcl_node_fini(&node->rcl_node));
 }
 
 char** create_topic_name_array(size_t array_size)
@@ -337,4 +342,104 @@ void destroy_time_array(rcutils_time_point_value_t * array)
   if(array != NULL)
     free(array);
   array = NULL;
+}
+
+void timer_callback(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+}
+
+void subscriber_callback(
+  my_node_t * node, 
+  char * stat,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
+}
+
+void timer_callback_error(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  int min_run_time_ms,
+  int max_run_time_ms,
+  bool error,
+  int error_time,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_error(min_run_time_ms, max_run_time_ms, error, error_time);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+}
+
+void subscriber_callback_error(
+  my_node_t * node, 
+  char * stat,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  bool error,
+  int error_time,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_error(min_run_time_ms, max_run_time_ms, error, error_time);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
 }

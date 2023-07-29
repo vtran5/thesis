@@ -2,9 +2,9 @@
 #include "utilities.h"
 #include <stdlib.h>
 #include "my_node.h"
-#define NODE1_PUBLISHER_NUMBER 2
+#define NODE1_PUBLISHER_NUMBER 3
 #define NODE1_SUBSCRIBER_NUMBER 0
-#define NODE1_TIMER_NUMBER 2
+#define NODE1_TIMER_NUMBER 3
 
 #define NODE2_PUBLISHER_NUMBER 4
 #define NODE2_SUBSCRIBER_NUMBER 2
@@ -15,7 +15,7 @@
 #define NODE3_TIMER_NUMBER 0
 
 #define NODE4_PUBLISHER_NUMBER 0
-#define NODE4_SUBSCRIBER_NUMBER 4
+#define NODE4_SUBSCRIBER_NUMBER 5
 #define NODE4_TIMER_NUMBER 0
 
 volatile rcl_time_point_value_t start_time;
@@ -31,6 +31,10 @@ char stat2[200000000];
 char stat3[200000000];
 char stat4[200000000];
 
+bool error_node1_timer3 = false;
+bool error_node2_sub2 = false;
+bool error_node3_sub1 = false;
+
 /***************************** CALLBACKS ***********************************/
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
@@ -42,7 +46,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 0;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback(node1, stat1, timer_index, pub_index, 1, 3, semantics);
 }
 
 void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -55,7 +59,20 @@ void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 1;
   int pub_index = 1;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback(node1, stat1, timer_index, pub_index, 1, 3, semantics);
+}
+
+void node1_timer3_callback(rcl_timer_t * timer, int64_t last_call_time)
+{
+  RCLC_UNUSED(last_call_time);
+  if (timer == NULL)
+  {
+    printf("timer_callback Error: timer parameter is NULL\n");
+    return;
+  }
+  int timer_index = 2;
+  int pub_index = 2;
+  timer_callback_error(node1, stat1, timer_index, pub_index, 1, 2, error_node1_timer3, 85, semantics);
 }
 
 void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -98,7 +115,7 @@ void node2_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 45;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_error(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node2_sub2, 155, pub_semantics);
   RCSOFTCHECK(rclc_publish(&node2->publisher[3], msg, NULL, pub_semantics));
 }
 
@@ -114,7 +131,7 @@ void node3_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 65;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_error(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node3_sub1, 180, pub_semantics);
 }
 
 void node3_subscriber2_callback(const void * msgin)
@@ -222,6 +239,20 @@ void node4_subscriber4_callback(const void * msgin)
   subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
+void node4_subscriber5_callback(const void * msgin)
+{
+  if (msgin == NULL) {
+    printf("Callback: msg NULL\n");
+    return;
+  }
+  const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
+  int sub_index = 4;
+  int pub_index = -1;
+  int min_run_time_ms = 0;
+  int max_run_time_ms = 0;
+  rclc_executor_semantics_t pub_semantics = semantics;
+  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+}
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
@@ -240,6 +271,7 @@ int main(int argc, char const *argv[])
 
     node1->timer_callback[0] = &node1_timer1_callback;
     node1->timer_callback[1] = &node1_timer2_callback;
+    node1->timer_callback[2] = &node1_timer3_callback;
 
     node2->timer_callback[0] = &node2_timer1_callback;
     node2->subscriber_callback[0] = &node2_subscriber1_callback;
@@ -254,11 +286,12 @@ int main(int argc, char const *argv[])
     node4->subscriber_callback[1] = &node4_subscriber2_callback;
     node4->subscriber_callback[2] = &node4_subscriber3_callback;
     node4->subscriber_callback[3] = &node4_subscriber4_callback;
+    node4->subscriber_callback[4] = &node4_subscriber5_callback;
 
     srand(time(NULL));
     exit_flag = false;
     semantics = (let) ? LET : RCLCPP_EXECUTOR;
-    const uint64_t node1_timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(200), RCL_MS_TO_NS(420)};
+    const uint64_t node1_timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(200), RCL_MS_TO_NS(420), RCL_MS_TO_NS(20)};
     const uint64_t node2_timer_timeout_ns[NODE2_TIMER_NUMBER] = {RCL_MS_TO_NS(160)};
 
     // create init_options
@@ -321,12 +354,16 @@ int main(int argc, char const *argv[])
     sprintf(node4_sub_topic_name[3], "topic10");
     node3->callback[3] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node3->subscriber[3]};
 
+    sprintf(node1_pub_topic_name[2], "topic11");
+    sprintf(node4_sub_topic_name[4], "topic11");
+    node1->callback[2] = (callback_t) {RCLC_TIMER, (void *) &node1->timer[2]};
+
     const rosidl_message_type_support_t * my_type_support =
       ROSIDL_GET_MSG_TYPE_SUPPORT(custom_interfaces, msg, Message);  
     
     // Setting the DDS QoS profile to have buffer depth = 1
     rmw_qos_profile_t profile = rmw_qos_profile_default;
-    profile.depth = 1;
+    profile.depth = 4;
     // Init node 1
     init_node_timer(node1, &support, node1_timer_timeout_ns);
     init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics);
@@ -367,24 +404,26 @@ int main(int argc, char const *argv[])
     rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER);
     rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER);
 
-    callback_let_timer1[0] = RCUTILS_MS_TO_NS(5);
-    callback_let_timer1[1] = RCUTILS_MS_TO_NS(5);
+    callback_let_timer1[0] = RCUTILS_MS_TO_NS(10);
+    callback_let_timer1[1] = RCUTILS_MS_TO_NS(10);
+    callback_let_timer1[2] = RCUTILS_MS_TO_NS(10);
 
-    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(60);
-    callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(70);
-    callback_let_timer2[0] = RCUTILS_MS_TO_NS(115);
+    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(80);
+    callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(80);
+    callback_let_timer2[0] = RCUTILS_MS_TO_NS(80);
 
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(150);
-    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(230);
-    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(240);
-    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(250);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(200);
+    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(200);
+    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(200);
+    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(200);
 
     callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(5);
     callback_let_subscriber4[1] = RCUTILS_MS_TO_NS(5);
     callback_let_subscriber4[2] = RCUTILS_MS_TO_NS(5);
     callback_let_subscriber4[3] = RCUTILS_MS_TO_NS(5);
+    callback_let_subscriber4[4] = RCUTILS_MS_TO_NS(5);
 
-    unsigned int num_handles = 4;
+    unsigned int num_handles = 5;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
     executor_period[0] = RCUTILS_MS_TO_NS(10);
@@ -398,7 +437,7 @@ int main(int argc, char const *argv[])
     executor_semantics[3] = semantics;
 
     const int max_number_per_callback = 2; // Max number of calls per publisher per callback
-    const int num_let_handles = 4; // max number of let handles per executor
+    const int num_let_handles = 5; // max number of let handles per executor
     const int max_intermediate_handles = 20; // max number of intermediate handles per executor
 
     int i;
@@ -435,6 +474,7 @@ int main(int argc, char const *argv[])
     }
     for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
     {
+      printf("Checkpoint1\n");
       RCCHECK(rclc_executor_add_subscription(
         &executor[3], &node4->subscriber[i], &node4->sub_msg[i], node4->subscriber_callback[i],
         ON_NEW_DATA, callback_let_subscriber4[i], (int) sizeof(custom_interfaces__msg__Message)));
@@ -501,7 +541,32 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
 
-    sleep_ms(experiment_duration);
+    sleep_ms(experiment_duration/4);
+    error_node1_timer3 = true;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[0], now);
+    sleep_ms(50);
+    error_node1_timer3 = false;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[0], now);
+    sleep_ms(experiment_duration/4);
+    error_node2_sub2 = true;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[1], now);
+    sleep_ms(900);
+    error_node2_sub2 = false;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[1], now);
+    sleep_ms(experiment_duration/4);
+    error_node3_sub1 = true;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[2], now);
+    sleep_ms(500);
+    error_node3_sub1 = false;
+    now = rclc_now(&support);
+    printf("Error injected %lu %ld\n", (unsigned long) &executor[2], now);
+    sleep_ms(experiment_duration/4);
+
     exit_flag = true;
     printf("Finish experiment\n");
 
