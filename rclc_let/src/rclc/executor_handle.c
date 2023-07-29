@@ -170,7 +170,7 @@ rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
     return RCL_RET_BAD_ALLOC;
   handle->callback_info->callback_let_ns = 0;
   handle->callback_info->num_period_per_let = 0;
-  handle->callback_info->deadline_passed = NO_ERROR;
+  handle->callback_info->overrun_status = NO_ERROR;
   
   return RCL_RET_OK;
 }
@@ -184,8 +184,11 @@ rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
     rclc_fini_array(&handle->callback_info->data_available);
     rclc_fini_array(&handle->callback_info->state);
     rcl_allocator_t allocator = rcl_get_default_allocator();
-    allocator.deallocate(handle->callback_info, allocator.state);
-    handle->callback_info = NULL;
+    if (NULL != handle->callback_info)
+    {
+      allocator.deallocate(handle->callback_info, allocator.state);
+      handle->callback_info = NULL;      
+    }
   }
   return RCL_RET_OK;
 }

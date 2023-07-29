@@ -168,7 +168,7 @@ rclc_let_output_node_init(
 
 	CHECK_RCL_RET(rclc_allocate(allocator, (void **) &let_output_node->output_arr, max_number_of_let_handles*sizeof(rclc_let_output_t)), 
 									(unsigned long) let_output_node);
-	for (int i = 0; i < max_number_of_let_handles; i++)
+	for (size_t i = 0; i < max_number_of_let_handles; i++)
 	{
 		_rclc_output_handle_zero_init(&let_output_node->output_arr[i]);
 	}
@@ -246,7 +246,7 @@ rclc_let_output_node_add_publisher(
   let_handle.type = RCLC_PUBLISHER;
   let_handle.publisher = publisher;
   let_output_node->output_arr[let_output_node->index].max_msg_per_period = max_number_per_callback;
-  printf("num_intermediate_handles %d\n", let_output_node->num_intermediate_handles);
+  printf("num_intermediate_handles %ld\n", let_output_node->num_intermediate_handles);
   CHECK_RCL_RET(_rclc_output_handle_init(&let_output_node->output_arr[let_output_node->index], 
 								let_output_node->allocator, let_handle), (unsigned long) let_output_node);
   let_output_node->index++;
@@ -294,13 +294,18 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 		if (state == RUNNING || state == RELEASED)
 		{
 			pthread_mutex_lock(mutex);
-			for(int i = 0; i < output->callback_info->num_period_per_let && i != period_id; i++)
+			rclc_overrun_status_t overrun_status = (state == RUNNING) ? OVERRUN : HANDLING_ERROR;
+			output->callback_info->overrun_status = overrun_status;
+			// Set all other active instances of this callback to inactive
+			for(int i = 0; i < output->callback_info->num_period_per_let; i++)
 			{
+	      if(i == period_id && overrun_status == OVERRUN)
+	        continue;
 				state = INACTIVE;
         VOID_CHECK_RCL_RET(rclc_set_array(&(output->callback_info->state), &state, i), 
         										(unsigned long) output->handle.publisher);
 			}
-			output->callback_info->deadline_passed = OVERRUN;
+			
 			pthread_mutex_unlock(mutex);
 			printf("deadline passed %lu\n", (unsigned long) output->handle.publisher);
 			return;			
@@ -317,7 +322,8 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 												(unsigned long) output->handle.publisher);
 		output->data_consumed[subscriber_period_id] = true;
 		rcutils_steady_time_now(&now);
-		printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, period_id, now);
+		int64_t * temp = (int64_t *) msgin;
+		printf("Output %lu %ld %ld\n", (unsigned long) output->handle.publisher, temp[1], now);
 	}
 	else
 	{
@@ -326,17 +332,16 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 			{
 				// have new data but not for this deadline
 				output->data_consumed[subscriber_period_id] = false;
-				if (output->callback_info->deadline_passed == HANDLING_ERROR)
-					printf("deadline_passed true\n");
 				printf("state %d\n", (int) state);
 				// if the overrun callback finish executing, publish the data
-				if (output->callback_info->deadline_passed == HANDLING_ERROR)
+				if (output->callback_info->overrun_status == HANDLING_ERROR)
 				{
 					VOID_CHECK_RCL_RET(rcl_publish(&output->publisher.rcl_publisher, msgin, NULL), 
 															(unsigned long) output);
 					output->data_consumed[subscriber_period_id] = true;
 					rcutils_steady_time_now(&now);
-					printf("Publisher %lu %d %ld\n", (unsigned long) output->handle.publisher, subscriber_period_id, now);			
+					int64_t * temp = (int64_t *) msgin;
+					printf("Output %lu %ld %ld\n", (unsigned long) output->handle.publisher, temp[1], now);			
 				}
 			}		
 	} 
@@ -358,10 +363,10 @@ void _rclc_check_overrun_callback_finishes(rclc_let_output_node_t * let_output_n
 	  VOID_CHECK_RCL_RET(rclc_get_array(&output->callback_info->state, &state, period_id), 
 	  										(unsigned long) let_output_node);
 
-	  if (output->callback_info->deadline_passed == HANDLING_ERROR)
+	  if (output->callback_info->overrun_status == HANDLING_ERROR)
 	  {
 	  	pthread_mutex_lock(&let_output_node->mutex);
-	    output->callback_info->deadline_passed = NO_ERROR;
+	    output->callback_info->overrun_status = NO_ERROR;
 	    pthread_mutex_unlock(&let_output_node->mutex);
 	  }
 
@@ -430,7 +435,7 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
   	}
   }
   rcl_ret_t ret = RCL_RET_OK;
-  printf("Output executor start %lu\n", (unsigned long) &output_executor);
+  printf("OutEx start %lu\n", (unsigned long) &output_executor);
   while(!(*exit_flag))
   {
   	ret = rclc_executor_spin_some(&output_executor, output_executor.timeout_ns);
@@ -440,145 +445,9 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
     }
     _rclc_check_overrun_callback_finishes(let_output_node);
   }
-  printf("Output executor stop %lu\n", (unsigned long) &output_executor);
+  printf("OutEx stop %lu\n", (unsigned long) &output_executor);
   let_output_node->allocator->deallocate(timer_context, let_output_node->allocator->state);
   let_output_node->allocator->deallocate(sub_context, let_output_node->allocator->state);
   return ret;
 }
 
-void print_ret(rcl_ret_t ret, unsigned long ptr)
-{
-  switch(ret)
-  {
-  case RCL_RET_OK:
-    printf("RCL_RET_OK %ld\n", (long)ptr);
-    break;
-  case RCL_RET_ERROR:
-    printf("RCL_RET_ERROR %ld\n", (long)ptr);
-    break;
-  case RCL_RET_TIMEOUT:
-    printf("RCL_RET_TIMEOUT %ld\n", (long)ptr);
-    break;
-  case RCL_RET_BAD_ALLOC:
-    printf("RCL_RET_BAD_ALLOC %ld\n", (long)ptr);
-    break;
-  case RCL_RET_INVALID_ARGUMENT:
-    printf("RCL_RET_INVALID_ARGUMENT %ld\n", (long)ptr);
-    break;
-  case RCL_RET_UNSUPPORTED:
-    printf("RCL_RET_UNSUPPORTED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_ALREADY_INIT:
-    printf("RCL_RET_ALREADY_INIT %ld\n", (long)ptr);
-    break;
-  case RCL_RET_NOT_INIT:
-    printf("RCL_RET_NOT_INIT %ld\n", (long)ptr);
-    break;
-  case RCL_RET_MISMATCHED_RMW_ID:
-    printf("RCL_RET_MISMATCHED_RMW_ID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_TOPIC_NAME_INVALID:
-    printf("RCL_RET_TOPIC_NAME_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_SERVICE_NAME_INVALID:
-    printf("RCL_RET_SERVICE_NAME_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_UNKNOWN_SUBSTITUTION:
-    printf("RCL_RET_UNKNOWN_SUBSTITUTION %ld\n", (long)ptr);
-    break;
-  case RCL_RET_ALREADY_SHUTDOWN:
-    printf("RCL_RET_ALREADY_SHUTDOWN %ld\n", (long)ptr);
-    break;
-  case RCL_RET_NODE_INVALID:
-    printf("RCL_RET_NODE_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_NODE_INVALID_NAME:
-    printf("RCL_RET_NODE_INVALID_NAME %ld\n", (long)ptr);
-    break;
-  case RCL_RET_NODE_INVALID_NAMESPACE:
-    printf("RCL_RET_NODE_INVALID_NAMESPACE %ld\n", (long)ptr);
-    break;
-  case RCL_RET_NODE_NAME_NON_EXISTENT:
-    printf("RCL_RET_NODE_NAME_NON_EXISTENT %ld\n", (long)ptr);
-    break;
-  case RCL_RET_PUBLISHER_INVALID:
-    printf("RCL_RET_PUBLISHER_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_SUBSCRIPTION_INVALID:
-    printf("RCL_RET_SUBSCRIPTION_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_SUBSCRIPTION_TAKE_FAILED:
-    printf("RCL_RET_SUBSCRIPTION_TAKE_FAILED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_CLIENT_INVALID:
-    printf("RCL_RET_CLIENT_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_CLIENT_TAKE_FAILED:
-    printf("RCL_RET_CLIENT_TAKE_FAILED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_SERVICE_INVALID:
-    printf("RCL_RET_SERVICE_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_SERVICE_TAKE_FAILED:
-    printf("RCL_RET_SERVICE_TAKE_FAILED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_TIMER_INVALID:
-    printf("RCL_RET_TIMER_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_TIMER_CANCELED:
-    printf("RCL_RET_TIMER_CANCELED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_WAIT_SET_INVALID:
-    printf("RCL_RET_WAIT_SET_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_WAIT_SET_EMPTY:
-    printf("RCL_RET_WAIT_SET_EMPTY %ld\n", (long)ptr);
-    break;
-  case RCL_RET_WAIT_SET_FULL:
-    printf("RCL_RET_WAIT_SET_FULL %ld\n", (long)ptr);
-    break;
-  case RCL_RET_INVALID_REMAP_RULE:
-    printf("RCL_RET_INVALID_REMAP_RULE %ld\n", (long)ptr);
-    break;
-  case RCL_RET_WRONG_LEXEME:
-    printf("RCL_RET_WRONG_LEXEME %ld\n", (long)ptr);
-    break;
-  case RCL_RET_INVALID_ROS_ARGS:
-    printf("RCL_RET_INVALID_ROS_ARGS %ld\n", (long)ptr);
-    break;
-  case RCL_RET_INVALID_PARAM_RULE:
-    printf("RCL_RET_INVALID_PARAM_RULE %ld\n", (long)ptr);
-    break;
-  case RCL_RET_INVALID_LOG_LEVEL_RULE:
-    printf("RCL_RET_INVALID_LOG_LEVEL_RULE %ld\n", (long)ptr);
-    break;
-  case RCL_RET_EVENT_INVALID:
-    printf("RCL_RET_EVENT_INVALID %ld\n", (long)ptr);
-    break;
-  case RCL_RET_EVENT_TAKE_FAILED:
-    printf("RCL_RET_EVENT_TAKE_FAILED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_LIFECYCLE_STATE_REGISTERED:
-    printf("RCL_RET_LIFECYCLE_STATE_REGISTERED %ld\n", (long)ptr);
-    break;
-  case RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED:
-    printf("RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED %ld\n", (long)ptr);
-    break;
-  default:
-    printf("Unknown case %ld\n", (long)ptr);
-  }
-}
-
-rcl_ret_t
-rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size)
-{
-	*ptr = allocator->allocate(size, allocator->state);
-	if (*ptr == NULL)
-	{
-		// try again
-		*ptr = allocator->allocate(size, allocator->state);
-		if (*ptr == NULL)
-			return RCL_RET_BAD_ALLOC;
-	}
-	return RCL_RET_OK;
-}

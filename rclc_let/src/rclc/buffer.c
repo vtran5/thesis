@@ -1,6 +1,143 @@
 #include "rclc/buffer.h"
 #include <string.h>
-#include <rcl/allocator.h>
+
+rcl_ret_t
+rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size)
+{
+  *ptr = allocator->allocate(size, allocator->state);
+  if (*ptr == NULL)
+  {
+    // try again
+    *ptr = allocator->allocate(size, allocator->state);
+    if (*ptr == NULL)
+      return RCL_RET_BAD_ALLOC;
+  }
+  return RCL_RET_OK;
+}
+
+void print_ret(rcl_ret_t ret, unsigned long ptr)
+{
+  switch(ret)
+  {
+  case RCL_RET_OK:
+    printf("RCL_RET_OK %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ERROR:
+    printf("RCL_RET_ERROR %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMEOUT:
+    printf("RCL_RET_TIMEOUT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_BAD_ALLOC:
+    printf("RCL_RET_BAD_ALLOC %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_ARGUMENT:
+    printf("RCL_RET_INVALID_ARGUMENT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_UNSUPPORTED:
+    printf("RCL_RET_UNSUPPORTED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ALREADY_INIT:
+    printf("RCL_RET_ALREADY_INIT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NOT_INIT:
+    printf("RCL_RET_NOT_INIT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_MISMATCHED_RMW_ID:
+    printf("RCL_RET_MISMATCHED_RMW_ID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TOPIC_NAME_INVALID:
+    printf("RCL_RET_TOPIC_NAME_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_NAME_INVALID:
+    printf("RCL_RET_SERVICE_NAME_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_UNKNOWN_SUBSTITUTION:
+    printf("RCL_RET_UNKNOWN_SUBSTITUTION %ld\n", (long)ptr);
+    break;
+  case RCL_RET_ALREADY_SHUTDOWN:
+    printf("RCL_RET_ALREADY_SHUTDOWN %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID:
+    printf("RCL_RET_NODE_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID_NAME:
+    printf("RCL_RET_NODE_INVALID_NAME %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_INVALID_NAMESPACE:
+    printf("RCL_RET_NODE_INVALID_NAMESPACE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_NODE_NAME_NON_EXISTENT:
+    printf("RCL_RET_NODE_NAME_NON_EXISTENT %ld\n", (long)ptr);
+    break;
+  case RCL_RET_PUBLISHER_INVALID:
+    printf("RCL_RET_PUBLISHER_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SUBSCRIPTION_INVALID:
+    printf("RCL_RET_SUBSCRIPTION_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SUBSCRIPTION_TAKE_FAILED:
+    printf("RCL_RET_SUBSCRIPTION_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_CLIENT_INVALID:
+    printf("RCL_RET_CLIENT_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_CLIENT_TAKE_FAILED:
+    printf("RCL_RET_CLIENT_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_INVALID:
+    printf("RCL_RET_SERVICE_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_SERVICE_TAKE_FAILED:
+    printf("RCL_RET_SERVICE_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMER_INVALID:
+    printf("RCL_RET_TIMER_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_TIMER_CANCELED:
+    printf("RCL_RET_TIMER_CANCELED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_INVALID:
+    printf("RCL_RET_WAIT_SET_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_EMPTY:
+    printf("RCL_RET_WAIT_SET_EMPTY %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WAIT_SET_FULL:
+    printf("RCL_RET_WAIT_SET_FULL %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_REMAP_RULE:
+    printf("RCL_RET_INVALID_REMAP_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_WRONG_LEXEME:
+    printf("RCL_RET_WRONG_LEXEME %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_ROS_ARGS:
+    printf("RCL_RET_INVALID_ROS_ARGS %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_PARAM_RULE:
+    printf("RCL_RET_INVALID_PARAM_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_INVALID_LOG_LEVEL_RULE:
+    printf("RCL_RET_INVALID_LOG_LEVEL_RULE %ld\n", (long)ptr);
+    break;
+  case RCL_RET_EVENT_INVALID:
+    printf("RCL_RET_EVENT_INVALID %ld\n", (long)ptr);
+    break;
+  case RCL_RET_EVENT_TAKE_FAILED:
+    printf("RCL_RET_EVENT_TAKE_FAILED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_LIFECYCLE_STATE_REGISTERED:
+    printf("RCL_RET_LIFECYCLE_STATE_REGISTERED %ld\n", (long)ptr);
+    break;
+  case RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED:
+    printf("RCL_RET_LIFECYCLE_STATE_NOT_REGISTERED %ld\n", (long)ptr);
+    break;
+  default:
+    printf("Unknown case %ld\n", (long)ptr);
+  }
+}
+
 // Circular Queue
 rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size, int capacity) {
     rcl_ret_t ret = RCL_RET_OK;
@@ -259,12 +396,12 @@ rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* 
     node->in_use = true;
 
     // Insert the node into the queue
-    if (queue->head == NULL || queue->head->priority < priority) {
+    if (queue->head == NULL || queue->head->priority > priority) {
         node->next = queue->head;
         queue->head = node;
     } else {
         rclc_priority_node_t* current = queue->head;
-        while (current->next != NULL && current->next->priority >= priority) {
+        while (current->next != NULL && current->next->priority <= priority) {
             current = current->next;
         }
         node->next = current->next;
@@ -537,7 +674,7 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
     array->elem_size = elem_size;
     rcl_allocator_t allocator = rcl_get_default_allocator();
     array->buffer = allocator.allocate(capacity * sizeof(rclc_array_element_t), allocator.state);
-    if (array->buffer == NULL && array->capacity != 0) {
+    if (array->buffer == NULL) {
         return RCL_RET_BAD_ALLOC;
     }
     for(int i = 0; i < capacity; i++) {
@@ -551,14 +688,12 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
 }
 
 rcl_ret_t rclc_fini_array(rclc_array_t * array) {
-    if (array->buffer == NULL)
+    if (array->buffer == NULL || array->capacity == 0)
         return RCL_RET_OK;
-
     rcl_allocator_t allocator = rcl_get_default_allocator();
     for(int i = 0; i < array->capacity; i++) {
         if (array->buffer[i].item == NULL)
             continue;
-        
         allocator.deallocate(array->buffer[i].item, allocator.state);
         array->buffer[i].item = NULL;
     }
@@ -573,6 +708,7 @@ rcl_ret_t rclc_set_array(rclc_array_t * array, const void* item, int index) {
         return RCL_RET_ERROR;
     }
     memcpy(array->buffer[index].item, item, array->elem_size);
+    array->buffer[index].status = AVAILABLE;
     return RCL_RET_OK;
 }
 

@@ -18,26 +18,6 @@ extern "C"
 #include "rclc/visibility_control.h"
 #include "rclc/publisher.h"
 
-#define CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
-{                                                       \
-    rcl_ret_t ret = FUNCTION_CALL;                      \
-    if (ret != RCL_RET_OK) {                            \
-        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
-        print_ret(ret, ADDITIONAL_ARG);                 \
-        return ret;                                     \
-    }                                                   \
-}
-
-#define VOID_CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
-{                                                       \
-    rcl_ret_t ret = FUNCTION_CALL;                      \
-    if (ret != RCL_RET_OK) {                            \
-        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
-        print_ret(ret, ADDITIONAL_ARG);                 \
-        return;                                         \
-    }                                                   \
-}
-
 /// Enumeration for publisher, server, client, etc that will send messages
 typedef enum
 {
@@ -136,10 +116,6 @@ rclc_let_output_node_add_publisher(
 rcl_ret_t
 rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag, uint64_t period_ns);
 
-rcl_ret_t
-rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size);
-
-void print_ret(rcl_ret_t ret, unsigned long ptr);
 #if __cplusplus
 }
 #endif

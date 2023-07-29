@@ -1073,6 +1073,10 @@ rclc_executor_set_period(rclc_executor_t * executor, const uint64_t period_ns);
 
 RCLC_PUBLIC
 rcl_ret_t
+rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period_ns, bool * exit_flag);
+
+RCLC_PUBLIC
+rcl_ret_t
 rclc_executor_add_publisher_LET(
   rclc_executor_t * executor,
   rclc_publisher_t * publisher,

@@ -141,7 +141,7 @@ _rclc_publish_LET(
 
   rcl_ret_t ret = rcl_publish(&(publisher->let_publisher->let_publishers[index]), ros_message, allocation);
   printf("Publish internal at index %d %ld\n", index, (unsigned long) publisher);
-  return RCL_RET_OK;
+  return ret;
 }
 
 rcl_ret_t
@@ -161,9 +161,10 @@ rclc_publish(
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
+    int64_t * temp = (int64_t *) ros_message;
     ret = rcutils_steady_time_now(&now);
-    printf("Publisher %lu %ld\n", (unsigned long) publisher, now);
-    printf("Writer %lu %lu %ld\n", (unsigned long) publisher, 0, now);
+    printf("Output %lu %ld %ld\n", (unsigned long) publisher, temp[1], now);
+    printf("Writer %lu %d %ld\n", (unsigned long) publisher, 0, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;

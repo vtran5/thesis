@@ -4,6 +4,30 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <rcl/types.h>
+#include <rcl/allocator.h>
+
+#define CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
+{                                                       \
+    rcl_ret_t ret = FUNCTION_CALL;                      \
+    if (ret != RCL_RET_OK) {                            \
+        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
+        print_ret(ret, ADDITIONAL_ARG);                 \
+        return ret;                                     \
+    }                                                   \
+}
+
+#define VOID_CHECK_RCL_RET(FUNCTION_CALL, ADDITIONAL_ARG)    \
+{                                                       \
+    rcl_ret_t ret = FUNCTION_CALL;                      \
+    if (ret != RCL_RET_OK) {                            \
+        printf("Error occurred at %s:%d\n", __FILE__, __LINE__); \
+        print_ret(ret, ADDITIONAL_ARG);                 \
+        return;                                         \
+    }                                                   \
+}
+rcl_ret_t
+rclc_allocate(rcl_allocator_t * allocator, void ** ptr, size_t size);
+void print_ret(rcl_ret_t ret, unsigned long ptr);
 // Circular Queue
 typedef enum {
     LOCKED,
@@ -32,7 +56,7 @@ rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_lock_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_unlock_queue(rclc_circular_queue_t * queue);
 
-// Priority Queue (fixed size - implemented with linked list) 
+// Priority Queue (fixed size - implemented with linked list - smallest priority goes first) 
 typedef struct rclc_priority_node_s {
     void* item;
     int64_t priority;

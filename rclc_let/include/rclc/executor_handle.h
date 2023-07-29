@@ -140,7 +140,7 @@ typedef struct {
   int num_period_per_let;
   /// Set to true when deadline has passed but the callback is still executed
   /// Should not read any new callback input while true
-  rclc_overrun_status_t deadline_passed;
+  rclc_overrun_status_t overrun_status;
   /// State of the callback
   rclc_array_t state;
   /// Spin index
