@@ -47,12 +47,10 @@ class Task:
         if self.task_type == "Timer":
             if self.actual_timer.check_trigger():
                 heapq.heappush(self.output_written_time_buffer, current_time + self.deadline)
-                if self.data == -1 and self.name == "Timer1":
-                    print("StartTime", current_time*1000000)
                 self.data += 1
                 self.input_buffer[buffer_index] = self.data
                 events_buffer.append((current_time, f"{self.name} Task Read Input", self.data))
-                print("Timer", self.id, self.data, current_time*1000000)
+                #print("Timer", self.id, self.data, current_time*1000000)
                 #print((current_time, f"{self.name} Task Read Input", self.data, "at index", buffer_index))
                 
         elif self.task_type == "Subscriber":
@@ -74,6 +72,8 @@ class Task:
             buffer_index = ((current_time - self.deadline) // self.thread_period) % self.buffer_size
             self.output = self.input_buffer[buffer_index]
             self.input_buffer[buffer_index] = None
+            if self.task_type == "Timer":
+                print("Timer", self.id, self.data, current_time*1000000)
             #print((current_time, f"{self.name} Task Write Output", self.output, "from index", buffer_index))
             for subscriber in self.subscribers:
                 # Mark the output as unread for each subscriber
@@ -96,13 +96,15 @@ class TaskChain:
 
 # Define threads with priority and adjust the simulation to run threads together along a timeline
 class Thread:
-    def __init__(self, period, priority, tasks, start_time, actual_timers=None):
+    def __init__(self, period, priority, tasks, start_time, name, ex_id, actual_timers=None):
         self.period = period
         self.priority = priority
         self.tasks = tasks
         self.timers = actual_timers if actual_timers is not None else []
         self.start_time = start_time
-
+        self.id = ex_id
+        self.name = name
+        print("ExecutorID", self.name, self.id)
         for task in self.tasks:
             task.buffer_size = math.ceil(task.deadline / self.period)
             task.thread_period = self.period
@@ -119,6 +121,8 @@ def simulate_threads(threads, duration):
     while current_time <= duration:
         #print("Current time: ", current_time)
         for thread in threads:
+            if (current_time - thread.start_time) % thread.period == 0:
+                print("Period", thread.id, current_time*1000000)
             for timer in thread.timers:
                 timer.update_trigger(current_time)
             if current_time >= thread.start_time:
@@ -134,53 +138,56 @@ def simulate_threads(threads, duration):
 # Simple Test Setup
 
 # Initialize the actual timer
-actual_timer1 = ActualTimer(0, 200)
-actual_timer2 = ActualTimer(0, 420)
-actual_timer3 = ActualTimer(0, 160)
+actual_timer1 = ActualTimer(-20, 200)
+actual_timer2 = ActualTimer(-20, 420)
+actual_timer3 = ActualTimer(-20, 20)
+actual_timer4 = ActualTimer(-16, 160)
 
-timer1 = Task("Timer1", "Timer", 5, 1, actual_timer1)
-timer2 = Task("Timer2", "Timer", 5, 2, actual_timer2)
-timer3 = Task("Timer3", "Timer", 115, 3, actual_timer3)
+timer1 = Task("Timer1", "Timer", 10, 1, actual_timer1)
+timer2 = Task("Timer2", "Timer", 10, 2, actual_timer2)
+timer3 = Task("Timer3", "Timer", 10, 3, actual_timer3)
+timer4 = Task("Timer4", "Timer", 80, 4, actual_timer4)
 
-subscriber1 = Task("Subscriber1", "Subscriber", 60, 4)
-subscriber2 = Task("Subscriber2", "Subscriber", 70, 5)
-subscriber3 = Task("Subscriber3", "Subscriber", 150, 6)
-subscriber4 = Task("Subscriber4", "Subscriber", 230, 7)
-subscriber5 = Task("Subscriber5", "Subscriber", 240, 8)
-subscriber6 = Task("Subscriber6", "Subscriber", 250, 9)
-subscriber7 = Task("Subscriber7", "Subscriber", 10, 10)
-subscriber8 = Task("Subscriber8", "Subscriber", 10, 11)
-subscriber9 = Task("Subscriber9", "Subscriber", 10, 12)
-subscriber10 = Task("Subscriber10", "Subscriber", 10, 13)
+subscriber1 = Task("Subscriber1", "Subscriber", 80, 5)
+subscriber2 = Task("Subscriber2", "Subscriber", 80, 6)
+subscriber3 = Task("Subscriber3", "Subscriber", 200, 7)
+subscriber4 = Task("Subscriber4", "Subscriber", 200, 8)
+subscriber5 = Task("Subscriber5", "Subscriber", 200, 9)
+subscriber6 = Task("Subscriber6", "Subscriber", 200, 10)
+subscriber7 = Task("Subscriber7", "Subscriber", 5, 11)
+subscriber8 = Task("Subscriber8", "Subscriber", 5, 12)
+subscriber9 = Task("Subscriber9", "Subscriber", 5, 13)
+subscriber10 = Task("Subscriber10", "Subscriber", 5, 14)
+subscriber11 = Task("Subscriber11", "Subscriber", 5, 15)
 
 tasks1 = [timer1, subscriber1, subscriber3, subscriber7]
 tasks2 = [timer2, subscriber2, subscriber4, subscriber8]
-tasks3 = [timer3, subscriber5, subscriber9]
+tasks3 = [timer4, subscriber5, subscriber9]
 tasks4 = [timer2, subscriber2, subscriber6, subscriber10]
+tasks5 = [timer3, subscriber11]
 
-executor1 = [timer1, timer2]
-executor2 = [subscriber1, subscriber2, timer3]
+executor1 = [timer1, timer2, timer3]
+executor2 = [subscriber1, subscriber2, timer4]
 executor3 = [subscriber3, subscriber4, subscriber5, subscriber6]
-executor4 = [subscriber7, subscriber8, subscriber9, subscriber10]
+executor4 = [subscriber7, subscriber8, subscriber9, subscriber10, subscriber11]
 
 chain1 = TaskChain(tasks1)
 chain2 = TaskChain(tasks2)
 chain3 = TaskChain(tasks3)
 chain4 = TaskChain(tasks4)
+chain5 = TaskChain(tasks5)
 
 # Define tasks for the two threads
-timers1 = [actual_timer1, actual_timer2]
-timers2 = [actual_timer3]
+timers1 = [actual_timer1, actual_timer2, actual_timer3]
+timers2 = [actual_timer4]
 
 # Initialize threads with their respective tasks and priorities
-thread1 = Thread(10, 1, executor1, 20, timers1)
-thread2 = Thread(20, 2, executor2, 22, timers2)
-thread3 = Thread(50, 3, executor3, 24)
-thread4 = Thread(10, 4, executor4, 26)
+thread1 = Thread(10, 1, executor1, 1, "Executor1", 16, timers1)
+thread2 = Thread(20, 2, executor2, 4, "Executor2", 17, timers2)
+thread3 = Thread(50, 3, executor3, 6, "Executor3", 18)
+thread4 = Thread(10, 4, executor4, 8, "Executor4", 19)
 
 # Run the simulation and capture events
-test_events = simulate_threads([thread1, thread2, thread3, thread4], 15000)
-
+test_events = simulate_threads([thread1, thread2, thread3, thread4], 11500)
+print("StartTime", 0)
 #print(test_events)
-
-

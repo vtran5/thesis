@@ -56,6 +56,7 @@ print(executor_map)
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
 period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=False)
+print(period)
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
 # start_index = 5
@@ -70,17 +71,17 @@ period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=F
 #     x_min = start_program_time
 # else:
 #     x_min = min_time - 20
-x_min = 3600
+x_min = 0
 #x_min = 0
 #x_min = 11600
 #x_min = 0
-max_time = 5500
+max_time = 1000
 
 dataframes = {}
 dataframes['filtered_timer']  = pu.get_filtered_times(timer, x_min, max_time)
 dataframes['filtered_subscriber'] = pu.get_filtered_times(subscriber, x_min, max_time)
 dataframes['filtered_period'] = pu.get_filtered_times(period, x_min, max_time)
-print(dataframes['filtered_period'])
+
 # executors = {
 #  'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher2'],
 #  'Executor2': ['Timer3', 'Subscriber1', 'Subscriber2', 'Executor2', 'Publisher3', 'Publisher4', 'Publisher5', 'Publisher6'],
