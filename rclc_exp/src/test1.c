@@ -367,17 +367,17 @@ int main(int argc, char const *argv[])
     rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER);
     rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER);
 
-    callback_let_timer1[0] = RCUTILS_MS_TO_NS(5);
-    callback_let_timer1[1] = RCUTILS_MS_TO_NS(5);
+    callback_let_timer1[0] = RCUTILS_MS_TO_NS(8);
+    callback_let_timer1[1] = RCUTILS_MS_TO_NS(8);
 
-    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(60);
+    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(70);
     callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(70);
-    callback_let_timer2[0] = RCUTILS_MS_TO_NS(115);
+    callback_let_timer2[0] = RCUTILS_MS_TO_NS(70);
 
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(150);
-    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(230);
-    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(240);
-    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(250);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(160);
+    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(160);
+    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(160);
+    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(160);
 
     callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(5);
     callback_let_subscriber4[1] = RCUTILS_MS_TO_NS(5);

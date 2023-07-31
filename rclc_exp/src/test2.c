@@ -115,7 +115,7 @@ void node2_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 45;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback_error(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node2_sub2, 155, pub_semantics);
+  subscriber_callback_error(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, error_node2_sub2, 200, pub_semantics);
   RCSOFTCHECK(rclc_publish(&node2->publisher[3], msg, NULL, pub_semantics));
 }
 
@@ -518,7 +518,7 @@ int main(int argc, char const *argv[])
     int policy = SCHED_FIFO;
     rcl_time_point_value_t now = rclc_now(&support);
     printf("StartTime %ld\n", now);
-
+    sleep_ms(20);
     if (executor_period_input > 0)
     {
         struct arg_spin_period ex1 = {executor_period[0], &executor[0], &support};
