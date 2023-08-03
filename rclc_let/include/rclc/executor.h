@@ -59,6 +59,7 @@ typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int,
 
 /// LET overrun handling options
 typedef enum{
+  NO_ERROR_HANDLING,
   CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, user is responsible for cleanup
   CANCEL_CURRENT_PERIOD_NO_OUTPUT, // Same as CANCEL_CURRENT_PERIOD, except no output is published
   CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrunning callback is finished
@@ -339,6 +340,40 @@ rclc_executor_add_subscription_with_context(
   int message_size);
 
 /**
+ *  Adds a timer with context to an executor.
+ *  Because the callback is executed by executor in rclc instead of rcl, 
+ *  there will be no last_time_call passed into the callback
+ * * An error is returned, if {@link rclc_executor_t.handles} array is full.
+ * * The total number_of_timers field of {@link rclc_executor_t.info} is
+ *   incremented by one.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param [inout] executor pointer to initialized executor
+ * \param [in] timer pointer to an allocated timer
+ * \param [in] callback    function pointer to a callback
+ * \param [in] context     type-erased ptr to additional callback context
+ * \param [in] callback_let_ns the let duration of the associated callback
+ * \return `RCL_RET_OK` if add-operation was successful
+ * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
+ * \return `RCL_RET_ERROR` if any other error occured
+ */
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_timer_with_context(
+  rclc_executor_t * executor,
+  rcl_timer_t * timer,
+  rclc_timer_callback_with_context_t callback,
+  void * context,
+  rcutils_time_point_value_t callback_let_ns);
+
+/**
  *  Adds a timer to an executor.
  * * An error is returned, if {@link rclc_executor_t.handles} array is full.
  * * The total number_of_timers field of {@link rclc_executor_t.info} is
@@ -365,7 +400,6 @@ rclc_executor_add_timer(
   rclc_executor_t * executor,
   rcl_timer_t * timer,
   rcutils_time_point_value_t callback_let_ns);
-
 
 /**
  *  Adds a client to an executor.

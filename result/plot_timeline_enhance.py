@@ -53,14 +53,18 @@ subscriber_map = pu.find_map(df, 'Subscriber')
 timer_map = pu.find_map(df, 'Timer')
 executor_map = pu.find_map(df, 'Executor')
 publisher_map = pu.find_map(df, 'Publisher')
+timer_subscriber_map = timer_map | subscriber_map
 
 subscriber = pu.process_dataframe(df, 'Subscriber', subscriber_map, start_time, frame_id=True)
 timer = pu.process_dataframe(df, 'Timer', timer_map, start_time, frame_id=True)
-executor = pu.process_dataframe(df, 'Executor', executor_map, start_time, frame_id=False)
-output_write = pu.process_dataframe(df, 'Output', publisher_map, start_time, frame_id=False)
-input_read = pu.process_dataframe(df, 'Input', executor_map, start_time, frame_id=True)
-writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=True)
+#executor = pu.process_dataframe(df, 'Executor', executor_map, start_time, frame_id=False)
+output_write = pu.process_dataframe(df, 'Output', publisher_map, start_time, frame_id=True)
+input_read = pu.process_dataframe(df, 'Input', timer_subscriber_map, start_time, frame_id=True)
+#writer = pu.process_dataframe(df, 'Writer', publisher_map, start_time, frame_id=True)
 period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=True)
+# print_dataframe(period, "period")
+# print_dataframe(output_write, "output")
+# print_dataframe(input_read, "input")
 # Get 20 random consecutive rows from sub dataframe
 #start_index = timer.sample(n=1).index[0]
 # start_index = 5
@@ -77,18 +81,22 @@ period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=T
 #     x_min = min_time - 20
 #x_min = 3600
 #x_min = 7400
-x_min = 11600
-#x_min = 0
-max_time = x_min + 2000
+#x_min = 11600
+x_min = 0
+max_time = x_min + 5000*1000000
 
 dataframes = {}
 dataframes['filtered_timer']  = pu.get_filtered_times(timer, x_min, max_time)
 dataframes['filtered_subscriber'] = pu.get_filtered_times(subscriber, x_min, max_time)
-dataframes['filtered_executor'] = pu.get_filtered_times(executor, x_min, max_time)
+#dataframes['filtered_executor'] = pu.get_filtered_times(executor, x_min, max_time)
 dataframes['filtered_output'] = pu.get_filtered_times(output_write, x_min, max_time)
 dataframes['filtered_input'] = pu.get_filtered_times(input_read, x_min, max_time)
-dataframes['filtered_writer'] = pu.get_filtered_times(writer, x_min, max_time)
+#dataframes['filtered_writer'] = pu.get_filtered_times(writer, x_min, max_time)
 dataframes['filtered_period'] = pu.get_filtered_times(period, x_min, max_time)
+
+print_dataframe(dataframes['filtered_period'], "period")
+print_dataframe(dataframes['filtered_input'], "input")
+print_dataframe(dataframes['filtered_output'], "output")
 
 # executors = {
 #  'Executor1': ['Timer1', 'Executor1', 'Publisher1', 'Timer2', 'Publisher2'],
@@ -155,6 +163,9 @@ colors.update(color_mapping_entities)
 # Improved plotting function
 def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, custom_handles, custom_labels, frame_id=False):
     subset = filtered_data[filtered_data['ExecutorID'] == label]
+    label_type = filtered_data['Keyword'].iloc[0]
+    if subset.empty:
+        return
     times = subset['Time'].astype(float) 
     frameIDs = subset['FrameID'] if (frame_id and 'FrameID' in subset.columns) else [None for _ in range(len(times))]
     if "Executor" in label:
@@ -162,7 +173,7 @@ def improved_plot_v2(ax, filtered_data, label, linestyle, color, y_position, cus
     else:
         label_name = label
     # For Subscriber data, we need to check if two timestamps have the same FrameID (start and end of a callback)
-    if "Subscriber" in label or "Timer" in label:
+    if ("Subscriber" in label or "Timer" in label) and (label_type != "Input"):
         seen_frameIDs = {}
         for idx, (time, frameID) in enumerate(zip(times, frameIDs)):
             if frameID in seen_frameIDs:
@@ -200,10 +211,11 @@ for i, (executor, labels) in enumerate(executors.items()):
     for label_type in sequence:
         data = dataframes[f"filtered_{label_type.lower()}"]
         for label in labels:
-            if (label_type in label) or (label_type == "Output" and "Publisher" in label):
-                improved_plot_v2(axs[i], data, label, linestyle, colors.get(label, 'black'), y_positions[label_type], custom_handles, custom_labels, frame_id=True)
-            elif (label_type == "Input" or label_type == "Period") and "Executor" in label :
+            if (label_type == "Period") and "Executor" in label :
                 improved_plot_v2(axs[i], data, label, linestyle, colors.get(label_type, 'black'), y_positions[label_type], custom_handles, custom_labels)
+            else:
+                improved_plot_v2(axs[i], data, label, linestyle, colors.get(label, 'black'), y_positions[label_type], custom_handles, custom_labels, frame_id=True)
+
 
     axs[i].set_title(executor, fontsize=14)
     axs[i].set_yticks(list(y_positions.values()))

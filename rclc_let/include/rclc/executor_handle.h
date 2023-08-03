@@ -37,7 +37,7 @@ typedef enum
   RCLC_SUBSCRIPTION,
   RCLC_SUBSCRIPTION_WITH_CONTEXT,
   RCLC_TIMER,
-  // RCLC_TIMER_WITH_CONTEXT,  // TODO
+  RCLC_TIMER_WITH_CONTEXT,  // TODO
   RCLC_CLIENT,
   RCLC_CLIENT_WITH_REQUEST_ID,
   // RCLC_CLIENT_WITH_CONTEXT,  // TODO
@@ -100,6 +100,11 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
+
+/// Type definition for timer callback with context
+/// - timer pointer
+/// - additional callback context
+typedef void (* rclc_timer_callback_with_context_t)(rcl_timer_t *, void *);
 
 typedef enum 
 {
@@ -213,6 +218,7 @@ typedef struct
     rclc_client_callback_t client_callback;
     rclc_client_callback_with_request_id_t client_callback_with_reqid;
     rclc_gc_callback_t gc_callback;
+    rclc_timer_callback_with_context_t timer_callback_with_context;
   };
 
   /// Internal variable.

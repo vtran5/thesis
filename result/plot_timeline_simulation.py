@@ -70,11 +70,11 @@ period = pu.process_dataframe(df, 'Period', executor_map, start_time, frame_id=F
 #     x_min = start_program_time
 # else:
 #     x_min = min_time - 20
-x_min = 3600
+#x_min = 3600
 #x_min = 0
 #x_min = 11600
-#x_min = 0
-max_time = 5500
+x_min = 0
+max_time = 1500*1000000
 
 dataframes = {}
 dataframes['filtered_timer']  = pu.get_filtered_times(timer, x_min, max_time)

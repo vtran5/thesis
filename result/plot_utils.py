@@ -57,7 +57,7 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
         filtered_df.columns = col_names
         if start_time is not None:
             filtered_df['Time'] = pd.to_numeric(filtered_df['Time'])
-            filtered_df['Time'] = (filtered_df['Time'] - start_time) / 1000000
+            filtered_df['Time'] = (filtered_df['Time'] - start_time) 
         if keyword_map is not None:
             filtered_df['ExecutorID'] = filtered_df['ExecutorID'].replace(keyword_map)
         #filtered_df = filtered_df.drop(filtered_df.columns[0], axis=1)
