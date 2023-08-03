@@ -104,7 +104,7 @@ int main(int argc, char const *argv[])
     parse_user_arguments(argc, argv, &executor_period_input, &timer_period, &experiment_duration, &let);
 
     rcl_allocator_t allocator = rcl_get_default_allocator();
-    node4 = create_node(NODE4_TIMER_NUMBER, NODE4_PUBLISHER_NUMBER, NODE4_SUBSCRIBER_NUMBER, 0);
+    node4 = create_node(NODE4_TIMER_NUMBER, NODE4_PUBLISHER_NUMBER, NODE4_SUBSCRIBER_NUMBER);
 
     node4->subscriber_callback[0] = &node4_subscriber1_callback;
     node4->subscriber_callback[1] = &node4_subscriber2_callback;

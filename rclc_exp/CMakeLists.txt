@@ -65,6 +65,9 @@ ament_target_dependencies(test2 rcl rclc_let custom_interfaces)
 add_executable(rcv src/receiving_node.c src/utilities.c)
 ament_target_dependencies(rcv rcl rclc_let custom_interfaces)
 
+add_executable(auto src/automated_test.c src/utilities.c)
+ament_target_dependencies(auto rcl rclc_let custom_interfaces)
+
 # find dependencies
 # find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
@@ -98,6 +101,7 @@ install(TARGETS
   test1
   test2
   rcv
+  auto
   DESTINATION lib/${PROJECT_NAME}
 )
 

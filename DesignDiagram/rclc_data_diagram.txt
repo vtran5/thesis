@@ -1,0 +1,174 @@
+@startuml
+
+class rclc_executor_t {
+    - context : rcl_context_t *
+    - handles : rclc_executor_handle_t *
+    - max_handles : size_t
+    - index : size_t
+    - allocator : rcl_allocator_t *
+    - wait_set : rcl_wait_set_t
+    - info : rclc_executor_handle_counters_t
+    - timeout_ns : uint64_t
+    - invocation_time : rcutils_time_point_value_t
+    - trigger_function : rclc_executor_trigger_t
+    - trigger_object : void *
+    - data_comm_semantics : rclc_executor_semantics_t
+    - period: uint64_t
+    - let_executor: rclc_executor_let_t
+}
+
+rclc_executor_t "1" *-- "many" rclc_executor_handle_t : contains
+rclc_executor_t "1" *-- "1" rclc_executor_let_t : contains
+
+
+
+rclc_executor_let_t "1" *-- "1" rclc_executor_state_t : contains
+rclc_executor_let_t "1" *-- "1" rclc_executor_let_overrun_option_t : contains
+
+enum rclc_executor_let_overrun_option_t {
+    NO_ERROR_HANDLING,
+    CANCEL_CURRENT_PERIOD,
+    CANCEL_CURRENT_PERIOD_NO_OUTPUT,
+    CANCEL_NEXT_PERIOD,
+    RUN_AT_LOW_PRIORITY,
+    //RUN_AT_LOW_PRIORITY_NO_OUTPUT
+}
+
+enum rclc_executor_state_t {
+    IDLE,
+    INPUT_READ,
+    EXECUTING,
+    WAIT_INPUT
+}
+
+enum rclc_callback_state_t {
+    RELEASED,
+    RUNNING,
+    INACTIVE
+}
+
+enum rclc_overrun_status_t {
+    OVERRUN,
+    HANDLING_ERROR,
+    NO_ERROR
+}
+
+enum rclc_executor_let_handle_type_t {
+    RCLC_PUBLISHER,
+    RCLC_LET_NONE
+}
+
+class rclc_executor_let_handle_t {
+    - type : rclc_executor_let_handle_type_t
+    - handle: union_let_handle
+}
+rclc_executor_let_handle_t "1" *-- "1" union_let_handle : contains
+rclc_executor_let_handle_t "1" *-- "1" rclc_executor_let_handle_type_t : contains
+
+class rclc_publisher_let_t {
+    - topic_name : char*
+    - qos_profile : rmw_qos_profile_t *
+    - type_support : rosidl_message_type_support_t *
+    - node : rcl_node_t *
+    - executor_index : uint64_t *
+    - let_publishers : rcl_publisher_t *
+    - num_period_per_let : int
+    - message_size : int
+}
+
+class rclc_publisher_t {
+    - rcl_publisher : rcl_publisher_t
+    - let_publisher : rclc_publisher_let_t *
+}
+
+rclc_publisher_t "1" *-- "1" rclc_publisher_let_t : contains
+
+rclc_publisher_t --> rclc_executor_let_t : points to \n spin_index
+
+annotation union_let_handle{
+    - publisher : rclc_publisher_t *
+    - client : rcl_client_t *
+    - service : rcl_service_t *
+    - action_client : rclc_action_client_t *
+    - action_server : rclc_action_server_t *
+}
+
+union_let_handle --> "0..1" rclc_publisher_t
+
+class rclc_callback_let_info_t {
+    - callback_let_ns : rcutils_time_point_value_t
+    - data : rclc_array_t
+    - data_available : rclc_array_t
+    - state : rclc_array_t
+    - overrun_status : rclc_overrun_status_t
+    - num_period_per_let : int
+    - spin_index: uint64_t *
+}
+
+rclc_callback_let_info_t --> rclc_executor_let_t : points to \n spin_index
+rclc_callback_let_info_t "1" *-- "1" rclc_overrun_status_t : contains
+rclc_callback_let_info_t "1" *-- "many" rclc_callback_state_t : contains
+
+together{
+    class rclc_executor_handle_t {
+        - type : rclc_executor_handle_type_t
+        - invocation : rclc_executor_handle_invocation_t
+        - handle : union_handle
+        - data : void *
+        - req_id : rmw_request_id_t
+        - data_response_msg : void *
+        - callback_context : void *
+        - callback : union_callback
+        - index : size_t
+        - initialized : bool
+        - data_available : bool
+        - callback_info : rclc_callback_let_info_t
+    }
+
+    class rclc_executor_let_t {
+        - state : rclc_executor_state_t
+        - overrun_option : rclc_executor_let_overrun_option_t
+        - let_input_done : pthread_cond_t
+        - mutex : pthread_mutex_t
+        - spin_index : uint64_t
+        - input_index : uint64_t
+        - input_invocation_time : rcutils_time_point_value_t
+        - let_output_node : rclc_let_output_node_t
+    }    
+}
+
+rclc_executor_handle_t "1" *-- "1" rclc_callback_let_info_t : contains
+
+@startuml
+
+class rclc_let_output_t {
+    - handle : rclc_executor_let_handle_t
+    - timer : rcl_timer_t
+    - first_run : bool
+    - timer_triggered : bool
+    - data_consumed : bool *
+    - initialized : bool
+    - period_index : uint64_t
+    - max_msg_per_period : int
+    - subscriber_arr : rcl_subscription_t *
+    - data_arr : rclc_array_t
+    - publisher : rclc_publisher_t
+    - callback_info : rclc_callback_let_info_t *
+}
+
+class rclc_let_output_node_t {
+    - support : rclc_support_t
+    - allocator : rcl_allocator_t *
+    - output_arr : rclc_let_output_t *
+    - max_output_handles : size_t
+    - num_intermediate_handles : size_t
+    - index : size_t
+    - mutex : pthread_mutex_t
+}
+
+rclc_let_output_t --> rclc_executor_handle_t : points to \n callback_info
+rclc_let_output_node_t "1" --> "many" rclc_let_output_t : contains
+rclc_let_output_t "1" *-- "1" rclc_executor_let_handle_t : contains
+rclc_executor_let_t "1" --> "1" rclc_let_output_node_t : contains
+@enduml
+

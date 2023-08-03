@@ -10,6 +10,10 @@ typedef struct
   rclc_executor_handle_type_t type;
   void * handle_ptr;
 } callback_t;
+
+typedef struct timer_callback_context_t timer_callback_context_t;
+typedef struct subscriber_callback_context_t subscriber_callback_context_t;
+
 typedef struct
 {
   rcl_node_t rcl_node;
@@ -22,16 +26,37 @@ typedef struct
   callback_t * callback; // callbacks that calls the publishers
   rcl_subscription_t * subscriber;
   custom_interfaces__msg__Message * sub_msg;
-  void (**subscriber_callback)(const void *);
+  char** pub_topic_name;
+  char** sub_topic_name;
+  subscriber_callback_context_t * sub_context;
+  timer_callback_context_t * timer_context;
+  void (**subscriber_callback)(const void *, void *);
   rcl_timer_t * timer;
-  void (**timer_callback)(rcl_timer_t * timer, int64_t last_call_time);
+  void (**timer_callback)(rcl_timer_t *, void *);
 } my_node_t;
+
+struct subscriber_callback_context_t
+{
+    int pub_index;
+    int sub_index;
+    my_node_t * node;
+    int max_execution_time_ms;
+    int min_execution_time_ms;
+};
+
+struct timer_callback_context_t
+{
+    int pub_index;
+    int timer_index;
+    my_node_t * node;
+    int max_execution_time_ms;
+    int min_execution_time_ms;
+};
 
 my_node_t * create_node(
   int timer_num, 
   int pub_num, 
-  int sub_num, 
-  int callback_chain_num)
+  int sub_num)
 {
   my_node_t * node = malloc(sizeof(my_node_t));
   if(node == NULL)
@@ -44,15 +69,15 @@ my_node_t * create_node(
   node->pub_num = pub_num;
   node->sub_num = sub_num;
 
-  if(callback_chain_num > 0)
+  if(timer_num > 0)
   {
-    node->count = malloc(sizeof(int64_t)*callback_chain_num);
+    node->count = malloc(sizeof(int64_t)*timer_num);
     if (node->count == NULL)
     {
       free(node);
       return NULL;
     }
-    for (int i = 0; i < callback_chain_num; i++)
+    for (int i = 0; i < timer_num; i++)
     {
       node->count[i] = 0;
     }    
@@ -300,7 +325,7 @@ char** create_topic_name_array(size_t array_size)
 
   for(size_t i = 0; i < array_size; i++)
   {
-    arr[i] = malloc(8*sizeof(char)); // "topicXX" plus null terminator
+    arr[i] = malloc(10*sizeof(char)); // "topicXXYY" plus null terminator
     if (arr[i] == NULL) {
       for (size_t j = 0; j < i; ++j) {
           free(arr[j]);
