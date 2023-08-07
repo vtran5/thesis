@@ -61,6 +61,7 @@ rclc_executor_handle_init(
   handle->index = max_handles;
   handle->initialized = false;
   handle->data_available = false;
+  handle->callback_info = NULL;
   return RCL_RET_OK;
 }
 
