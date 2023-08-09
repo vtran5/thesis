@@ -156,11 +156,6 @@ rcl_ret_t
 rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   int queue_index);
 
-RCLC_PUBLIC
-rcl_ret_t
-rclc_publisher_set_state_buffer(rclc_publisher_t * publisher,
-  int queue_index,
-  rclc_queue_state_t state);
 
 #if __cplusplus
 }

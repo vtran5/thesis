@@ -236,9 +236,7 @@ bool rclc_is_empty_circular_queue(rclc_circular_queue_t* queue) {
 bool rclc_is_full_circular_queue(rclc_circular_queue_t* queue) {
   if (!queue) return false;
   if (queue->state == RCLC_QUEUE_FULL) return true;
-  if (queue->front == 0 && queue->rear == queue->capacity - 1) return true;
-  if (queue->rear == (queue->front - 1) % (queue->capacity - 1)) return true;
-  return false;
+  return (queue->rear + 1) % queue->capacity == queue->front;
 }
 
 rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue) {
@@ -537,9 +535,11 @@ rcl_ret_t rclc_init_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, int _2
     queue2d->queues = allocator.allocate(_2d_capacity*sizeof(rclc_circular_queue_t), allocator.state);
     if (queue2d->queues == NULL)
         return RCL_RET_BAD_ALLOC;
-
+    rcl_ret_t rc;
     for (int i = 0; i < _2d_capacity; i++) {
-        rclc_init_circular_queue(&(queue2d->queues[i]), elem_size, _1d_capacity);
+        rc = rclc_init_circular_queue(&(queue2d->queues[i]), elem_size, _1d_capacity);
+        if (rc != RCL_RET_OK)
+          return rc;
     }
 
     return RCL_RET_OK;

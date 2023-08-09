@@ -98,7 +98,7 @@ _rclc_publish_LET(
   int index = (int) (executor_index%buffer_size);
   printf("Publish %lu at index %d %ld %d\n", (unsigned long) publisher, index, executor_index, buffer_size);
   rcl_ret_t ret = rclc_enqueue_2d_circular_queue(&(publisher->message_buffer), 
-                  ros_message, index, -1);
+                  ros_message, index);
   return ret;
 }
 
@@ -140,16 +140,16 @@ rclc_publisher_let_init(
 }
 
 rcl_ret_t
-rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
+rclc_LET_output(rclc_publisher_t * publisher, int queue_index, uint64_t output_index, unsigned long executor)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
+  ret = rcutils_steady_time_now(&now);
+
   while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
   {
-    ret = rcutils_steady_time_now(&now);
-    
-    unsigned char array[rclc_get_queue(&(publisher->message_buffer), queue_index)->elem_size];
-    rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), array, queue_index);
+    void * array;
+    rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), &array, queue_index);
     int64_t * ptr = array;
     printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
@@ -186,12 +186,3 @@ rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   return ret;
 }
 
-rcl_ret_t
-rclc_publisher_set_state_buffer(rclc_publisher_t * publisher,
-  int queue_index,
-  rclc_queue_state_t state)
-{
-  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
-  rcl_ret_t ret = rclc_set_state_queue(queue, state);
-  return ret;
-}

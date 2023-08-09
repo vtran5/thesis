@@ -211,7 +211,6 @@ rclc_executor_fini(rclc_executor_t * executor)
   return RCL_RET_OK;
 }
 
-
 rcl_ret_t
 rclc_executor_add_subscription(
   rclc_executor_t * executor,
@@ -241,11 +240,12 @@ rclc_executor_add_subscription(
   executor->handles[executor->index].initialized = true;
   executor->handles[executor->index].callback_context = NULL;
   executor->handles[executor->index].data_available = false;
-  executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
-  executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
 
   if(executor->data_comm_semantics == LET && executor->period_ns > 0)
   {
+    executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
+    executor->let_executor->next_callback_id++;
+    executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
@@ -274,7 +274,6 @@ rclc_executor_add_subscription(
 
   // increase index of handle array
   executor->index++;
-  executor->let_executor->next_callback_id++;
 
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
@@ -322,11 +321,12 @@ rclc_executor_add_subscription_with_context(
   executor->handles[executor->index].invocation = invocation;
   executor->handles[executor->index].initialized = true;
   executor->handles[executor->index].callback_context = context;
-  executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
-  executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
 
   if(executor->data_comm_semantics == LET && executor->period_ns > 0)
   {
+    executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
+    executor->let_executor->next_callback_id++;
+    executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     
     bool data_available = false;
@@ -355,7 +355,6 @@ rclc_executor_add_subscription_with_context(
   }
   // increase index of handle array
   executor->index++;
-  executor->let_executor->next_callback_id++;
 
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
@@ -400,11 +399,12 @@ rclc_executor_add_timer_with_context(
   executor->handles[executor->index].timer_callback_with_context = callback;
   executor->handles[executor->index].callback_context = context;
   executor->handles[executor->index].data_available = false;
-  executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
-  executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
 
   if(executor->data_comm_semantics == LET && executor->period_ns > 0)
   {
+    executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
+    executor->let_executor->next_callback_id++;
+    executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
@@ -428,9 +428,9 @@ rclc_executor_add_timer_with_context(
     executor->handles[executor->index].callback_info->data_available.buffer = NULL;
     executor->handles[executor->index].callback_info->state.buffer = NULL;
   }
+  
   // increase index of handle array
   executor->index++;
-  executor->let_executor->next_callback_id++;
 
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
@@ -471,11 +471,12 @@ rclc_executor_add_timer(
   executor->handles[executor->index].initialized = true;
   executor->handles[executor->index].callback_context = NULL;
   executor->handles[executor->index].data_available = false;
-  executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
-  executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
 
   if(executor->data_comm_semantics == LET && executor->period_ns > 0)
   {
+    executor->handles[executor->index].callback_info->callback_id = executor->let_executor->next_callback_id;
+    executor->let_executor->next_callback_id++;
+    executor->handles[executor->index].callback_info->callback_let_ns = callback_let_ns;
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
@@ -502,7 +503,6 @@ rclc_executor_add_timer(
 
   // increase index of handle array
   executor->index++;
-  executor->let_executor->next_callback_id++;
 
   // invalidate wait_set so that in next spin_some() call the
   // 'executor->wait_set' is updated accordingly
@@ -1638,9 +1638,6 @@ _rclc_execute(
 
   // execute callback
   if (invoke_callback) {
-
-//    printf("Callback %lu invoked mutex %lu\n", (unsigned long) handle->subscription, (unsigned long) executor);
-
     if (semantics == LET && executor->let_executor->overrun_option != NO_ERROR_HANDLING)
     {
       pthread_mutex_lock(&executor->let_executor->mutex_state);
@@ -1681,6 +1678,9 @@ _rclc_execute(
         }
         else
         {
+          rcutils_time_point_value_t now;
+          rc = rcutils_steady_time_now(&now);
+          printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
           rc = rcl_timer_call(handle->timer);
           // cancled timer are not handled, return success
           if (rc == RCL_RET_TIMER_CANCELED) {
@@ -1708,6 +1708,9 @@ _rclc_execute(
             PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
             return rc;
           }
+          rcutils_time_point_value_t now;
+          rc = rcutils_steady_time_now(&now);
+          printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
         }
         handle->timer_callback_with_context(handle->timer, handle->callback_context);
         break;
@@ -1962,7 +1965,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
   rcl_ret_t rc = RCL_RET_OK;
 
   for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, executor->data_comm_semantics, executor->let_executor->spin_index);
+    rc = _rclc_check_for_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
     if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED)) {
       return rc;
     }
@@ -1974,7 +1977,7 @@ _rclc_default_scheduling(rclc_executor_t * executor)
   {
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
-      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, executor->let_executor->input_index);
+      rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set, RCLCPP_EXECUTOR, 0);
       if ((rc != RCL_RET_OK) && (rc != RCL_RET_SUBSCRIPTION_TAKE_FAILED) &&
         (rc != RCL_RET_SERVICE_TAKE_FAILED))
       {
@@ -2007,9 +2010,6 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       executor->handles, executor->max_handles,
       executor->trigger_object, executor->data_comm_semantics, executor->let_executor->spin_index))
   {
-    rcutils_time_point_value_t now;
-    rc = rcutils_steady_time_now(&now);
-    printf("Triggered %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->spin_index, now);
     // step 2:  process (execute)
     int period_index;
     rclc_callback_state_t state;
@@ -2097,6 +2097,9 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       rc = _rclc_let_scheduling(executor);
       break;
     case RCLCPP_EXECUTOR:
+      rcutils_time_point_value_t now;
+      rc = rcutils_steady_time_now(&now);
+      printf("Period %lu %d %ld\n", (unsigned long) executor, 0, now);
       if (!rcl_context_is_valid(executor->context)) {
         PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
         return RCL_RET_ERROR;
@@ -2122,9 +2125,6 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       // new data from DDS queue.
       rc = rcl_wait(&executor->wait_set, timeout_ns);
       RCLC_UNUSED(rc);
-      rcutils_time_point_value_t now;
-      rc = rcutils_steady_time_now(&now);
-      printf("Listener %lu %ld\n", (unsigned long) executor, now);
       rc = _rclc_default_scheduling(executor);
       break;
     default:
@@ -2186,7 +2186,6 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     }
     executor->let_executor->state = EXECUTING;
     ret = rcutils_steady_time_now(&end_time_point);
-//    printf("Executing Executor %lu %ld\n", (unsigned long) executor, end_time_point);
     pthread_mutex_unlock(&executor->let_executor->mutex);
 
     switch (executor->let_executor->overrun_option)
@@ -2205,7 +2204,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
 
     executor->let_executor->spin_index++;
     executor->invocation_time += period_ns;
-//    printf("Increase period %lu %ld\n", (unsigned long) executor, executor->let_executor->spin_index);
+
     ret = rcutils_system_time_now(&end_time_point);
     
     pthread_mutex_lock(&executor->let_executor->mutex);
@@ -2213,7 +2212,6 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     {
       executor->let_executor->state = WAIT_INPUT;
       ret = rcutils_steady_time_now(&now);
-//      printf("Wait_input Executor %lu %ld\n", (unsigned long) executor, now);    
     }
     else
     {
@@ -2268,9 +2266,9 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
       rclc_enqueue_priority_queue(&(executor->let_executor->output_invocation_times), &callback_id, 
                                 executor->invocation_time + executor->handles[i].callback_info->callback_let_ns);
     }
-
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);    executor->timeout_ns = 0;
+    executor->timeout_ns = 0;
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_let_scheduling_output_wrapper, executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);    
   }
 
   while (true) {
@@ -2301,9 +2299,6 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
   rcl_ret_t ret;
   pthread_t thread_id_output = 0;
   pthread_t thread_id_input = 0;
-  rcutils_time_point_value_t now;
-  ret = rcutils_steady_time_now(&now);
-  printf("Start Executor %lu %ld\n", (unsigned long) executor, now);
 
   if (executor->data_comm_semantics == LET)
   {
@@ -2320,13 +2315,11 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
                       (unsigned long) executor);
     }
     executor->timeout_ns = 0;
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, 0, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, 0, _rclc_let_scheduling_input_wrapper, executor);
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_let_scheduling_output_wrapper, executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);
   }
 
   while (!(*exit_flag)) {
-    ret = rcutils_steady_time_now(&now);
-//    printf("Executor %lu %ld\n", (unsigned long) executor, now);
     ret = rclc_executor_spin_one_period(executor, period_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
       RCL_SET_ERROR_MSG("rclc_executor_spin_one_period error");
@@ -2557,11 +2550,11 @@ rclc_executor_add_publisher_LET(
   {
     case RCLC_SUBSCRIPTION:
     case RCLC_SUBSCRIPTION_WITH_CONTEXT:
-      error_message = "Subscription has not been added to the executor";
+      error_message = "Subscription has not been added to the executor\n";
     case RCLC_TIMER:
     case RCLC_TIMER_WITH_CONTEXT:
       if (error_message == NULL) {
-          error_message = "Timer has not been added to the executor";
+          error_message = "Timer has not been added to the executor\n";
       }
 
       for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++)
@@ -2686,22 +2679,17 @@ static rcl_ret_t _rclc_write_output_single_callback(
       return RCL_RET_OK; // Skip if handle_index is invalid.
   }
   int period_index = executor->handles[handle_index].callback_info->output_index;
-  rc = rcutils_steady_time_now(&now);
-//  printf("Check callback state %lu\n", (unsigned long) executor->handles[handle_index].timer);
   executor->handles[handle_index].callback_info->output_index = (period_index + 1) % executor->handles[handle_index].callback_info->num_period_per_let;
-//  printf("Output index %ld, num_period_per_let %d\n", executor->handles[handle_index].callback_info->output_index,executor->handles[handle_index].callback_info->num_period_per_let);
 
   if(executor->let_executor->overrun_option != NO_ERROR_HANDLING)
   {
     rclc_callback_state_t state;
-    printf("Checkpoint1\n");
     CHECK_RCL_RET(rclc_get_array(&executor->handles[handle_index].callback_info->state, &state, period_index), 
                                             (unsigned long) executor);
-    printf("Checkpoint2\n");
     bool deadline_passed = false;
     if (state == RUNNING || state == RELEASED)
     {
-      printf("Callback isn't Finished mutex %lu\n", (unsigned long) executor);
+      printf("Callback isn't Finished %lu\n", (unsigned long) executor);
       pthread_mutex_lock(&executor->let_executor->mutex_state);
       rclc_overrun_status_t overrun_status = (state == RUNNING) ? OVERRUN : HANDLING_ERROR;
       executor->handles[handle_index].callback_info->overrun_status = overrun_status;
@@ -2820,8 +2808,8 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
 {
   rcl_ret_t rc = RCL_RET_OK;
   rcutils_time_point_value_t now;
-  rc = rcutils_steady_time_now(&now);
-  rc = _rclc_wait_for_new_input(executor, 0);
+  const uint64_t timeout_ns = 0;
+  rc = _rclc_wait_for_new_input(executor, timeout_ns);
 
   // step 0: check for available input data from DDS queue
   // complexity: O(n) where n denotes the number of handles
@@ -2832,7 +2820,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
       return rc;
     }
   }
-  printf("Period %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
@@ -2890,11 +2878,12 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t end_time_point, now;
   rcutils_duration_value_t sleep_time;
-  ret = rcutils_steady_time_now(&now);
   while(true)
   {
     if (executor->data_comm_semantics == LET)
     {
+      ret = rcutils_steady_time_now(&now);
+      printf("Period %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
       ret = _rclc_let_scheduling_input(executor);
       if (ret != RCL_RET_OK)
         printf("Reading input failed \n");
@@ -2916,7 +2905,6 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
         pthread_mutex_unlock(&executor->let_executor->mutex);
         break;        
       }
-      //printf("Input Release %lu %ld\n", (unsigned long) executor, now);
       // Sleep to the end of the period
       ret = rcutils_system_time_now(&end_time_point);
       executor->let_executor->input_invocation_time += executor->period_ns;
@@ -2951,7 +2939,6 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
   {
     if (executor->data_comm_semantics == LET)
     {
-      ret = rcutils_steady_time_now(&now);
       ret = _rclc_let_scheduling_output(executor, &next_wakeup_time);
       if (ret != RCL_RET_OK)
         printf("Writing output failed \n");
