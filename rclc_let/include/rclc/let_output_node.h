@@ -63,6 +63,7 @@ typedef struct
 
 typedef struct
 {
+  /// TO DO: change to pointer
   rclc_support_t support;
   /// Container to memory allocator for array handles
   rcl_allocator_t * allocator;
