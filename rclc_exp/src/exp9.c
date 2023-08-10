@@ -1,4 +1,5 @@
 #include "custom_interfaces/msg/message.h"
+#include "utilities.h"
 #include <stdlib.h>
 #include "my_node.h"
 #define NODE1_PUBLISHER_NUMBER 1
@@ -21,6 +22,9 @@
 
 #define LOGGER_DIM0 6
 
+// Experiment with deadline violation
+
+rclc_support_t support;
 volatile rcl_time_point_value_t start_time;
 my_node_t * node1;
 my_node_t * node2;
@@ -35,6 +39,55 @@ char stat3[200000000];
 char stat4[200000000];
 
 /***************************** CALLBACKS ***********************************/
+void timer_callback(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  if (node->first_run)
+  {
+    start_time = now;
+    node->first_run = false;
+    sprintf(temp, "StartTime %ld\n", start_time);
+    strcat(stat,temp);
+  }
+  pub_msg.frame_id = node->count[0]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+}
+
+void subscriber_callback(
+  my_node_t * node, 
+  char * stat,
+  custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
+}
+
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
   RCLC_UNUSED(last_call_time);
@@ -45,7 +98,8 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 0;
-  timer_callback(node1, stat1, timer_index, pub_index, 1, 2, semantics);
+  rclc_executor_semantics_t pub_semantics = semantics;
+  timer_callback(node1, stat1, timer_index, pub_index, semantics);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -73,7 +127,7 @@ void node3_subscriber1_callback(const void * msgin)
   int sub_index = 0;
   int pub_index = 0;
   int min_run_time_ms = 5;
-  int max_run_time_ms = 80;
+  int max_run_time_ms = 60;
   rclc_executor_semantics_t pub_semantics = semantics;
   subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
@@ -194,14 +248,14 @@ int main(int argc, char const *argv[])
 
     callback_let_timer1[0] = RCUTILS_MS_TO_NS(10);
     callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(20);
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(105);
-    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(10);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(60);
+    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(60);
 
     unsigned int num_handles = 1;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
-    executor_period[0] = RCUTILS_MS_TO_NS(20);
-    executor_period[1] = RCUTILS_MS_TO_NS(20);
+    executor_period[0] = RCUTILS_MS_TO_NS(10);
+    executor_period[1] = RCUTILS_MS_TO_NS(50);
     executor_period[2] = RCUTILS_MS_TO_NS(50);
     executor_period[3] = RCUTILS_MS_TO_NS(10);
 
@@ -285,7 +339,7 @@ int main(int argc, char const *argv[])
     pthread_t thread4 = 0;
     int policy = SCHED_FIFO;
     rcl_time_point_value_t now = rclc_now(&support);
-    printf("StartTime %ld\n", now);
+    printf("StartProgram %ld\n", now);
 
     if (executor_period_input > 0)
     {
@@ -308,6 +362,9 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
+
+
+    //thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor1);
 
     sleep_ms(experiment_duration);
     exit_flag = true;

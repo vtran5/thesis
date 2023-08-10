@@ -27,6 +27,7 @@ extern "C"
 #include <rclc/action_client.h>
 #include <rclc/action_server.h>
 
+#include "rclc/buffer.h"
 /// TODO (jst3si) Where is this defined? - in my build environment this variable is not set.
 // #define ROS_PACKAGE_NAME "rclc"
 
@@ -36,7 +37,7 @@ typedef enum
   RCLC_SUBSCRIPTION,
   RCLC_SUBSCRIPTION_WITH_CONTEXT,
   RCLC_TIMER,
-  // RCLC_TIMER_WITH_CONTEXT,  // TODO
+  RCLC_TIMER_WITH_CONTEXT,  
   RCLC_CLIENT,
   RCLC_CLIENT_WITH_REQUEST_ID,
   // RCLC_CLIENT_WITH_CONTEXT,  // TODO
@@ -47,6 +48,8 @@ typedef enum
   RCLC_ACTION_SERVER,
   RCLC_GUARD_CONDITION,
   // RCLC_GUARD_CONDITION_WITH_CONTEXT,  //TODO
+  RCLC_LET_TIMER,
+  RCLC_SUBSCRIPTION_LET_DATA,
   RCLC_NONE
 } rclc_executor_handle_type_t;
 
@@ -100,6 +103,49 @@ typedef void (* rclc_client_callback_with_request_id_t)(const void *, rmw_reques
 /// Type definition for guard condition callback function.
 typedef void (* rclc_gc_callback_t)();
 
+/// Type definition for timer callback with context
+/// - timer pointer
+/// - additional callback context
+typedef void (* rclc_timer_callback_with_context_t)(rcl_timer_t *, void *);
+
+/// Type definition for data subscription callback in LET executor only
+/// - incoming message
+/// - let_executor
+/// - handle pointer
+/// - data_consumed flag
+typedef void (* rclc_subscription_callback_for_let_data_t)(const void *, void *, bool);
+
+typedef enum 
+{
+  RELEASED,
+  RUNNING,
+  INACTIVE
+} rclc_callback_state_t;
+
+typedef enum 
+{
+  OVERRUN,        // Callback is running past its deadline
+  HANDLING_ERROR, // Callback is finished but output isn't published
+  NO_ERROR        // Error is handled or no error detected
+} rclc_overrun_status_t;
+
+typedef struct {
+  /// Stores the let (i.e deadline) of the callback
+  rcutils_time_point_value_t callback_let_ns;
+  /// Array to store input data for different periods during its LET
+  rclc_array_t data;
+  /// Array to store data_available flag for different periods during its LET
+  rclc_array_t data_available;
+  /// Number of executor period per callback LET
+  int num_period_per_let;
+  /// Set to true when deadline has passed but the callback is still executed
+  /// Should not read any new callback input while true
+  rclc_overrun_status_t overrun_status;
+  /// State of the callback
+  rclc_array_t state;
+  /// Spin index
+  uint64_t * spin_index;
+} rclc_callback_let_info_t;
 
 /// Container for a handle.
 typedef struct
@@ -151,6 +197,8 @@ typedef struct
     rclc_client_callback_t client_callback;
     rclc_client_callback_with_request_id_t client_callback_with_reqid;
     rclc_gc_callback_t gc_callback;
+    rclc_timer_callback_with_context_t timer_callback_with_context;
+    rclc_subscription_callback_for_let_data_t subscription_callback_let_data;
   };
 
   /// Internal variable.
@@ -165,6 +213,8 @@ typedef struct
   /// Interval variable. Flag, which is true, if new data is available from DDS queue
   /// (is set after calling rcl_take)
   bool data_available;
+  /// Store callback state and information
+  rclc_callback_let_info_t * callback_info;
 } rclc_executor_handle_t;
 
 /// Information about total number of subscriptions, guard_conditions, timers, subscription etc.
@@ -296,6 +346,14 @@ rclc_executor_handle_print(rclc_executor_handle_t * handle);
 RCLC_PUBLIC
 void *
 rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_init(rclc_executor_handle_t * handle);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle);
 
 #if __cplusplus
 }

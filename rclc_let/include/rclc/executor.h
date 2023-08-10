@@ -21,6 +21,12 @@ extern "C"
 {
 #endif
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#ifndef RCLC_LET
+#define RCLC_LET
+#endif
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -34,27 +40,57 @@ extern "C"
 
 #include "rclc/action_client.h"
 #include "rclc/action_server.h"
-
+#include "rclc/let_output_node.h"
+#include <pthread.h>
+#include <sched.h>
 /*! \file executor.h
     \brief The RCLC-Executor provides an Executor based on RCL in which all callbacks are
     processed in a user-defined order.
 */
 
-/* defines the semantics of data communication
-   RCLCPP_EXECUTOR - same semantics as in the rclcpp Executor ROS2(Eloquent)
-   LET             - logical execution time
-*/
-typedef enum
-{
-  RCLCPP_EXECUTOR,
-  LET
-} rclc_executor_semantics_t;
-
 /// Type definition for trigger function. With the parameters:
 /// - array of executor_handles
 /// - size of array
 /// - application specific struct used in the trigger function
-typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *);
+/// - executor semantics
+/// - period index
+typedef bool (* rclc_executor_trigger_t)(rclc_executor_handle_t *, unsigned int, void *, rclc_executor_semantics_t, uint64_t);
+
+/// LET overrun handling options
+typedef enum{
+  CANCEL_CURRENT_PERIOD, // Cancel the callback if it's overrun, user is responsible for cleanup
+  CANCEL_CURRENT_PERIOD_NO_OUTPUT, // Same as CANCEL_CURRENT_PERIOD, except no output is published
+  CANCEL_NEXT_PERIOD, // Cancel the next instances of callback until the overrunning callback is finished
+  RUN_AT_LOW_PRIORITY, // Let the overrun callback run in background (this option would change the temporal order of data)
+  //RUN_AT_LOW_PRIORITY_NO_OUTPUT // Let the overrun callback run in background but skip the output
+} rclc_executor_let_overrun_option_t;
+
+typedef enum{
+  IDLE,
+  INPUT_READ,
+  EXECUTING,
+  WAIT_INPUT
+} rclc_executor_state_t;
+
+typedef struct 
+{
+  /// State of the executor
+  rclc_executor_state_t state;  
+  /// Overrun handling option
+  rclc_executor_let_overrun_option_t overrun_option;
+  /// Mutex to protect variable (private)
+  pthread_mutex_t mutex;
+  /// Condition variables for LET scheduling input (private)
+  pthread_cond_t let_input_done;
+  /// period index of the executor
+  uint64_t spin_index;
+  /// period index of the input thread
+  uint64_t input_index;
+  /// timepoint used for input thread wakeup
+  rcutils_time_point_value_t input_invocation_time;
+  /// object for the LET output executor
+  rclc_let_output_node_t let_output_node;
+} rclc_executor_let_t;
 
 /// Container for RCLC-Executor
 typedef struct
@@ -83,6 +119,9 @@ typedef struct
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
+  /// Period of the executor
+  uint64_t period_ns;
+  rclc_executor_let_t * let_executor;
 } rclc_executor_t;
 
 /**
@@ -245,7 +284,9 @@ rclc_executor_add_subscription(
   rcl_subscription_t * subscription,
   void * msg,
   rclc_subscription_callback_t callback,
-  rclc_executor_handle_invocation_t invocation);
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let_ns,
+  int message_size);
 
 /**
  *  Adds a subscription to an executor.
@@ -279,6 +320,18 @@ rclc_executor_add_subscription_with_context(
   void * msg,
   rclc_subscription_callback_with_context_t callback,
   void * context,
+  rclc_executor_handle_invocation_t invocation,
+  rcutils_time_point_value_t callback_let_ns,
+  int message_size);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_subscription_for_let_data(
+  rclc_executor_t * executor,
+  rcl_subscription_t * subscription,
+  void * msg,
+  rclc_subscription_callback_for_let_data_t callback,
+  void * context,
   rclc_executor_handle_invocation_t invocation);
 
 /**
@@ -305,8 +358,17 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_executor_add_timer(
   rclc_executor_t * executor,
-  rcl_timer_t * timer);
+  rcl_timer_t * timer,
+  rcutils_time_point_value_t callback_let_ns);
 
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_timer_with_context(
+  rclc_executor_t * executor,
+  rcl_timer_t * timer,
+  rclc_timer_callback_with_context_t callback,
+  void * context,
+  rcutils_time_point_value_t callback_let_ns);
 
 /**
  *  Adds a client to an executor.
@@ -900,11 +962,11 @@ rclc_executor_set_trigger(
  * \return false - otherwise
  */
 RCLC_PUBLIC
-bool
-rclc_executor_trigger_all(
-  rclc_executor_handle_t * handles,
+bool rclc_executor_trigger_all(rclc_executor_handle_t * handles,
   unsigned int size,
-  void * obj);
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: any, returns true if at least one handles is ready.
@@ -925,11 +987,11 @@ rclc_executor_trigger_all(
  * \return false - otherwise
  */
 RCLC_PUBLIC
-bool
-rclc_executor_trigger_any(
-  rclc_executor_handle_t * handles,
-  unsigned int size,
-  void * obj);
+bool rclc_executor_trigger_any(rclc_executor_handle_t * handles, 
+  unsigned int size, 
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: always, returns always true.
@@ -949,11 +1011,11 @@ rclc_executor_trigger_any(
  * \return true always
  */
 RCLC_PUBLIC
-bool
-rclc_executor_trigger_always(
-  rclc_executor_handle_t * handles,
-  unsigned int size,
-  void * obj);
+bool rclc_executor_trigger_always(rclc_executor_handle_t * handles, 
+  unsigned int size, 
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
 /**
  * Trigger condition: one, returns true, if rcl handle obj is ready
@@ -975,12 +1037,53 @@ rclc_executor_trigger_always(
  * \return false otherwise
  */
 RCLC_PUBLIC
-bool
-rclc_executor_trigger_one(
-  rclc_executor_handle_t * handles,
-  unsigned int size,
-  void * obj);
+bool rclc_executor_trigger_one(rclc_executor_handle_t * handles, 
+  unsigned int size, 
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
 
+RCLC_PUBLIC
+bool _rclc_executor_trigger_any_let_timer(
+  rclc_executor_handle_t * handles, 
+  unsigned int size, 
+  void * obj,
+  rclc_executor_semantics_t semantics,
+  uint64_t index);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_set_overrun_option(rclc_executor_t * executor, rclc_executor_let_overrun_option_t option);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_fini(rclc_executor_t * executor);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_let_init(
+  rclc_executor_t * executor,
+  const size_t number_of_let_handles,
+  const size_t max_intermediate_handles,
+  rclc_executor_let_overrun_option_t option);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_set_period(rclc_executor_t * executor, const uint64_t period_ns);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t period_ns, bool * exit_flag);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_publisher_LET(
+  rclc_executor_t * executor,
+  rclc_publisher_t * publisher,
+  const int message_size,
+  const int max_number_per_callback,
+  void * handle_ptr,
+  rclc_executor_handle_type_t type);
 #if __cplusplus
 }
 #endif

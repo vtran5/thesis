@@ -32,3 +32,16 @@ rclc_sleep_ms(
   usleep(ms * 1000);
 #endif
 }
+
+void
+rclc_sleep_ns(uint64_t ns)
+{
+#ifdef WIN32
+  Sleep(ns/1000000);
+#else
+  struct timespec ts;
+  ts.tv_sec = ns / 1000000000;
+  ts.tv_nsec = (ns % 1000000000);
+  nanosleep(&ts, NULL);
+#endif  
+}

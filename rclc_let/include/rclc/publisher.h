@@ -28,6 +28,24 @@ extern "C"
 #include <rclc/types.h>
 #include "rclc/visibility_control.h"
 
+typedef struct 
+{
+  char * topic_name;
+  const rmw_qos_profile_t * qos_profile;
+  const rosidl_message_type_support_t * type_support;
+  const rcl_node_t * node;
+  uint64_t * executor_index; // This should point to the executor spin_index
+  rcl_publisher_t * let_publishers;
+  int num_period_per_let;
+  int message_size;
+} rclc_publisher_let_t;
+
+typedef struct 
+{
+  rcl_publisher_t rcl_publisher;
+  rclc_publisher_let_t * let_publisher;
+} rclc_publisher_t;
+
 /**
  *  Creates an rcl publisher.
  *
@@ -49,10 +67,11 @@ extern "C"
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init_default(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  rclc_executor_semantics_t semantics);
 
 /**
  *  Creates an rcl publisher with quality-of-service option best effort
@@ -75,10 +94,11 @@ rclc_publisher_init_default(
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init_best_effort(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
-  const char * topic_name);
+  const char * topic_name,
+  rclc_executor_semantics_t semantics);
 
 /**
  *  Creates an rcl publisher with defined QoS
@@ -102,11 +122,24 @@ rclc_publisher_init_best_effort(
 RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_init(
-  rcl_publisher_t * publisher,
+  rclc_publisher_t * publisher,
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  const rmw_qos_profile_t * qos_profile);
+  const rmw_qos_profile_t * qos_profile,
+  rclc_executor_semantics_t semantics);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publish(
+  rclc_publisher_t * publisher,
+  const void * ros_message,
+  rmw_publisher_allocation_t * allocation,
+  rclc_executor_semantics_t semantics);
+
+RCLC_PUBLIC
+rcl_ret_t
+rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node);
 
 #if __cplusplus
 }

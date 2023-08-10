@@ -7,9 +7,7 @@ void *rclc_executor_spin_wrapper(void *arg)
   rclc_executor_t * executor = arguments->executor;
   rclc_support_t * support = arguments->support;
   rcl_ret_t ret = RCL_RET_OK;
-  rcl_time_point_value_t now;
   while (!exit_flag) {
-    now = rclc_now(support);
     //printf("Spin at time %ld\n", now/1000000);
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
@@ -43,7 +41,6 @@ void *rclc_executor_spin_period_with_exit_wrapper(void *arg)
 {
   struct arg_spin_period *arguments = arg;
   rclc_executor_t * executor = arguments->executor;
-  rclc_support_t * support = arguments->support;
   const uint64_t period = arguments->period;
   rcl_ret_t ret = RCL_RET_OK;
   ret = rclc_executor_spin_period_with_exit(executor, period, &exit_flag);
@@ -135,6 +132,14 @@ void busy_wait_random(int min_time, int max_time)
 {
 	int duration = (rand() % (max_time - min_time + 1)) + min_time;
   busy_wait(duration);
+}
+
+void busy_wait_random_error(int min_time, int max_time, bool error, int error_time)
+{
+    if(error)
+        busy_wait(error_time);
+    else
+        busy_wait_random(min_time, max_time);
 }
 
 /*
