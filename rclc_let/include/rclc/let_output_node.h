@@ -48,17 +48,17 @@ typedef struct
 typedef struct 
 {
   rclc_executor_let_handle_t handle;
-	rcl_timer_t timer;
-	bool first_run;
+  rcl_timer_t timer;
+  bool first_run;
   bool timer_triggered;
   bool * data_consumed;
   bool initialized;
-	uint64_t period_index;
+  uint64_t period_index;
   int max_msg_per_period;
-	rcl_subscription_t * subscriber_arr;
+  rcl_subscription_t * subscriber_arr;
   rclc_array_t data_arr;
-	rclc_publisher_t publisher;
-	rclc_callback_let_info_t * callback_info;
+  rclc_publisher_t publisher; // TO DO: change to rcl_publisher_t
+  rclc_callback_let_info_t * callback_info;
 } rclc_let_output_t;
 
 typedef struct
