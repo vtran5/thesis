@@ -346,7 +346,7 @@ int main(int argc, char const *argv[])
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of RCL Executor
     ////////////////////////////////////////////////////////////////////////////
-    const uint64_t timeout_ns = 0.2*executor_period_input;
+    const uint64_t timeout_ns = 0;
     
     const int num_executor = 4;
     
@@ -406,7 +406,8 @@ int main(int argc, char const *argv[])
     {
       executor[i] = rclc_executor_get_zero_initialized_executor();
       RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator)); 
-      RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, CANCEL_NEXT_PERIOD));
+      if (semantics == LET)
+        RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, CANCEL_NEXT_PERIOD));
       RCCHECK(rclc_executor_set_semantics(&executor[i], executor_semantics[i]));
       RCCHECK(rclc_executor_set_period(&executor[i], executor_period[i]));
       RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
@@ -511,6 +512,10 @@ int main(int argc, char const *argv[])
     pthread_join(thread3, NULL);
     pthread_join(thread4, NULL);
 
+    printf("%s", stat1);
+    printf("%s", stat2);
+    printf("%s", stat3);
+    printf("%s", stat4);
 
     // clean up 
     for (i = 0; i < num_executor; i++)
@@ -548,11 +553,6 @@ int main(int argc, char const *argv[])
     destroy_time_array(executor_period);
     free(executor);
     free(executor_semantics);
-
-    printf("%s", stat1);
-    printf("%s", stat2);
-    printf("%s", stat3);
-    printf("%s", stat4);
  
     return 0;
 }

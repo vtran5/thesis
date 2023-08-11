@@ -64,7 +64,9 @@ def process_dataframe(df, keyword, keyword_map=None, start_time=None, frame_id=F
         filtered_df = filtered_df.round(1)
 
     filtered_df = filtered_df.reset_index(drop=True)
+    filtered_df.loc[:, 'Time'] = filtered_df['Time'].astype(int)
     filtered_df = filtered_df.sort_values(by='Time')
+    
     return filtered_df
 
 
@@ -113,10 +115,7 @@ def calculate_latency_range(df):
     rounded_upper_percentage = math.ceil(upper_percentage * 100) / 100
     equal_percentage = max(rounded_lower_percentage, rounded_upper_percentage)
 
-    lower_bound = median_latency * (1 - equal_percentage)
-    upper_bound = median_latency * (1 + equal_percentage)
-
-    return median_latency, lower_bound, upper_bound, equal_percentage
+    return median_latency, min_latency, max_latency, equal_percentage
 
 def round_to_tens(n):
     return round(n / 10) * 10

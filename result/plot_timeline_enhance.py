@@ -138,7 +138,7 @@ sequence = ['Output', 'Subscriber', 'Timer', 'Input', 'Period']
 darker_palette = [
     '#1f77b4',  # Blue
     '#ff7f0e',  # Orange
-    '#2ca02c',  # Green
+    '#40b440',  # Green
     '#d62728',  # Red
     '#9467bd',  # Purple
     '#8c564b',  # Brown
