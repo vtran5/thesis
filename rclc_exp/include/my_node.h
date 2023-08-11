@@ -42,6 +42,8 @@ struct subscriber_callback_context_t
     my_node_t * node;
     int max_execution_time_ms;
     int min_execution_time_ms;
+    bool error;
+    int error_time;
 };
 
 struct timer_callback_context_t
@@ -51,6 +53,8 @@ struct timer_callback_context_t
     my_node_t * node;
     int max_execution_time_ms;
     int min_execution_time_ms;
+    bool error;
+    int error_time;
 };
 
 my_node_t * create_node(
@@ -459,6 +463,54 @@ void subscriber_callback_error(
   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
   strcat(stat,temp);
   busy_wait_random_error(min_run_time_ms, max_run_time_ms, error, error_time);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+    strcat(stat,temp);     
+  }
+}
+
+void timer_callback_us(
+  my_node_t * node, 
+  char * stat, 
+  int timer_index, 
+  int pub_index, 
+  uint64_t min_run_time_us,
+  uint64_t max_run_time_us,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_us(min_run_time_us, max_run_time_us);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  strcat(stat,temp);
+}
+
+void subscriber_callback_us(
+  my_node_t * node, 
+  char * stat,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  uint64_t min_run_time_us,
+  uint64_t max_run_time_us,
+  rclc_executor_semantics_t pub_semantics)
+{
+  char temp[1000] = "";  
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  strcat(stat,temp);
+  busy_wait_random_us(min_run_time_us, max_run_time_us);
   now = rclc_now(&support);
   if (pub_index >= 0)
   {

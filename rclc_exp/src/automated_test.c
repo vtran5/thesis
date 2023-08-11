@@ -1,34 +1,48 @@
 #include "custom_interfaces/msg/message.h"
+#include "custom_interfaces/msg/sequence_msg.h"
 #include "utilities.h"
 #include <stdlib.h>
 #include "my_node.h"
 
 volatile rcl_time_point_value_t start_time;
-my_node_t * node1;
-my_node_t * node2;
-my_node_t * node3;
-my_node_t * node4;
 
 rclc_executor_semantics_t semantics;
 
 void node_timer_callback(rcl_timer_t * timer, void * context)
 {
+  printf("Checkpoint1\n");
   timer_callback_context_t * context_ptr = (timer_callback_context_t *) context;
   if (timer == NULL)
   {
     printf("timer_callback Error: timer parameter is NULL\n");
     return;
   }
+
+  if (context == NULL)
+  {
+    printf("timer_callback Error: context parameter is NULL\n");
+    return;    
+  }
+
+  printf("Checkpoint2\n");
   custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
+  printf("Checkpoint3\n");
+  printf("%lu\n", (unsigned long) context_ptr);
+  printf("%lu\n", (unsigned long) context_ptr->node);
+  printf("%lu\n", (unsigned long) context_ptr->node->count);
+  printf("%ld\n", context_ptr->node->count[context_ptr->timer_index]);
+
   pub_msg.frame_id = context_ptr->node->count[context_ptr->timer_index]++;
   pub_msg.stamp = now;
   printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
   busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
+  printf("Checkpoint4\n");
   if (context_ptr->pub_index >= 0)
   {
     RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index], &pub_msg, NULL, semantics));
   }
+  printf("Checkpoint5\n");
   now = rclc_now(&support);
   printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
 }
@@ -64,7 +78,7 @@ void initialize_callbacks_and_topics(my_node_t **nodes, int num_nodes)
     int j = 0;
     for (j = 0; j < nodes[i]->timer_num; j++)
     {
-      nodes[i]->timer_callback[j] = &node_timer_callback;
+      nodes[i]->timer_callback[j] = NULL;
     }
     for (j = 0; j < nodes[i]->sub_num; j++)
     {
@@ -80,7 +94,6 @@ void initialize_callbacks_and_topics(my_node_t **nodes, int num_nodes)
     my_node_t *current_node = nodes[i];
     my_node_t *next_node = nodes[i + 1]; // Next node in the array
 
-    // Assuming each node has the same number of publishers, subscribers, timers etc.
     for (j = 0; j < current_node->pub_num; j++)
     {
       // Create topic name for the current publisher in the current node
@@ -91,7 +104,7 @@ void initialize_callbacks_and_topics(my_node_t **nodes, int num_nodes)
       if (j < current_node->timer_num)
         current_node->callback[j] = (callback_t){RCLC_TIMER_WITH_CONTEXT, (void *)&current_node->timer[j]};
       else
-        current_node->callback[j] = (callback_t){RCLC_SUBSCRIPTION, (void *) &current_node->subscriber[j-current_node->timer_num]};
+        current_node->callback[j] = (callback_t){RCLC_SUBSCRIPTION_WITH_CONTEXT, (void *) &current_node->subscriber[j-current_node->timer_num]};
     }
   }
 }
@@ -147,6 +160,7 @@ void add_entities_to_executor(
       RCCHECK(rclc_executor_add_subscription_with_context(
         &executor[i], &nodes[i]->subscriber[j], &nodes[i]->sub_msg[j], nodes[i]->subscriber_callback[j],
         (void *) &nodes[i]->sub_context[j], ON_NEW_DATA, callback_let, (int) sizeof(custom_interfaces__msg__Message)));
+      printf("Add subscriber %lu\n", (unsigned long) &nodes[i]->subscriber[j]);
     }
 
     for (j = 0; j < nodes[i]->timer_num; j++)
@@ -159,8 +173,15 @@ void add_entities_to_executor(
       nodes[i]->timer_context[j].node = nodes[i];
       nodes[i]->timer_context[j].min_execution_time_ms = min_execution_time_ms;
       nodes[i]->timer_context[j].max_execution_time_ms = max_execution_time_ms;
-      RCCHECK(rclc_executor_add_timer_with_context(&executor[i], &nodes[i]->timer[j], nodes[i]->timer_callback[j],
+      RCCHECK(rclc_executor_add_timer_with_context(&executor[i], &nodes[i]->timer[j], &node_timer_callback,
         (void *) &nodes[i]->timer_context[j], callback_let));
+      printf("Add timer %lu\n", (unsigned long) &nodes[i]->timer[j]);
+      timer_callback_context_t * ptr = &nodes[i]->timer_context[j];
+      printf("%lu\n", (unsigned long) ptr);
+      printf("%lu\n", (unsigned long) ptr->node);
+      printf("%lu\n", (unsigned long) nodes[i]);
+      printf("%lu\n", (unsigned long) executor[i].handles[executor[i].index-1].callback_context);
+      printf("%d\n", executor[i].handles[executor[i].index-1].type);
     }
 
     if (semantics == LET)
@@ -169,21 +190,56 @@ void add_entities_to_executor(
       {
         RCCHECK(rclc_executor_add_publisher_LET(&executor[i], &nodes[i]->publisher[j], sizeof(custom_interfaces__msg__Message),
           max_call_num_per_callback, nodes[i]->callback[j].handle_ptr, nodes[i]->callback[j].type));       
+        printf("Add publisher %lu\n", (unsigned long) &nodes[i]->publisher[j]);
       }
     }
   }
 }
+
+void init_message(custom_interfaces__msg__SequenceMsg msg, int message_size)
+{
+  msg.data.capacity = message_size;
+  msg.data.data = (int64_t *) malloc(msg.data.capacity * sizeof(int64_t));
+  msg.data.size = 0;
+  for (int64_t i = 0; i < message_size; i++)
+  {
+    msg.data.data[i] = i;
+    msg.data.size++;
+  }
+}
+
+void destroy_message(custom_interfaces__msg__SequenceMsg msg)
+{
+  if (msg.data.data == NULL)
+    return;
+  free(msg.data.data);
+  msg.data.data = NULL;
+}
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-  if (argc != 2) {
+  if (argc != 4) {
     printf("Usage: %s <config_file>\n", argv[0]);
     return 1;
   }
+  semantics = LET;
+  if (strcmp(argv[1], "-let") == 0) {
+    printf("Set sematics\n");
+    if(strcmp(argv[2], "true") == 0)
+    {
+      semantics = LET;
+      printf("set semantics to LET\n");
+    }
+    else
+    {
+      semantics = RCLCPP_EXECUTOR;
+      printf("set semantics to RCLCPP_EXECUTOR\n");
+    }
+  }
 
-  FILE *file = fopen(argv[1], "r");
+  FILE *file = fopen(argv[3], "r");
   if (!file) {
-    printf("Error: Could not open file %s\n", argv[1]);
+    printf("Error: Could not open file %s\n", argv[3]);
     return 1;
   }
 
@@ -200,6 +256,11 @@ int main(int argc, char const *argv[])
     int node_id, pub_num, sub_num, timer_num;
     fscanf(file, "%d: %d %d %d\n", &node_id, &pub_num, &sub_num, &timer_num);
     nodes[i] = create_node(timer_num, pub_num, sub_num);
+    if(nodes[i] == NULL)
+    {
+      printf("Create node failed\n");
+      return 0;
+    }
   }
 
   fclose(file);
@@ -208,8 +269,7 @@ int main(int argc, char const *argv[])
 
   srand(time(NULL));
   exit_flag = false;
-  semantics = LET;
-
+  
   // create init_options
   RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
 // Assuming `nodes` is an array or similar container of pointers to nodes.
@@ -232,7 +292,7 @@ int main(int argc, char const *argv[])
   ////////////////////////////////////////////////////////////////////////////
   // Configuration of RCL Executor
   ////////////////////////////////////////////////////////////////////////////
-  const uint64_t timeout_ns = 0.2*executor_period;
+  const uint64_t timeout_ns = 0;
   
   rclc_executor_t * executor = malloc(num_nodes*sizeof(rclc_executor_t));
   if(executor == NULL)
@@ -276,7 +336,7 @@ int main(int argc, char const *argv[])
   struct arg_spin_period * ex_args = malloc(num_nodes*sizeof(struct arg_spin_period));
   int policy = SCHED_FIFO;
   rcl_time_point_value_t now = rclc_now(&support);
-  int experiment_duration_ms = 5000;
+  int experiment_duration_ms = 20000;
   printf("StartTime %ld\n", now);
   for (i = 0; i < num_nodes; i++)
   {
@@ -295,10 +355,22 @@ int main(int argc, char const *argv[])
 
   sleep_ms(experiment_duration_ms);
   exit_flag = true;
+  printf("Stop experiment\n");
   // Wait for threads to finish
   for (i = 0; i < num_nodes; i++)
   {
     pthread_join(threads[i], NULL);
+  }
+
+  for (i = 0; i < num_nodes; i++)
+  {
+    printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
+    printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
+    for (int j = 0; j < nodes[i]->pub_num; j++)
+    {
+      printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
+      printf("OverheadTotalInternalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].internal_overhead);
+    }
   }
 
   // clean up 

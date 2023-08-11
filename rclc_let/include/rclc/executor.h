@@ -135,6 +135,10 @@ typedef struct rclc_executor_s
   /// Period of the executor
   uint64_t period_ns;
   rclc_executor_let_t * let_executor;
+  /// Variable to store the overhead
+  rcutils_time_point_value_t input_overhead;
+  rcutils_time_point_value_t output_overhead;
+  uint64_t output_index;
 } rclc_executor_t;
 
 /**

@@ -65,8 +65,14 @@ ament_target_dependencies(test2 rcl rclc_let custom_interfaces)
 add_executable(rcv src/receiving_node.c src/utilities.c)
 ament_target_dependencies(rcv rcl rclc_let custom_interfaces)
 
+add_executable(test3 src/test3.c src/utilities.c)
+ament_target_dependencies(test3 rcl rclc_let custom_interfaces)
+
 add_executable(auto src/automated_test.c src/utilities.c)
 ament_target_dependencies(auto rcl rclc_let custom_interfaces)
+
+add_executable(sleep_test src/test_sleep_time.c src/utilities.c)
+ament_target_dependencies(sleep_test rcl rclc_let custom_interfaces)
 
 # find dependencies
 # find_package(ament_cmake REQUIRED)
@@ -100,8 +106,10 @@ install(TARGETS
   exp9
   test1
   test2
+  test3
   rcv
   auto
+  sleep_test
   DESTINATION lib/${PROJECT_NAME}
 )
 

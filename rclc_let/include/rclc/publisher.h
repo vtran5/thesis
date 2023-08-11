@@ -35,6 +35,8 @@ typedef struct rclc_publisher_s
   rcl_publisher_t rcl_publisher;
   rclc_2d_circular_queue_t message_buffer;
   uint64_t * executor_index; // This should point to the executor spin_index
+  rcutils_time_point_value_t overhead;
+  rcutils_time_point_value_t internal_overhead;
 } rclc_publisher_t;
 
 
@@ -138,7 +140,9 @@ rclc_publish(
 RCLC_PUBLIC
 rcl_ret_t
 rclc_LET_output(rclc_publisher_t * publisher,
-  int queue_index);
+  int queue_index,
+  uint64_t output_index,
+  unsigned long executor);
 
 RCLC_PUBLIC
 rcl_ret_t
@@ -155,7 +159,6 @@ RCLC_PUBLIC
 rcl_ret_t
 rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   int queue_index);
-
 
 #if __cplusplus
 }

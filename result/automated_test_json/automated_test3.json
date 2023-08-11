@@ -1,0 +1,54 @@
+{
+    "executors": {
+        "Executor1": [
+            "Executor1",
+            "Publisher1",
+            "Publisher2",
+            "Publisher3",
+            "Publisher4",
+            "Timer1",
+            "Timer2",
+            "Timer3",
+            "Timer4"
+        ],
+        "Executor2": [
+            "Executor2",
+            "Subscriber1",
+            "Subscriber2",
+            "Subscriber3",
+            "Subscriber4"
+        ]
+    },
+    "callback_chain": {
+        "chain1": [
+            "Timer1",
+            "Publisher1"
+        ],
+        "chain2": [
+            "Timer2",
+            "Publisher2"
+        ],
+        "chain3": [
+            "Timer3",
+            "Publisher3"
+        ],
+        "chain4": [
+            "Timer4",
+            "Publisher4"
+        ]
+    },
+    "publisher_mapping": {
+        "Timer1": [
+            "Publisher1"
+        ],
+        "Timer2": [
+            "Publisher2"
+        ],
+        "Timer3": [
+            "Publisher3"
+        ],
+        "Timer4": [
+            "Publisher4"
+        ]
+    }
+}

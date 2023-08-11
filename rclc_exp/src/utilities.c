@@ -111,6 +111,15 @@ int get_current_thread_time()
   return get_thread_time(pthread_self());
 }
 
+int get_current_thread_time_us()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000 + spec.tv_nsec/1000;
+}
+
 void busy_wait(int duration)
 {
   if (duration > 0)
@@ -126,12 +135,35 @@ void busy_wait(int duration)
   }
 }
 
+void busy_wait_us(uint64_t duration)
+{
+  if (duration > 0)
+  {
+    int end_time = get_current_thread_time_us() + duration;
+    int x = 0;
+    bool do_again = true;
+    while (do_again)
+    {
+      x++;
+      do_again = (get_current_thread_time_us() < end_time);
+    }
+  }
+}
+
 void busy_wait_random(int min_time, int max_time)
 {
     if (max_time == 0)
         return;
 	int duration = (rand() % (max_time - min_time + 1)) + min_time;
     busy_wait(duration);
+}
+
+void busy_wait_random_us(uint64_t min_time, uint64_t max_time)
+{
+    if (max_time == 0)
+        return;
+	uint64_t duration = (rand() % (max_time - min_time + 1)) + min_time;
+    busy_wait_us(duration);
 }
 
 void busy_wait_random_error(int min_time, int max_time, bool error, int error_time)
@@ -141,39 +173,6 @@ void busy_wait_random_error(int min_time, int max_time, bool error, int error_ti
     else
         busy_wait_random(min_time, max_time);
 }
-
-/*
-void print_timestamp(int dim0, int dim1, rcl_time_point_value_t timestamp[dim0][dim1])
-{
-	  char line[20000] = "";
-	  uint8_t end_of_file = 0;
-    for (int i = 0; i < dim1; i++)
-    {
-        sprintf(line, "%d ", i);
-        for (int j = 0; j < dim0; j++)
-        {
-            if (j == 0 && timestamp[j][i] == 0)
-            {
-                int sum = 0;
-                for (int k = 1; k < dim0; k++)
-                    sum += timestamp[k][i];
-                if(sum == 0)
-                {
-                    end_of_file = 1;
-                    break;
-                }
-            }
-            char temp[32];
-            sprintf(temp, "%ld ", timestamp[j][i]);
-            strcat(line, temp);
-        }
-        strcat(line, "\n");
-        if (end_of_file)
-        	break;
-        printf("%s", line);
-    }  
-}
-*/
 
 void init_timestamp(int dim0, int dim1, rcl_time_point_value_t *timestamp[dim0])
 {

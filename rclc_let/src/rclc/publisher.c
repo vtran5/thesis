@@ -19,6 +19,18 @@
 #include <rcl/error_handling.h>
 #include <rcutils/logging_macros.h>
 #include <rmw/qos_profiles.h>
+#include <pthread.h>
+#include <time.h>
+
+
+static uint64_t _rclc_get_current_thread_time_ns()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000000 + spec.tv_nsec;
+}
 
 rcl_ret_t
 rclc_publisher_init_default(
@@ -73,6 +85,8 @@ rclc_publisher_init(
   if (rc != RCL_RET_OK) {
     PRINT_RCLC_ERROR(rclc_publisher_init_best_effort, rcl_publisher_init);
   }
+  publisher->internal_overhead = 0;
+  publisher->overhead = 0;
   return rc;
 }
 
@@ -110,16 +124,27 @@ rclc_publish(
   rclc_executor_semantics_t semantics)
 {
   rcl_ret_t ret = RCL_RET_OK;
+  uint64_t start, stop;
   rcutils_time_point_value_t now;
   if (semantics == LET)
   {
+    start = _rclc_get_current_thread_time_ns();
     ret = _rclc_publish_LET(publisher, ros_message, allocation);
+    stop = _rclc_get_current_thread_time_ns();
+    printf("PublishInternalOverhead %lu %ld\n", (unsigned long) publisher, stop-start);
+    publisher->internal_overhead += stop-start;
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
     ret = rcutils_steady_time_now(&now);
-    printf("Output %lu %ld\n", (unsigned long) publisher, now);
+    start = _rclc_get_current_thread_time_ns();
     ret = _rclc_publish_default(publisher, ros_message, allocation);
+    stop = _rclc_get_current_thread_time_ns();
+    int64_t * ptr = ros_message;
+    printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
+    printf("PublishInternalOverhead %lu %ld\n", (unsigned long) publisher, 0);
+    printf("PublishOverhead %lu %ld\n", (unsigned long) publisher, stop-start);
+    publisher->overhead += stop-start;
   }
   return ret;
 }
@@ -143,17 +168,22 @@ rcl_ret_t
 rclc_LET_output(rclc_publisher_t * publisher, int queue_index, uint64_t output_index, unsigned long executor)
 {
   rcl_ret_t ret = RCL_RET_OK;
-  rcutils_time_point_value_t now;
+  rcutils_time_point_value_t start, stop, now;
   ret = rcutils_steady_time_now(&now);
-
+  start = _rclc_get_current_thread_time_ns();
   while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
   {
+    //ret = rcutils_steady_time_now(&now);
     void * array;
     rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), &array, queue_index);
     int64_t * ptr = array;
+    printf("OutputData %lu %ld %ld\n", executor, output_index, start);
     printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
+  stop = _rclc_get_current_thread_time_ns();
+  printf("PublishOverhead %lu %ld %ld\n", executor, output_index, stop-start);
+  publisher->overhead += stop-start;
   return ret;
 }
 
@@ -185,4 +215,3 @@ rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   rcl_ret_t ret = rclc_flush_circular_queue(queue);
   return ret;
 }
-

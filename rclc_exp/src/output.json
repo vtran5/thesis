@@ -1,0 +1,34 @@
+{
+    "executors": {
+        "Executor1": [
+            "Executor1",
+            "Publisher1",
+            "Publisher2",
+            "Timer1",
+            "Timer2"
+        ],
+        "Executor2": [
+            "Executor2",
+            "Subscriber1",
+            "Subscriber2"
+        ]
+    },
+    "callback_chain": {
+        "chain1": [
+            "Timer1",
+            "Publisher1"
+        ],
+        "chain2": [
+            "Timer2",
+            "Publisher2"
+        ]
+    },
+    "publisher_mapping": {
+        "Timer1": [
+            "Publisher1"
+        ],
+        "Timer2": [
+            "Publisher2"
+        ]
+    }
+}

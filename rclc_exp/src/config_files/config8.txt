@@ -1,0 +1,7 @@
+nodes: 2
+executor_period: 780
+timer_period: 1370
+message_size: 512
+callback_let: 1090
+1: 2 0 2
+2: 0 2 0

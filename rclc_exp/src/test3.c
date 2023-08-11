@@ -30,7 +30,7 @@ char stat1[200000000];
 char stat2[200000000];
 char stat3[200000000];
 char stat4[200000000];
-
+// Test 1 but with 10 times lower time duration
 /***************************** CALLBACKS ***********************************/
 void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
 {
@@ -42,7 +42,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 0;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback_us(node1, stat1, timer_index, pub_index, 200, 300, semantics);
 }
 
 void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -55,7 +55,7 @@ void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 1;
   int pub_index = 1;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback_us(node1, stat1, timer_index, pub_index, 200, 300, semantics);
 }
 
 void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -68,7 +68,7 @@ void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 2;
-  timer_callback(node2, stat2, timer_index, pub_index, 4, 5, semantics);
+  timer_callback_us(node2, stat2, timer_index, pub_index, 400, 500, semantics);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -80,10 +80,10 @@ void node2_subscriber1_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 0;
   int pub_index = 0;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 10;
+  int min_run_time_us = 500;
+  int max_run_time_us = 1000;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node2, stat2, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node2_subscriber2_callback(const void * msgin)
@@ -95,10 +95,10 @@ void node2_subscriber2_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 1;
   int pub_index = 1;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 45;
+  int min_run_time_us = 500;
+  int max_run_time_us = 4500;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node2, stat2, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
   RCSOFTCHECK(rclc_publish(&node2->publisher[3], msg, NULL, pub_semantics));
 }
 
@@ -111,10 +111,10 @@ void node3_subscriber1_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 0;
   int pub_index = 0;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 65;
+  int min_run_time_us = 500;
+  int max_run_time_us = 6500;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node3, stat3, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node3_subscriber2_callback(const void * msgin)
@@ -126,10 +126,10 @@ void node3_subscriber2_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 1;
   int pub_index = 1;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 10;
+  int min_run_time_us = 500;
+  int max_run_time_us = 1000;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node3, stat3, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node3_subscriber3_callback(const void * msgin)
@@ -141,10 +141,10 @@ void node3_subscriber3_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 2;
   int pub_index = 2;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 10;
+  int min_run_time_us = 500;
+  int max_run_time_us = 1000;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node3, stat3, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node3_subscriber4_callback(const void * msgin)
@@ -156,10 +156,10 @@ void node3_subscriber4_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 3;
   int pub_index = 3;
-  int min_run_time_ms = 1;
-  int max_run_time_ms = 5;
+  int min_run_time_us = 100;
+  int max_run_time_us = 500;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node3, stat3, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node4_subscriber1_callback(const void * msgin)
@@ -171,10 +171,10 @@ void node4_subscriber1_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 0;
   int pub_index = -1;
-  int min_run_time_ms = 0;
-  int max_run_time_ms = 0;
+  int min_run_time_us = 0;
+  int max_run_time_us = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node4, stat4, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node4_subscriber2_callback(const void * msgin)
@@ -186,10 +186,10 @@ void node4_subscriber2_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 1;
   int pub_index = -1;
-  int min_run_time_ms = 0;
-  int max_run_time_ms = 0;
+  int min_run_time_us = 0;
+  int max_run_time_us = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node4, stat4, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node4_subscriber3_callback(const void * msgin)
@@ -201,10 +201,10 @@ void node4_subscriber3_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 2;
   int pub_index = -1;
-  int min_run_time_ms = 0;
-  int max_run_time_ms = 0;
+  int min_run_time_us = 0;
+  int max_run_time_us = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node4, stat4, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 void node4_subscriber4_callback(const void * msgin)
@@ -216,10 +216,10 @@ void node4_subscriber4_callback(const void * msgin)
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
   int sub_index = 3;
   int pub_index = -1;
-  int min_run_time_ms = 0;
-  int max_run_time_ms = 0;
+  int min_run_time_us = 0;
+  int max_run_time_us = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_us(node4, stat4, msg, sub_index, pub_index, min_run_time_us, max_run_time_us, pub_semantics);
 }
 
 /******************** MAIN PROGRAM ****************************************/
@@ -258,8 +258,8 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
     exit_flag = false;
     semantics = (let) ? LET : RCLCPP_EXECUTOR;
-    const uint64_t node1_timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(200), RCL_MS_TO_NS(420)};
-    const uint64_t node2_timer_timeout_ns[NODE2_TIMER_NUMBER] = {RCL_MS_TO_NS(160)};
+    const uint64_t node1_timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(20), RCL_MS_TO_NS(42)};
+    const uint64_t node2_timer_timeout_ns[NODE2_TIMER_NUMBER] = {RCL_MS_TO_NS(16)};
 
     // create init_options
     RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
@@ -367,30 +367,30 @@ int main(int argc, char const *argv[])
     rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER);
     rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER);
 
-    callback_let_timer1[0] = RCUTILS_MS_TO_NS(8);
-    callback_let_timer1[1] = RCUTILS_MS_TO_NS(8);
+    callback_let_timer1[0] = RCUTILS_MS_TO_NS(1);
+    callback_let_timer1[1] = RCUTILS_MS_TO_NS(1);
 
-    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(70);
-    callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(70);
-    callback_let_timer2[0] = RCUTILS_MS_TO_NS(70);
+    callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(7);
+    callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(7);
+    callback_let_timer2[0] = RCUTILS_MS_TO_NS(7);
 
-    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(160);
-    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(160);
-    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(160);
-    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(160);
+    callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(16);
+    callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(16);
+    callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(16);
+    callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(16);
 
-    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(5);
-    callback_let_subscriber4[1] = RCUTILS_MS_TO_NS(5);
-    callback_let_subscriber4[2] = RCUTILS_MS_TO_NS(5);
-    callback_let_subscriber4[3] = RCUTILS_MS_TO_NS(5);
+    callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(1);
+    callback_let_subscriber4[1] = RCUTILS_MS_TO_NS(1);
+    callback_let_subscriber4[2] = RCUTILS_MS_TO_NS(1);
+    callback_let_subscriber4[3] = RCUTILS_MS_TO_NS(1);
 
     unsigned int num_handles = 4;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
-    executor_period[0] = RCUTILS_MS_TO_NS(10);
-    executor_period[1] = RCUTILS_MS_TO_NS(20);
-    executor_period[2] = RCUTILS_MS_TO_NS(50);
-    executor_period[3] = RCUTILS_MS_TO_NS(10);
+    executor_period[0] = RCUTILS_MS_TO_NS(1);
+    executor_period[1] = RCUTILS_MS_TO_NS(2);
+    executor_period[2] = RCUTILS_MS_TO_NS(5);
+    executor_period[3] = RCUTILS_MS_TO_NS(1);
 
     executor_semantics[0] = semantics;
     executor_semantics[1] = semantics;

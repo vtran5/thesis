@@ -104,6 +104,8 @@ int get_thread_time(pthread_t thread_id);
  */
 void busy_wait_random(int min_time, int max_time);
 
+void busy_wait_random_ns(uint64_t min_time, uint64_t max_time);
+
 /**
  *  Busy-wait for a random amount of time between a minimum and maximum value.
  *  Inject an error with the busy-wait duration greater than max_time while error flag is true
