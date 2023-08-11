@@ -2210,7 +2210,6 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     if (executor->invocation_time >= end_time_point)
     {
       executor->let_executor->state = WAIT_INPUT;
-      ret = rcutils_steady_time_now(&now);
     }
     else
     {
