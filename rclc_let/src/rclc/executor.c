@@ -2185,7 +2185,6 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
       pthread_cond_wait(&executor->let_executor->let_input_done, &executor->let_executor->mutex);
     }
     executor->let_executor->state = EXECUTING;
-    ret = rcutils_steady_time_now(&end_time_point);
     pthread_mutex_unlock(&executor->let_executor->mutex);
 
     switch (executor->let_executor->overrun_option)
