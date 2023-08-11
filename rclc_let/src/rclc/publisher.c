@@ -140,7 +140,7 @@ _rclc_publish_LET(
   }
 
   rcl_ret_t ret = rcl_publish(&(publisher->let_publisher->let_publishers[index]), ros_message, allocation);
-  printf("Publish internal at index %d %ld\n", index, (unsigned long) publisher);
+  printf("Publish %lu at index %d %ld\n", (unsigned long) publisher, index, executor_index);
   return ret;
 }
 
@@ -164,7 +164,6 @@ rclc_publish(
     int64_t * temp = (int64_t *) ros_message;
     ret = rcutils_steady_time_now(&now);
     printf("Output %lu %ld %ld\n", (unsigned long) publisher, temp[1], now);
-    printf("Writer %lu %d %ld\n", (unsigned long) publisher, 0, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;

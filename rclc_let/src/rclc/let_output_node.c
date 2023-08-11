@@ -209,7 +209,7 @@ rclc_let_output_node_add_publisher(
   RCL_CHECK_ARGUMENT_FOR_NULL(handle_ptr, RCL_RET_INVALID_ARGUMENT);
   const char* error_message = NULL;
   bool handle_found = false;
-  printf("Adding publisher\n");
+
   switch(type)
   {
     case RCLC_SUBSCRIPTION:
@@ -246,7 +246,7 @@ rclc_let_output_node_add_publisher(
   let_handle.type = RCLC_PUBLISHER;
   let_handle.publisher = publisher;
   let_output_node->output_arr[let_output_node->index].max_msg_per_period = max_number_per_callback;
-  printf("num_intermediate_handles %ld\n", let_output_node->num_intermediate_handles);
+
   CHECK_RCL_RET(_rclc_output_handle_init(&let_output_node->output_arr[let_output_node->index], 
 								let_output_node->allocator, let_handle), (unsigned long) let_output_node);
   let_output_node->index++;
@@ -259,7 +259,7 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 	rclc_let_output_t * output = context_obj->output;
 	uint64_t period_ns = context_obj->period_ns;
 	int64_t old_period_ns;
-	rcutils_time_point_value_t now;
+
 	if (output->first_run)
 	{
 		VOID_CHECK_RCL_RET(rcl_timer_exchange_period(timer, (int64_t) period_ns, &old_period_ns), (unsigned long) timer);
@@ -267,8 +267,6 @@ void _rclc_let_deadline_timer_callback(rcl_timer_t * timer, void * context)
 	}
 	output->period_index++;
 	output->timer_triggered = true;
-	VOID_CHECK_RCL_RET(rcutils_steady_time_now(&now), (unsigned long) timer);
-	printf("Writer %lu %lu %ld\n", (unsigned long) output->handle.publisher, output->period_index, now);
 	return;
 }
 
@@ -286,11 +284,9 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 	rclc_callback_state_t state;
 	VOID_CHECK_RCL_RET(rclc_get_array(&output->callback_info->state, &state, subscriber_period_id), 
 											(unsigned long) output->handle.publisher);
-	printf("Sub output callback index %d\n", subscriber_period_id);
 
 	if (subscriber_period_id == period_id)
 	{
-		printf("Sub output callback triggered\n");
 		if (state == RUNNING || state == RELEASED)
 		{
 			pthread_mutex_lock(mutex);
@@ -314,32 +310,29 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 		if (!data_available && output->data_consumed[subscriber_period_id])
 		{
 			// Finish executing without new data
-			printf("No LET output\n");
 			return;
 		}
 
 		VOID_CHECK_RCL_RET(rcl_publish(&output->publisher.rcl_publisher, msgin, NULL), 
 												(unsigned long) output->handle.publisher);
 		output->data_consumed[subscriber_period_id] = true;
-		rcutils_steady_time_now(&now);
+		VOID_CHECK_RCL_RET(rcutils_steady_time_now(&now), (unsigned long) output->handle.publisher);
 		int64_t * temp = (int64_t *) msgin;
 		printf("Output %lu %ld %ld\n", (unsigned long) output->handle.publisher, temp[1], now);
 	}
 	else
 	{
-		printf("Sub output callback not triggered\n");
 		if (data_available || (output->data_consumed[subscriber_period_id] == false))
 			{
 				// have new data but not for this deadline
 				output->data_consumed[subscriber_period_id] = false;
-				printf("state %d\n", (int) state);
 				// if the overrun callback finish executing, publish the data
 				if (output->callback_info->overrun_status == HANDLING_ERROR)
 				{
 					VOID_CHECK_RCL_RET(rcl_publish(&output->publisher.rcl_publisher, msgin, NULL), 
 															(unsigned long) output);
 					output->data_consumed[subscriber_period_id] = true;
-					rcutils_steady_time_now(&now);
+					VOID_CHECK_RCL_RET(rcutils_steady_time_now(&now), (unsigned long) output->handle.publisher);
 					int64_t * temp = (int64_t *) msgin;
 					printf("Output %lu %ld %ld\n", (unsigned long) output->handle.publisher, temp[1], now);			
 				}
@@ -415,7 +408,6 @@ rclc_executor_let_run(rclc_let_output_node_t * let_output_node, bool * exit_flag
 
   	for (int j = 0; j < let_output_node->output_arr[i].callback_info->num_period_per_let; j++)
   	{
-  		printf("Number of period per let %d\n", let_output_node->output_arr[i].callback_info->num_period_per_let);
   		void * msg;
   		rclc_array_element_status_t status;
   		CHECK_RCL_RET(rclc_get_pointer_array(&let_output_node->output_arr[i].data_arr, j, &msg, &status),
