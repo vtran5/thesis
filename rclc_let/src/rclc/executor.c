@@ -65,10 +65,19 @@ typedef struct
 static void * _rclc_let_scheduling_input_wrapper(void * arg);
 static rcl_ret_t _rclc_add_handles_to_waitset(rclc_executor_t * executor);
 static rcl_ret_t _rclc_wait_for_new_input(rclc_executor_t * executor, const uint64_t timeout_ns);
-static void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg);
+static void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg, const char * name);
 static void * _rclc_output_let_spin_wrapper(void * arg);
 void print_ret(rcl_ret_t ret, unsigned long ptr);
 static bool _rclc_executor_check_deadline_passed(rclc_executor_t * executor);
+
+static uint64_t _rclc_get_current_thread_time_ns()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000000 + spec.tv_nsec;
+}
 
 // rationale: user must create an executor with:
 // executor = rclc_executor_get_zero_initialized_executor();
@@ -2095,7 +2104,7 @@ _rclc_let_output_scheduling(rclc_executor_t * executor)
         return rc;
       }
     }
-    // Repeat the wait_for_input, check_for_new_data, take_new_data, execute, but only for the subscribers
+    // TO DO: Repeat the wait_for_input, check_for_new_data, take_new_data, execute, but only for the subscribers
     // of the triggered timers. Repeat for max_number_per_callback or until there's no new data.
   }
   return rc;
@@ -2349,8 +2358,12 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
     RCLC_UNUSED(ret);
     executor->timeout_ns = 0;
     output_let_arg_t arg = {&executor->let_executor->let_output_node, &exit_flag, period_ns};
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg);
+    char input_name[22];
+    char output_name[22];
+    snprintf(input_name, sizeof(input_name), "I%lu", (unsigned long) executor);
+    snprintf(output_name, sizeof(output_name), "O%lu", (unsigned long) executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor, input_name);
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg, output_name);
   }
 
   while (true) {
@@ -2398,8 +2411,12 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
     RCLC_UNUSED(ret);
     executor->timeout_ns = 0;
     output_let_arg_t arg = {&executor->let_executor->let_output_node, exit_flag, period_ns};
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);
-    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg);
+    char input_name[22];
+    char output_name[22];
+    snprintf(input_name, sizeof(input_name), "I%lu", (unsigned long) executor);
+    snprintf(output_name, sizeof(output_name), "O%lu", (unsigned long) executor);
+    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor, input_name);
+    _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_output_let_spin_wrapper, &arg, output_name);
   }
   while (!(*exit_flag)) {
     ret = rclc_executor_spin_one_period(executor, period_ns);
@@ -2752,7 +2769,7 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
   return 0;
 }
 
-void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
+void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg, const char * name)
 {
     struct sched_param param;
     int ret;
@@ -2771,6 +2788,7 @@ void _rclc_thread_create(pthread_t *thread_id, int policy, int priority, int cpu
       ret += pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     }
     ret += pthread_create(thread_id, &attr, function, arg);
+    ret += pthread_setname_np(*thread_id, name);
     if(ret!=0)
       printf("Create thread %lu failed\n", *thread_id);
 }
@@ -2939,8 +2957,16 @@ void * _rclc_output_let_spin_wrapper(void * arg)
   bool * exit_flag = arguments->exit_flag;
   uint64_t period_ns = arguments->period_ns;
   printf("StartOutput\n");
+  char output_name[22];
+  snprintf(output_name, sizeof(output_name), "o%lu", (unsigned long) let_output_node);
+  pthread_setname_np(pthread_self(), output_name);
+  rcutils_time_point_value_t start, stop;
+  let_output_node->output_overhead = 0;
+  start = _rclc_get_current_thread_time_ns();
   CHECK_RCL_RET(rclc_executor_let_run(let_output_node, exit_flag, period_ns),
                       (unsigned long) let_output_node);
+  stop = _rclc_get_current_thread_time_ns();
+  let_output_node->output_overhead = stop-start;
   return 0;
 }
 

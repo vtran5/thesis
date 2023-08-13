@@ -77,6 +77,7 @@ typedef struct
   size_t index;
   /// Mutex to protect callback state variable (private)
   pthread_mutex_t mutex;
+  uint64_t output_overhead;
   //int output_index;
   //int output_callback_id;
 } rclc_let_output_node_t;

@@ -1,0 +1,1279 @@
+test1 (38567, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11936992.078132
+se.vruntime                                  :        134584.332675
+se.sum_exec_runtime                          :           143.809156
+se.nr_migrations                             :                 1670
+nr_switches                                  :                 1826
+nr_voluntary_switches                        :                 1797
+nr_involuntary_switches                      :                   29
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   21
+se.avg.runnable_sum                          :                20480
+se.avg.util_sum                              :                20480
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11860199833600
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  230
+test1 (38568, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338520.943069
+se.vruntime                                  :        264030.394922
+se.sum_exec_runtime                          :             0.125318
+se.nr_migrations                             :                    0
+nr_switches                                  :                    2
+nr_voluntary_switches                        :                    2
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                11463
+se.avg.runnable_sum                          :              1439107
+se.avg.util_sum                              :               643459
+se.avg.load_avg                              :                  247
+se.avg.runnable_avg                          :                   30
+se.avg.util_avg                              :                   13
+se.avg.last_update_time                      :       11310243372032
+se.avg.util_est.ewma                         :                   47
+se.avg.util_est.enqueued                     :                   13
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  211
+test1 (38569, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338522.231670
+se.vruntime                                  :         82833.449187
+se.sum_exec_runtime                          :            12.671368
+se.nr_migrations                             :                   11
+nr_switches                                  :                   95
+nr_voluntary_switches                        :                   89
+nr_involuntary_switches                      :                    6
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                22760
+se.avg.runnable_sum                          :              7740210
+se.avg.util_sum                              :              5465287
+se.avg.load_avg                              :                  497
+se.avg.runnable_avg                          :                  164
+se.avg.util_avg                              :                  116
+se.avg.last_update_time                      :       11236507969536
+se.avg.util_est.ewma                         :                  124
+se.avg.util_est.enqueued                     :                  117
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  204
+94798780242976 (38573, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937067.017939
+se.vruntime                                  :            11.984104
+se.sum_exec_runtime                          :         12978.174773
+se.nr_migrations                             :                    1
+nr_switches                                  :               141594
+nr_voluntary_switches                        :               119706
+nr_involuntary_switches                      :                21888
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47086
+se.avg.runnable_sum                          :             16724896
+se.avg.util_sum                              :             16710560
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  355
+se.avg.util_avg                              :                  355
+se.avg.last_update_time                      :       11338418339840
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   50
+clock-delta                                  :                  230
+I94798780242976 (38574, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937086.978961
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          7477.551643
+se.nr_migrations                             :                    0
+nr_switches                                  :               119775
+nr_voluntary_switches                        :               119775
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418409705
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  250
+O94798780242976 (38575, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937112.226851
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          6196.459040
+se.nr_migrations                             :                    0
+nr_switches                                  :                76857
+nr_voluntary_switches                        :                76855
+nr_involuntary_switches                      :                    2
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418579561
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  280
+94798780243240 (38576, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937139.407445
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :         72050.330993
+se.nr_migrations                             :                    1
+nr_switches                                  :               123443
+nr_voluntary_switches                        :                55717
+nr_involuntary_switches                      :                67726
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47363
+se.avg.runnable_sum                          :             17196735
+se.avg.util_sum                              :             17196735
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  363
+se.avg.util_avg                              :                  363
+se.avg.last_update_time                      :       11338420720640
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   51
+clock-delta                                  :                  208
+I94798780243240 (38577, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937159.438181
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          4300.422807
+se.nr_migrations                             :                    0
+nr_switches                                  :                55846
+nr_voluntary_switches                        :                55846
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338420820633
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  195
+O94798780243240 (38578, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937183.586137
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          7815.348938
+se.nr_migrations                             :                    0
+nr_switches                                  :                67251
+nr_voluntary_switches                        :                67247
+nr_involuntary_switches                      :                    4
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338420961074
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  238
+94798780243504 (38579, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937207.646265
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :        143044.181971
+se.nr_migrations                             :                    1
+nr_switches                                  :               152518
+nr_voluntary_switches                        :                19844
+nr_involuntary_switches                      :               132674
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47690
+se.avg.runnable_sum                          :              8017056
+se.avg.util_sum                              :              8017056
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  168
+se.avg.util_avg                              :                  168
+se.avg.last_update_time                      :       11338423152640
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   52
+clock-delta                                  :                  249
+I94798780243504 (38580, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937221.889481
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          2211.993043
+se.nr_migrations                             :                    0
+nr_switches                                  :                17470
+nr_voluntary_switches                        :                17470
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338423235695
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  222
+O94798780243504 (38581, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937238.978505
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          4652.464349
+se.nr_migrations                             :                    0
+nr_switches                                  :                49271
+nr_voluntary_switches                        :                49271
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338423358235
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  195
+94798780243768 (38582, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937284.409939
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          3965.351868
+se.nr_migrations                             :                    1
+nr_switches                                  :               119790
+nr_voluntary_switches                        :               119785
+nr_involuntary_switches                      :                    5
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47342
+se.avg.runnable_sum                          :             24148532
+se.avg.util_sum                              :             24148532
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  510
+se.avg.util_avg                              :                  510
+se.avg.last_update_time                      :       11177511136256
+se.avg.util_est.ewma                         :                  510
+se.avg.util_est.enqueued                     :                  510
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   53
+clock-delta                                  :                  203
+I94798780243768 (38584, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937304.386350
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :         10299.734296
+se.nr_migrations                             :                    0
+nr_switches                                  :               113551
+nr_voluntary_switches                        :               113551
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338530252296
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  153
+main (38557, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338530.285156
+se.vruntime                                  :        264042.709294
+se.sum_exec_runtime                          :           181.569109
+se.nr_migrations                             :                    9
+nr_switches                                  :                  170
+nr_voluntary_switches                        :                   31
+nr_involuntary_switches                      :                  139
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                15497
+se.avg.runnable_sum                          :             14137436
+se.avg.util_sum                              :             13716047
+se.avg.load_avg                              :                  337
+se.avg.runnable_avg                          :                  300
+se.avg.util_avg                              :                  291
+se.avg.last_update_time                      :       11310267211776
+se.avg.util_est.ewma                         :                  328
+se.avg.util_est.enqueued                     :                  311
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  241
+test1 (38561, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11936573.714352
+se.vruntime                                  :        141832.071461
+se.sum_exec_runtime                          :            50.705558
+se.nr_migrations                             :                  566
+nr_switches                                  :                  603
+nr_voluntary_switches                        :                  599
+nr_involuntary_switches                      :                    4
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   25
+se.avg.runnable_sum                          :                24576
+se.avg.util_sum                              :                24576
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11834533497856
+se.avg.util_est.ewma                         :                    8
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  204
+test1 (38562, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11935983.058876
+se.vruntime                                  :        134571.196683
+se.sum_exec_runtime                          :            78.304033
+se.nr_migrations                             :                  260
+nr_switches                                  :                  562
+nr_voluntary_switches                        :                  544
+nr_involuntary_switches                      :                   18
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                  124
+se.avg.runnable_sum                          :               125952
+se.avg.util_sum                              :                60416
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11859190675456
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  743
+test1 (38563, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11935983.046497
+se.vruntime                                  :        525852.631834
+se.sum_exec_runtime                          :            24.040854
+se.nr_migrations                             :                  145
+nr_switches                                  :                  214
+nr_voluntary_switches                        :                  208
+nr_involuntary_switches                      :                    6
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   24
+se.avg.runnable_sum                          :                23552
+se.avg.util_sum                              :                23552
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11906439717888
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  183
+test1 (38564, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338428.505056
+se.vruntime                                  :        263983.756667
+se.sum_exec_runtime                          :             0.041841
+se.nr_migrations                             :                    0
+nr_switches                                  :                    1
+nr_voluntary_switches                        :                    1
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47070
+se.avg.runnable_sum                          :              3634807
+se.avg.util_sum                              :              3634807
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                   77
+se.avg.util_avg                              :                   77
+se.avg.last_update_time                      :       11310165491712
+se.avg.util_est.ewma                         :                   77
+se.avg.util_est.enqueued                     :                   77
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  180
+test1 (38565, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937286.985097
+se.vruntime                                  :        141933.372923
+se.sum_exec_runtime                          :           148.301157
+se.nr_migrations                             :                 1671
+nr_switches                                  :                 1834
+nr_voluntary_switches                        :                 1799
+nr_involuntary_switches                      :                   35
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   54
+se.avg.runnable_sum                          :                54272
+se.avg.util_sum                              :                 9216
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11835246776320
+se.avg.util_est.ewma                         :                    8
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  257
+test1 (38566, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338430.082049
+se.vruntime                                  :         82826.555785
+se.sum_exec_runtime                          :             0.092009
+se.nr_migrations                             :                    0
+nr_switches                                  :                    1
+nr_voluntary_switches                        :                    1
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47606
+se.avg.runnable_sum                          :             22578444
+se.avg.util_sum                              :             22578444
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  474
+se.avg.util_avg                              :                  474
+se.avg.last_update_time                      :       11236443807744
+se.avg.util_est.ewma                         :                  474
+se.avg.util_est.enqueued                     :                  474
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  208
+test1 (38567, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937325.243324
+se.vruntime                                  :        141933.346814
+se.sum_exec_runtime                          :           143.911019
+se.nr_migrations                             :                 1671
+nr_switches                                  :                 1827
+nr_voluntary_switches                        :                 1798
+nr_involuntary_switches                      :                   29
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   27
+se.avg.runnable_sum                          :                26624
+se.avg.util_sum                              :                26624
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11835285030912
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  263
+test1 (38568, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338520.943069
+se.vruntime                                  :        264030.394922
+se.sum_exec_runtime                          :             0.125318
+se.nr_migrations                             :                    0
+nr_switches                                  :                    2
+nr_voluntary_switches                        :                    2
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                11463
+se.avg.runnable_sum                          :              1439107
+se.avg.util_sum                              :               643459
+se.avg.load_avg                              :                  247
+se.avg.runnable_avg                          :                   30
+se.avg.util_avg                              :                   13
+se.avg.last_update_time                      :       11310243372032
+se.avg.util_est.ewma                         :                   47
+se.avg.util_est.enqueued                     :                   13
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  267
+test1 (38569, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338522.231670
+se.vruntime                                  :         82833.449187
+se.sum_exec_runtime                          :            12.671368
+se.nr_migrations                             :                   11
+nr_switches                                  :                   95
+nr_voluntary_switches                        :                   89
+nr_involuntary_switches                      :                    6
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                22760
+se.avg.runnable_sum                          :              7740210
+se.avg.util_sum                              :              5465287
+se.avg.load_avg                              :                  497
+se.avg.runnable_avg                          :                  164
+se.avg.util_avg                              :                  116
+se.avg.last_update_time                      :       11236507969536
+se.avg.util_est.ewma                         :                  124
+se.avg.util_est.enqueued                     :                  117
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  245
+94798780242976 (38573, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937717.045366
+se.vruntime                                  :            11.984104
+se.sum_exec_runtime                          :         12990.550708
+se.nr_migrations                             :                    1
+nr_switches                                  :               141745
+nr_voluntary_switches                        :               119836
+nr_involuntary_switches                      :                21909
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47086
+se.avg.runnable_sum                          :             16724896
+se.avg.util_sum                              :             16710560
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  355
+se.avg.util_avg                              :                  355
+se.avg.last_update_time                      :       11338418339840
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   50
+clock-delta                                  :                  166
+I94798780242976 (38574, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937747.016734
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          7485.361245
+se.nr_migrations                             :                    0
+nr_switches                                  :               119907
+nr_voluntary_switches                        :               119907
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418409705
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  273
+O94798780242976 (38575, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937772.175464
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          6203.090997
+se.nr_migrations                             :                    0
+nr_switches                                  :                76939
+nr_voluntary_switches                        :                76937
+nr_involuntary_switches                      :                    2
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418579561
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  166
+94798780243240 (38576, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937799.424675
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :         72132.524139
+se.nr_migrations                             :                    1
+nr_switches                                  :               123576
+nr_voluntary_switches                        :                55776
+nr_involuntary_switches                      :                67800
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47363
+se.avg.runnable_sum                          :             17196735
+se.avg.util_sum                              :             17196735
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  363
+se.avg.util_avg                              :                  363
+se.avg.last_update_time                      :       11338420720640
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   51
+clock-delta                                  :                  258
+I94798780243240 (38577, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937819.413701
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          4304.971574
+se.nr_migrations                             :                    0
+nr_switches                                  :                55907
+nr_voluntary_switches                        :                55907
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338420820633
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  165
+O94798780243240 (38578, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937856.580888
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          7823.762140
+se.nr_migrations                             :                    0
+nr_switches                                  :                67329
+nr_voluntary_switches                        :                67325
+nr_involuntary_switches                      :                    4
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338420961074
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  367
+94798780243504 (38579, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937874.992093
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :        143185.251417
+se.nr_migrations                             :                    1
+nr_switches                                  :               152670
+nr_voluntary_switches                        :                19863
+nr_involuntary_switches                      :               132807
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47690
+se.avg.runnable_sum                          :              8017056
+se.avg.util_sum                              :              8017056
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  168
+se.avg.util_avg                              :                  168
+se.avg.last_update_time                      :       11338423152640
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   52
+clock-delta                                  :                  246
+I94798780243504 (38580, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937871.842416
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          2214.233741
+se.nr_migrations                             :                    0
+nr_switches                                  :                17489
+nr_voluntary_switches                        :                17489
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338423235695
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  154
+O94798780243504 (38581, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937944.805303
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          4658.723926
+se.nr_migrations                             :                    0
+nr_switches                                  :                49333
+nr_voluntary_switches                        :                49333
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338423358235
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  253
+94798780243768 (38582, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937974.382319
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          3969.782739
+se.nr_migrations                             :                    1
+nr_switches                                  :               119928
+nr_voluntary_switches                        :               119923
+nr_involuntary_switches                      :                    5
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47342
+se.avg.runnable_sum                          :             24148532
+se.avg.util_sum                              :             24148532
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  510
+se.avg.util_avg                              :                  510
+se.avg.last_update_time                      :       11177511136256
+se.avg.util_est.ewma                         :                  510
+se.avg.util_est.enqueued                     :                  510
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   53
+clock-delta                                  :                  243
+I94798780243768 (38584, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938004.278224
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :         10311.340446
+se.nr_migrations                             :                    0
+nr_switches                                  :               113682
+nr_voluntary_switches                        :               113682
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338530252296
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  237
+main (38557, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338530.285156
+se.vruntime                                  :        264042.709294
+se.sum_exec_runtime                          :           181.569109
+se.nr_migrations                             :                    9
+nr_switches                                  :                  170
+nr_voluntary_switches                        :                   31
+nr_involuntary_switches                      :                  139
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                15497
+se.avg.runnable_sum                          :             14137436
+se.avg.util_sum                              :             13716047
+se.avg.load_avg                              :                  337
+se.avg.runnable_avg                          :                  300
+se.avg.util_avg                              :                  291
+se.avg.last_update_time                      :       11310267211776
+se.avg.util_est.ewma                         :                  328
+se.avg.util_est.enqueued                     :                  311
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  227
+test1 (38561, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11937573.880258
+se.vruntime                                  :        526678.302646
+se.sum_exec_runtime                          :            50.764451
+se.nr_migrations                             :                  567
+nr_switches                                  :                  604
+nr_voluntary_switches                        :                  600
+nr_involuntary_switches                      :                    4
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   15
+se.avg.runnable_sum                          :                14336
+se.avg.util_sum                              :                14336
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11908030583808
+se.avg.util_est.ewma                         :                    8
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  195
+test1 (38562, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11935983.058876
+se.vruntime                                  :        134571.196683
+se.sum_exec_runtime                          :            78.304033
+se.nr_migrations                             :                  260
+nr_switches                                  :                  562
+nr_voluntary_switches                        :                  544
+nr_involuntary_switches                      :                   18
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                  124
+se.avg.runnable_sum                          :               125952
+se.avg.util_sum                              :                60416
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11859190675456
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  264
+test1 (38563, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11935983.046497
+se.vruntime                                  :        525852.631834
+se.sum_exec_runtime                          :            24.040854
+se.nr_migrations                             :                  145
+nr_switches                                  :                  214
+nr_voluntary_switches                        :                  208
+nr_involuntary_switches                      :                    6
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   24
+se.avg.runnable_sum                          :                23552
+se.avg.util_sum                              :                23552
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11906439717888
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  253
+test1 (38564, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338428.505056
+se.vruntime                                  :        263983.756667
+se.sum_exec_runtime                          :             0.041841
+se.nr_migrations                             :                    0
+nr_switches                                  :                    1
+nr_voluntary_switches                        :                    1
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47070
+se.avg.runnable_sum                          :              3634807
+se.avg.util_sum                              :              3634807
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                   77
+se.avg.util_avg                              :                   77
+se.avg.last_update_time                      :       11310165491712
+se.avg.util_est.ewma                         :                   77
+se.avg.util_est.enqueued                     :                   77
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  345
+test1 (38565, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938286.531021
+se.vruntime                                  :        526826.214505
+se.sum_exec_runtime                          :           148.563092
+se.nr_migrations                             :                 1674
+nr_switches                                  :                 1837
+nr_voluntary_switches                        :                 1802
+nr_involuntary_switches                      :                   35
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   22
+se.avg.runnable_sum                          :                21504
+se.avg.util_sum                              :                21504
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11908743207936
+se.avg.util_est.ewma                         :                    8
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  273
+test1 (38566, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338430.082049
+se.vruntime                                  :         82826.555785
+se.sum_exec_runtime                          :             0.092009
+se.nr_migrations                             :                    0
+nr_switches                                  :                    1
+nr_voluntary_switches                        :                    1
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47606
+se.avg.runnable_sum                          :             22578444
+se.avg.util_sum                              :             22578444
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  474
+se.avg.util_avg                              :                  474
+se.avg.last_update_time                      :       11236443807744
+se.avg.util_est.ewma                         :                  474
+se.avg.util_est.enqueued                     :                  474
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  227
+test1 (38567, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938324.740925
+se.vruntime                                  :        142002.232326
+se.sum_exec_runtime                          :           144.123554
+se.nr_migrations                             :                 1673
+nr_switches                                  :                 1830
+nr_voluntary_switches                        :                 1801
+nr_involuntary_switches                      :                   29
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                   10
+se.avg.runnable_sum                          :                10271
+se.avg.util_sum                              :                 8223
+se.avg.load_avg                              :                    0
+se.avg.runnable_avg                          :                    0
+se.avg.util_avg                              :                    0
+se.avg.last_update_time                      :       11836268177408
+se.avg.util_est.ewma                         :                    9
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  416
+test1 (38568, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338520.943069
+se.vruntime                                  :        264030.394922
+se.sum_exec_runtime                          :             0.125318
+se.nr_migrations                             :                    0
+nr_switches                                  :                    2
+nr_voluntary_switches                        :                    2
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                11463
+se.avg.runnable_sum                          :              1439107
+se.avg.util_sum                              :               643459
+se.avg.load_avg                              :                  247
+se.avg.runnable_avg                          :                   30
+se.avg.util_avg                              :                   13
+se.avg.last_update_time                      :       11310243372032
+se.avg.util_est.ewma                         :                   47
+se.avg.util_est.enqueued                     :                   13
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  261
+test1 (38569, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11338522.231670
+se.vruntime                                  :         82833.449187
+se.sum_exec_runtime                          :            12.671368
+se.nr_migrations                             :                   11
+nr_switches                                  :                   95
+nr_voluntary_switches                        :                   89
+nr_involuntary_switches                      :                    6
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                22760
+se.avg.runnable_sum                          :              7740210
+se.avg.util_sum                              :              5465287
+se.avg.load_avg                              :                  497
+se.avg.runnable_avg                          :                  164
+se.avg.util_avg                              :                  116
+se.avg.last_update_time                      :       11236507969536
+se.avg.util_est.ewma                         :                  124
+se.avg.util_est.enqueued                     :                  117
+uclamp.min                                   :                    0
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                    0
+effective uclamp.max                         :                 1024
+policy                                       :                    0
+prio                                         :                  120
+clock-delta                                  :                  227
+94798780242976 (38573, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938426.981255
+se.vruntime                                  :            11.984104
+se.sum_exec_runtime                          :         13005.183686
+se.nr_migrations                             :                    1
+nr_switches                                  :               141910
+nr_voluntary_switches                        :               119978
+nr_involuntary_switches                      :                21932
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47086
+se.avg.runnable_sum                          :             16724896
+se.avg.util_sum                              :             16710560
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  355
+se.avg.util_avg                              :                  355
+se.avg.last_update_time                      :       11338418339840
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   50
+clock-delta                                  :                  167
+I94798780242976 (38574, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938457.090756
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          7493.900967
+se.nr_migrations                             :                    0
+nr_switches                                  :               120049
+nr_voluntary_switches                        :               120049
+nr_involuntary_switches                      :                    0
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418409705
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  223
+O94798780242976 (38575, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938482.168789
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :          6211.027083
+se.nr_migrations                             :                    0
+nr_switches                                  :                77034
+nr_voluntary_switches                        :                77032
+nr_involuntary_switches                      :                    2
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                    0
+se.avg.runnable_sum                          :                    0
+se.avg.util_sum                              :                    0
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  512
+se.avg.util_avg                              :                  512
+se.avg.last_update_time                      :       11338418579561
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                    0
+clock-delta                                  :                  175
+94798780243240 (38576, #threads: 21)
+-------------------------------------------------------------------
+se.exec_start                                :      11938499.472264
+se.vruntime                                  :             0.000000
+se.sum_exec_runtime                          :         72253.276567
+se.nr_migrations                             :                    1
+nr_switches                                  :               123749
+nr_voluntary_switches                        :                55837
+nr_involuntary_switches                      :                67912
+se.load.weight                               :              1048576
+se.avg.load_sum                              :                47363
+se.avg.runnable_sum                          :             17196735
+se.avg.util_sum                              :             17196735
+se.avg.load_avg                              :                 1024
+se.avg.runnable_avg                          :                  363
+se.avg.util_avg                              :                  363
+se.avg.last_update_time                      :       11338420720640
+se.avg.util_est.ewma                         :                    0
+se.avg.util_est.enqueued                     :                    0
+uclamp.min                                   :                 1024
+uclamp.max                                   :                 1024
+effective uclamp.min                         :                 1024
+effective uclamp.max                         :                 1024
+policy                                       :                    1
+prio                                         :                   51
+clock-delta                                  :                  213
+Total test1: 458726520
+OutputOverhead 94798780242976 6211428845
+OutputOverhead 94798780243240 7833330825
+OutputOverhead 94798780243504 4663221241
+OutputOverhead 94798780243768 0

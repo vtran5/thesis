@@ -2,6 +2,17 @@
 #include <rcutils/time.h>
 #include "rclc/rclc.h"
 #include "rclc/executor.h"
+#include <pthread.h>
+#include <time.h>
+
+static uint64_t _rclc_get_current_thread_time_ns()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000000 + spec.tv_nsec;
+}
 
 rcl_ret_t _rclc_create_intermediate_topic(
 	char ** intermediate_topic, 

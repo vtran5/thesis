@@ -51,6 +51,30 @@ void *rclc_executor_spin_period_with_exit_wrapper(void *arg)
 }
 #endif
 
+void thread_create_with_name(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg, const char * name)
+{
+    struct sched_param param;
+    int ret;
+    pthread_attr_t attr;
+
+    ret = pthread_attr_init (&attr);
+    ret += pthread_attr_setinheritsched(&attr,PTHREAD_EXPLICIT_SCHED);
+    ret += pthread_attr_setschedpolicy(&attr, policy);
+    ret += pthread_attr_getschedparam (&attr, &param);
+    param.sched_priority = priority;
+    ret += pthread_attr_setschedparam (&attr, &param);
+    if (cpu_id >= 0) {
+      cpu_set_t cpuset;
+      CPU_ZERO(&cpuset);
+      CPU_SET(cpu_id, &cpuset);
+      ret += pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+    }
+    ret += pthread_create(thread_id, &attr, function, arg);
+    ret += pthread_setname_np(*thread_id, name);
+    if(ret!=0)
+      printf("Create thread %lu failed\n", *thread_id);
+}
+
 void thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg)
 {
     struct sched_param param;
@@ -70,6 +94,7 @@ void thread_create(pthread_t *thread_id, int policy, int priority, int cpu_id, v
       ret += pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     }
     ret += pthread_create(thread_id, &attr, function, arg);
+
     if(ret!=0)
       printf("Create thread %lu failed\n", *thread_id);
 }

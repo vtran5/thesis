@@ -42,7 +42,7 @@ void node1_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 0;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback_print(node1, timer_index, pub_index, 2, 3, semantics);
 }
 
 void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -55,7 +55,7 @@ void node1_timer2_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 1;
   int pub_index = 1;
-  timer_callback(node1, stat1, timer_index, pub_index, 2, 3, semantics);
+  timer_callback_print(node1, timer_index, pub_index, 2, 3, semantics);
 }
 
 void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
@@ -68,7 +68,7 @@ void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
   }
   int timer_index = 0;
   int pub_index = 2;
-  timer_callback(node2, stat2, timer_index, pub_index, 4, 5, semantics);
+  timer_callback_print(node2, timer_index, pub_index, 4, 5, semantics);
 }
 
 void node2_subscriber1_callback(const void * msgin)
@@ -83,7 +83,7 @@ void node2_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 10;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node2_subscriber2_callback(const void * msgin)
@@ -98,7 +98,7 @@ void node2_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 45;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
   RCSOFTCHECK(rclc_publish(&node2->publisher[3], msg, NULL, pub_semantics));
 }
 
@@ -114,7 +114,7 @@ void node3_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 65;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node3_subscriber2_callback(const void * msgin)
@@ -129,7 +129,7 @@ void node3_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 10;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node3_subscriber3_callback(const void * msgin)
@@ -144,7 +144,7 @@ void node3_subscriber3_callback(const void * msgin)
   int min_run_time_ms = 5;
   int max_run_time_ms = 10;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node3_subscriber4_callback(const void * msgin)
@@ -159,7 +159,7 @@ void node3_subscriber4_callback(const void * msgin)
   int min_run_time_ms = 1;
   int max_run_time_ms = 5;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node3, stat3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node3, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node4_subscriber1_callback(const void * msgin)
@@ -174,7 +174,7 @@ void node4_subscriber1_callback(const void * msgin)
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node4_subscriber2_callback(const void * msgin)
@@ -189,7 +189,7 @@ void node4_subscriber2_callback(const void * msgin)
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node4_subscriber3_callback(const void * msgin)
@@ -204,7 +204,7 @@ void node4_subscriber3_callback(const void * msgin)
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 void node4_subscriber4_callback(const void * msgin)
@@ -219,7 +219,7 @@ void node4_subscriber4_callback(const void * msgin)
   int min_run_time_ms = 0;
   int max_run_time_ms = 0;
   rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node4, stat4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
 /******************** MAIN PROGRAM ****************************************/
@@ -478,20 +478,29 @@ int main(int argc, char const *argv[])
     int policy = SCHED_FIFO;
     rcl_time_point_value_t now = rclc_now(&support);
     printf("StartTime %ld\n", now);
-
+    pthread_setname_np(pthread_self(), "beforeExs");
     if (executor_period_input > 0)
     {
         struct arg_spin_period ex1 = {executor_period[0], &executor[0], &support};
         struct arg_spin_period ex2 = {executor_period[1], &executor[1], &support};
         struct arg_spin_period ex3 = {executor_period[2], &executor[2], &support};
         struct arg_spin_period ex4 = {executor_period[3], &executor[3], &support};
-        thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
+        char thread_name1[15];
+        char thread_name2[15];
+        char thread_name3[15];
+        char thread_name4[15];
+        snprintf(thread_name1, sizeof(thread_name1), "%lu", (unsigned long) &executor[0]);
+        snprintf(thread_name2, sizeof(thread_name2), "%lu", (unsigned long) &executor[1]);
+        snprintf(thread_name3, sizeof(thread_name3), "%lu", (unsigned long) &executor[2]);
+        snprintf(thread_name4, sizeof(thread_name4), "%lu", (unsigned long) &executor[3]);
+
+        thread_create_with_name(&thread1, policy, 49, 2, rclc_executor_spin_period_with_exit_wrapper, &ex1, thread_name1);
         sleep_ms(2);
-        thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);
+        thread_create_with_name(&thread2, policy, 48, 2, rclc_executor_spin_period_with_exit_wrapper, &ex2, thread_name2);
         sleep_ms(2);
-        thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_with_exit_wrapper, &ex3);
+        thread_create_with_name(&thread3, policy, 47, 2, rclc_executor_spin_period_with_exit_wrapper, &ex3, thread_name3);
         sleep_ms(2);
-        thread_create(&thread4, policy, 46, 1, rclc_executor_spin_period_with_exit_wrapper, &ex4);
+        thread_create_with_name(&thread4, policy, 46, 3, rclc_executor_spin_period_with_exit_wrapper, &ex4, thread_name4);
     }
     else
     {
@@ -500,7 +509,7 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
-
+    pthread_setname_np(pthread_self(), "main");
     sleep_ms(experiment_duration);
     exit_flag = true;
     printf("Finish experiment\n");
@@ -515,6 +524,7 @@ int main(int argc, char const *argv[])
     // clean up 
     for (i = 0; i < num_executor; i++)
     {
+      printf("OutputOverhead %lu %ld\n", &executor[i], executor[i].let_executor->let_output_node.output_overhead);
       RCCHECK(rclc_executor_let_fini(&executor[i]));
       RCCHECK(rclc_executor_fini(&executor[i]));
     }
@@ -549,10 +559,10 @@ int main(int argc, char const *argv[])
     free(executor);
     free(executor_semantics);
 
-    printf("%s", stat1);
-    printf("%s", stat2);
-    printf("%s", stat3);
-    printf("%s", stat4);
+    // printf("%s", stat1);
+    // printf("%s", stat2);
+    // printf("%s", stat3);
+    // printf("%s", stat4);
  
     return 0;
 }
