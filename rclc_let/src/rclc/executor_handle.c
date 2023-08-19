@@ -162,14 +162,16 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle)
 
 rcl_ret_t
 rclc_executor_let_handle_init(
-    rclc_executor_handle_t * handle,
-  size_t max_let_handles_per_callback)
+  rclc_executor_handle_t * handle,
+  size_t max_let_handles_per_callback,
+  const rcl_allocator_t * allocator)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
-  rcl_allocator_t allocator = rcl_get_default_allocator();
-  handle->callback_info = allocator.allocate(
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+
+  handle->callback_info = allocator->allocate(
     (sizeof(rclc_callback_let_info_t)),
-    allocator.state);
+    allocator->state);
 
   handle->callback_info->callback_id = -1;
   handle->callback_info->callback_let_ns = 0;
@@ -178,29 +180,30 @@ rclc_executor_let_handle_init(
   handle->callback_info->num_period_per_let = 0;
   handle->callback_info->overrun_status = NO_ERROR;
   
-  handle->callback_info->let_handles = allocator.allocate(
+  handle->callback_info->let_handles = allocator->allocate(
     (max_let_handles_per_callback * sizeof(rclc_executor_let_handle_t)),
-    allocator.state);
+    allocator->state);
   if (NULL == handle->callback_info->let_handles)
     return RCL_RET_BAD_ALLOC;
   return RCL_RET_OK;
 }
 
 rcl_ret_t
-rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle, const rcl_allocator_t * allocator)
 {
   if (NULL != handle->callback_info)
   {
+    RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
     rclc_fini_array(&handle->callback_info->data);
     rclc_fini_array(&handle->callback_info->data_available);
     rclc_fini_array(&handle->callback_info->state);
-    rcl_allocator_t allocator = rcl_get_default_allocator();
+
     if (NULL != handle->callback_info->let_handles)
     {
-      allocator.deallocate(handle->callback_info->let_handles, allocator.state);
+      allocator->deallocate(handle->callback_info->let_handles, allocator->state);
       handle->callback_info->let_handles = NULL;      
     }
-    allocator.deallocate(handle->callback_info, allocator.state);
+    allocator->deallocate(handle->callback_info, allocator->state);
     handle->callback_info = NULL;
   }
   return RCL_RET_OK;
