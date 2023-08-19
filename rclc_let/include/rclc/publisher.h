@@ -33,8 +33,9 @@ extern "C"
 typedef struct rclc_publisher_s
 {
   rcl_publisher_t rcl_publisher;
-  rclc_2d_circular_queue_t message_buffer;
+  rclc_2d_circular_queue_t * message_buffer;
   uint64_t * executor_index; // This should point to the executor spin_index
+  const rcl_allocator_t * allocator;
 } rclc_publisher_t;
 
 
@@ -125,7 +126,8 @@ rclc_publisher_let_init(
   const int message_size,
   const int _1d_capacity,
   const int _2d_capacity,
-  uint64_t * executor_index_ptr);
+  uint64_t * executor_index_ptr,
+  const rcl_allocator_t * allocator);
 
 RCLC_PUBLIC
 rcl_ret_t
