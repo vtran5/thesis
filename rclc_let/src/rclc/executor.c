@@ -249,12 +249,13 @@ rclc_executor_add_subscription(
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
+    const rcl_allocator_t * allocator = executor->allocator;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
 
     for (int i = 0; i < num_period_per_let; i++)
@@ -332,11 +333,12 @@ rclc_executor_add_subscription_with_context(
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
 
     for (int i = 0; i < num_period_per_let; i++)
@@ -410,9 +412,10 @@ rclc_executor_add_timer_with_context(
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
     executor->handles[executor->index].callback_info->data.buffer = NULL;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
     for (int i = 0; i < num_period_per_let; i++)
     {
@@ -482,9 +485,10 @@ rclc_executor_add_timer(
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
     executor->handles[executor->index].callback_info->data.buffer = NULL;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
     for (int i = 0; i < num_period_per_let; i++)
     {
@@ -2470,10 +2474,10 @@ rclc_executor_let_init(
   pthread_cond_init(&(executor->let_executor->let_input_done), NULL);
   pthread_cond_init(&(executor->let_executor->cond_callback), NULL);
   CHECK_RCL_RET(rclc_init_priority_queue(&(executor->let_executor->output_invocation_times), sizeof(int), 
-    executor->max_handles), (unsigned long) executor);
+    executor->max_handles, executor->allocator), (unsigned long) executor);
   // initialize let handle
   for (size_t i = 0; i < executor->max_handles; i++) {
-    CHECK_RCL_RET(rclc_executor_let_handle_init(&executor->handles[i], number_of_let_handles), (unsigned long) executor);
+    CHECK_RCL_RET(rclc_executor_let_handle_init(&executor->handles[i], number_of_let_handles, executor->allocator), (unsigned long) executor);
   }
 
   return RCL_RET_OK;
@@ -2518,7 +2522,7 @@ rclc_executor_let_fini(rclc_executor_t * executor)
     executor->allocator->deallocate(executor->let_executor, executor->allocator->state);
       // de-initialize let handle
     for (size_t i = 0; i < executor->max_handles && executor->handles[i].initialized; i++) {
-      rclc_executor_let_handle_fini(&executor->handles[i]);
+      rclc_executor_let_handle_fini(&executor->handles[i], executor->allocator);
     }
   } else {
     // Repeated calls to fini or calling fini on a zero initialized executor is ok
@@ -2560,13 +2564,20 @@ rclc_executor_add_publisher_LET(
         if(executor->handles[i].type == type && 
           (executor->handles[i].timer == handle_ptr || executor->handles[i].subscription == handle_ptr))
         {
+          if (executor->handles[i].callback_info->let_num >= executor->let_executor->max_let_handles_per_callback)
+          {
+            printf("Number of publishers in this callback exceeds the pre-defined max let handles per callback\n");
+            return RCL_RET_ERROR;
+          }
+          
           executor->handles[i].callback_info->let_handles[executor->handles[i].callback_info->let_num] = let_handle;
           executor->handles[i].callback_info->let_num++;
           ret = rclc_publisher_let_init(publisher, 
                       message_size, 
                       buffer_capacity, 
                       executor->handles[i].callback_info->num_period_per_let,
-                      &(executor->let_executor->spin_index));
+                      &(executor->let_executor->spin_index),
+                      executor->allocator);
           return ret;
         }
       }
