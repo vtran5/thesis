@@ -62,29 +62,29 @@ for config_file in glob.glob(os.path.join(config_files_path, 'config*.txt')):
         timers_counter += 1
 
   # Create mapping and complete callback chains
-  publisher_mapped = 1
-  subscribers_mapped = 1
-  timers_mapped = 1
+  # publisher_mapped = 1
+  # subscribers_mapped = 1
+  # timers_mapped = 1
 
-  for executor_name, data in executor_data.items():
-    publisher_one_ex_mapped = 0
-    for _ in range(data['timers']):
-      if publisher_one_ex_mapped <= executor_data[executor_name]['publishers']:
-        json_data["publisher_mapping"][f"Timer{timers_mapped}"] = [f"Publisher{publisher_mapped}"]
-        json_data["callback_chain"][f"chain{timers_mapped}"].extend([f"Publisher{publisher_mapped}"])
-        publisher_mapped += 1
-        publisher_one_ex_mapped += 1
-      timers_mapped += 1
+  # for executor_name, data in executor_data.items():
+  #   publisher_one_ex_mapped = 0
+  #   for _ in range(data['timers']):
+  #     if publisher_one_ex_mapped <= executor_data[executor_name]['publishers']:
+  #       json_data["publisher_mapping"][f"Timer{timers_mapped}"] = [f"Publisher{publisher_mapped}"]
+  #       json_data["callback_chain"][f"chain{timers_mapped}"].extend([f"Publisher{publisher_mapped}"])
+  #       publisher_mapped += 1
+  #       publisher_one_ex_mapped += 1
+  #     timers_mapped += 1
 
-    subscriber_one_ex_mapped = 1
-    for _ in range(data['subscribers']):
-      if publisher_one_ex_mapped < executor_data[executor_name]['publishers']:
-        json_data["publisher_mapping"][f"Subscriber{subscribers_mapped}"] = [f"Publisher{publisher_mapped}"]
-        json_data["callback_chain"][f"chain{subscriber_one_ex_mapped}"].extend([f"Subscriber{subscribers_mapped}", f"Publisher{publisher_mapped}"])
-        publisher_mapped += 1
-        publisher_one_ex_mapped += 1
-        subscriber_one_ex_mapped += 1
-      subscribers_mapped += 1
+  #   subscriber_one_ex_mapped = 1
+  #   for _ in range(data['subscribers']):
+  #     if publisher_one_ex_mapped < executor_data[executor_name]['publishers']:
+  #       json_data["publisher_mapping"][f"Subscriber{subscribers_mapped}"] = [f"Publisher{publisher_mapped}"]
+  #       json_data["callback_chain"][f"chain{subscriber_one_ex_mapped}"].extend([f"Subscriber{subscribers_mapped}", f"Publisher{publisher_mapped}"])
+  #       publisher_mapped += 1
+  #       publisher_one_ex_mapped += 1
+  #       subscriber_one_ex_mapped += 1
+  #     subscribers_mapped += 1
 
   # Determine the output filename based on the input filename
   config_number = os.path.basename(config_file).split('.')[0].replace('config', '')

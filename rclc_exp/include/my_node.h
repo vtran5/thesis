@@ -37,7 +37,8 @@ typedef struct
 
 struct subscriber_callback_context_t
 {
-    int pub_index;
+    int * pub_index;
+    int pub_num;
     int sub_index;
     my_node_t * node;
     int max_execution_time_ms;
@@ -48,7 +49,8 @@ struct subscriber_callback_context_t
 
 struct timer_callback_context_t
 {
-    int pub_index;
+    int * pub_index;
+    int pub_num;
     int timer_index;
     my_node_t * node;
     int max_execution_time_ms;
@@ -60,9 +62,10 @@ struct timer_callback_context_t
 my_node_t * create_node(
   int timer_num, 
   int pub_num, 
-  int sub_num)
+  int sub_num,
+  const rcl_allocator_t * allocator)
 {
-  my_node_t * node = malloc(sizeof(my_node_t));
+  my_node_t * node = allocator->allocate(sizeof(my_node_t), allocator->state);
   if(node == NULL)
   {
     return NULL;
@@ -75,10 +78,10 @@ my_node_t * create_node(
 
   if(timer_num > 0)
   {
-    node->count = malloc(sizeof(int64_t)*timer_num);
+    node->count = allocator->allocate(sizeof(int64_t)*timer_num, allocator->state);
     if (node->count == NULL)
     {
-      free(node);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }
     for (int i = 0; i < timer_num; i++)
@@ -89,96 +92,96 @@ my_node_t * create_node(
 
   if(pub_num > 0)
   {
-    node->publisher = malloc(sizeof(rclc_publisher_t)*pub_num);
+    node->publisher = allocator->allocate(sizeof(rclc_publisher_t)*pub_num, allocator->state);
     if(node->publisher == NULL)
     {
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }
-    node->callback = malloc(sizeof(callback_t)*pub_num);
+    node->callback = allocator->allocate(sizeof(callback_t)*pub_num, allocator->state);
     if (node->callback == NULL)
       return NULL;
   }
 
   if(sub_num > 0)
   {
-    node->subscriber = malloc(sizeof(rcl_subscription_t)*sub_num);
+    node->subscriber = allocator->allocate(sizeof(rcl_subscription_t)*sub_num, allocator->state);
     if(node->subscriber == NULL)
     {
       if(node->publisher != NULL)
-        free(node->publisher);
+        allocator->deallocate(node->publisher, allocator->state);
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }
 
-    node->sub_msg = malloc(sizeof(custom_interfaces__msg__Message)*sub_num);
+    node->sub_msg = allocator->allocate(sizeof(custom_interfaces__msg__Message)*sub_num, allocator->state);
     if(node->sub_msg == NULL)
     {
       if(node->subscriber != NULL)
-        free(node->subscriber);
+        allocator->deallocate(node->subscriber, allocator->state);
       if(node->publisher != NULL)
-        free(node->publisher);
+        allocator->deallocate(node->publisher, allocator->state);
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     } 
 
-    node->subscriber_callback = malloc(sizeof(void (*)(const void *))*sub_num);
+    node->subscriber_callback = allocator->allocate(sizeof(void (*)(const void *))*sub_num, allocator->state);
     if(node->subscriber_callback == NULL)
     {
       if(node->sub_msg != NULL)
-        free(node->sub_msg);
+        allocator->deallocate(node->sub_msg, allocator->state);
       if(node->subscriber != NULL)
-        free(node->subscriber);
+        allocator->deallocate(node->subscriber, allocator->state);
       if(node->publisher != NULL)
-        free(node->publisher);
+        allocator->deallocate(node->publisher, allocator->state);
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }    
   }
 
   if(timer_num > 0)
   {
-    node->timer = malloc(sizeof(rcl_timer_t)*timer_num);
+    node->timer = allocator->allocate(sizeof(rcl_timer_t)*timer_num, allocator->state);
     if(node->timer == NULL)
     {
       if (node->subscriber_callback != NULL)
       {
-        free(node->subscriber_callback);
-        free(node->sub_msg);
-        free(node->subscriber);        
+        allocator->deallocate(node->subscriber_callback, allocator->state);
+        allocator->deallocate(node->sub_msg, allocator->state);
+        allocator->deallocate(node->subscriber, allocator->state);        
       }
       if(node->publisher != NULL)
-        free(node->publisher);
+        allocator->deallocate(node->publisher, allocator->state);
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }  
 
-    node->timer_callback = malloc(sizeof(void (*)(rcl_timer_t *, int64_t))*timer_num);
+    node->timer_callback = allocator->allocate(sizeof(void (*)(rcl_timer_t *, int64_t))*timer_num, allocator->state);
     if(node->timer_callback == NULL)
     {
       if(node->timer != NULL)
-        free(node->timer);  
+        allocator->deallocate(node->timer, allocator->state);  
       if (node->subscriber_callback != NULL)
       {
-        free(node->subscriber_callback);
-        free(node->sub_msg);
-        free(node->subscriber);        
+        allocator->deallocate(node->subscriber_callback, allocator->state);
+        allocator->deallocate(node->sub_msg, allocator->state);
+        allocator->deallocate(node->subscriber, allocator->state);        
       }
       if(node->publisher != NULL)
-        free(node->publisher);
+        allocator->deallocate(node->publisher, allocator->state);
       if(node->count != NULL)
-        free(node->count);
-      free(node);
+        allocator->deallocate(node->count, allocator->state);
+      allocator->deallocate(node, allocator->state);
       return NULL;
     }    
   }
@@ -269,7 +272,7 @@ void print_id(my_node_t * node,
   }
 }
 
-void destroy_node(my_node_t * node)
+void destroy_node(my_node_t * node, const rcl_allocator_t * allocator)
 {
   if(node == NULL)
     return;
@@ -280,7 +283,7 @@ void destroy_node(my_node_t * node)
     {
       VOID_RCCHECK(rcl_timer_fini(&node->timer[i]));
     }
-    free(node->timer);
+    allocator->deallocate(node->timer, allocator->state);
   }
 
   if(node->publisher != NULL)
@@ -290,12 +293,12 @@ void destroy_node(my_node_t * node)
       VOID_RCCHECK(rclc_publisher_fini(&node->publisher[i], &node->rcl_node));
       //VOID_RCCHECK(rclc_publisher_let_fini(&node->publisher[i]));
     }    
-    free(node->publisher);
-    free(node->callback);
+    allocator->deallocate(node->publisher, allocator->state);
+    allocator->deallocate(node->callback, allocator->state);
   }
 
   if(node->count != NULL)
-    free(node->count);
+    allocator->deallocate(node->count, allocator->state);
 
   if(node->subscriber != NULL)
   {
@@ -303,72 +306,79 @@ void destroy_node(my_node_t * node)
     {
       VOID_RCCHECK(rcl_subscription_fini(&node->subscriber[i], &node->rcl_node));
     }    
-    free(node->subscriber);    
+    allocator->deallocate(node->subscriber, allocator->state);    
   }
 
   if(node->sub_msg != NULL)
-    free(node->sub_msg);
+    allocator->deallocate(node->sub_msg, allocator->state);
 
   if(node->timer_callback != NULL)
-    free(node->timer_callback);
+    allocator->deallocate(node->timer_callback, allocator->state);
 
   if(node->subscriber_callback != NULL)
-    free(node->subscriber_callback);
+    allocator->deallocate(node->subscriber_callback, allocator->state);
 
   VOID_RCCHECK(rcl_node_fini(&node->rcl_node));
 }
 
-char** create_topic_name_array(size_t array_size)
+char** create_topic_name_array(size_t array_size, const rcl_allocator_t * allocator)
 {
   if(array_size <= 0)
+  {
+    printf("Array size negative\n");
     return NULL;
+  }
 
-  char ** arr = malloc(array_size * sizeof(char *));
+  char ** arr = allocator->allocate(array_size * sizeof(char *), allocator->state);
   if(arr == NULL)
+  {
+    printf("Fail to allocate memory to array\n");
     return NULL;
+  }
 
   for(size_t i = 0; i < array_size; i++)
   {
-    arr[i] = malloc(10*sizeof(char)); // "topicXXYY" plus null terminator
+    arr[i] = allocator->allocate(10*sizeof(char), allocator->state); // "topicXXYY" plus null terminator
     if (arr[i] == NULL) {
+      printf("Fail to allocate memory to string\n");
       for (size_t j = 0; j < i; ++j) {
-          free(arr[j]);
+          allocator->deallocate(arr[j], allocator->state);
       }
-      free(arr);
+      allocator->deallocate(arr, allocator->state);
       return NULL;
     }
   }
   return arr;
 }
 
-void destroy_topic_name_array(char** arr, size_t array_size) {
+void destroy_topic_name_array(char** arr, size_t array_size, const rcl_allocator_t * allocator) {
     if (arr != NULL) {
         // Free each string
         for (size_t i = 0; i < array_size; ++i) {
-            free(arr[i]);
+            allocator->deallocate(arr[i], allocator->state);
         }
         
         // Then free the array itself
-        free(arr);
+        allocator->deallocate(arr, allocator->state);
         arr = NULL;
     }
 }
 
-rcutils_time_point_value_t * create_time_array(size_t array_size)
+rcutils_time_point_value_t * create_time_array(size_t array_size, const rcl_allocator_t * allocator)
 {
   if(array_size <= 0)
     return NULL;
 
-  rcutils_time_point_value_t * arr = malloc(array_size * sizeof(rcutils_time_point_value_t));
+  rcutils_time_point_value_t * arr = allocator->allocate(array_size * sizeof(rcutils_time_point_value_t), allocator->state);
   if(arr == NULL)
     printf("Fail to allocate memory for callback let array\n");
   return arr;
 }
 
-void destroy_time_array(rcutils_time_point_value_t * array)
+void destroy_time_array(rcutils_time_point_value_t * array, const rcl_allocator_t * allocator)
 {
   if(array != NULL)
-    free(array);
+    allocator->deallocate(array, allocator->state);
   array = NULL;
 }
 
@@ -417,6 +427,46 @@ void subscriber_callback(
     RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
     sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
     strcat(stat,temp);     
+  }
+}
+
+void timer_callback_print(
+  my_node_t * node,
+  int timer_index, 
+  int pub_index, 
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+  pub_msg.frame_id = node->count[timer_index]++;
+  pub_msg.stamp = now;
+  printf("Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+  now = rclc_now(&support);
+  printf("Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+}
+
+void subscriber_callback_print(
+  my_node_t * node,
+  const custom_interfaces__msg__Message * msg,
+  int sub_index,
+  int pub_index,
+  int min_run_time_ms,
+  int max_run_time_ms,
+  rclc_executor_semantics_t pub_semantics)
+{
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  printf("Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  now = rclc_now(&support);
+  if (pub_index >= 0)
+  {
+    RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+    printf("Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);     
   }
 }
 

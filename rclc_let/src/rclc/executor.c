@@ -261,12 +261,13 @@ rclc_executor_add_subscription(
     int num_period_per_let = (callback_let_ns/executor->period_ns) + 1;
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
+    const rcl_allocator_t * allocator = executor->allocator;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
 
     for (int i = 0; i < num_period_per_let; i++)
@@ -344,11 +345,12 @@ rclc_executor_add_subscription_with_context(
     bool data_available = false;
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data), message_size, num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
 
     for (int i = 0; i < num_period_per_let; i++)
@@ -422,9 +424,10 @@ rclc_executor_add_timer_with_context(
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
     executor->handles[executor->index].callback_info->data.buffer = NULL;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
     for (int i = 0; i < num_period_per_let; i++)
     {
@@ -494,9 +497,10 @@ rclc_executor_add_timer(
     rclc_callback_state_t state = INACTIVE;
     executor->handles[executor->index].callback_info->num_period_per_let = num_period_per_let;
     executor->handles[executor->index].callback_info->data.buffer = NULL;
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let),
+    const rcl_allocator_t * allocator = executor->allocator;
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->data_available), sizeof(bool), num_period_per_let, allocator),
                     (unsigned long) executor);
-    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let),
+    CHECK_RCL_RET(rclc_init_array(&(executor->handles[executor->index].callback_info->state), sizeof(rclc_callback_state_t), num_period_per_let, allocator),
                     (unsigned long) executor);
     for (int i = 0; i < num_period_per_let; i++)
     {
@@ -1336,7 +1340,7 @@ _rclc_take_new_data(rclc_executor_handle_t * handle, rcl_wait_set_t * wait_set, 
         }
         rcutils_time_point_value_t now;
         rc = rcutils_steady_time_now(&now);
-        printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, data_to_print[1], now);
+        //printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, data_to_print[1], now);
       }
       break;
 
@@ -1628,7 +1632,7 @@ _rclc_execute(
   rclc_executor_handle_t * handle,
   rclc_executor_t * executor)
 {
-  printf("Execute %lu\n", (unsigned long) executor);
+  //printf("Execute %lu\n", (unsigned long) executor);
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
   bool invoke_callback = false;
@@ -1691,9 +1695,9 @@ _rclc_execute(
         }
         else
         {
-          rcutils_time_point_value_t now;
-          rc = rcutils_steady_time_now(&now);
-          printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
+          // rcutils_time_point_value_t now;
+          // rc = rcutils_steady_time_now(&now);
+          //printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
 
           rc = rcl_timer_call(handle->timer);
           // cancled timer are not handled, return success
@@ -1722,9 +1726,9 @@ _rclc_execute(
             PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
             return rc;
           }
-          rcutils_time_point_value_t now;
-          rc = rcutils_steady_time_now(&now);
-          printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
+          // rcutils_time_point_value_t now;
+          // rc = rcutils_steady_time_now(&now);
+          //printf("Input %lu %ld %ld\n", (unsigned long) handle->timer, 0, now);
         }
         handle->timer_callback_with_context(handle->timer, handle->callback_context);
         break;
@@ -1986,7 +1990,7 @@ _rclc_default_scheduling(rclc_executor_t * executor, uint64_t start)
   }
   uint64_t now, stop, overhead, overhead_wait;
   stop = _rclc_get_current_thread_time_ns();
-  printf("TakingInput %lu %d %ld\n", (unsigned long) executor, 0, stop);
+  //printf("TakingInput %lu %d %ld\n", (unsigned long) executor, 0, stop);
   overhead_wait = stop-start;
   executor->input_overhead += overhead_wait;
   overhead = 0;
@@ -1995,6 +1999,8 @@ _rclc_default_scheduling(rclc_executor_t * executor, uint64_t start)
       executor->handles, executor->max_handles,
       executor->trigger_object, executor->data_comm_semantics, 0))
   {
+    printf("InputTriggered %lu %ld 0\n", (unsigned long) executor, executor->output_index);
+
     // take new input data from DDS-queue and execute the corresponding callback of the handle
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       now = _rclc_get_current_thread_time_ns();
@@ -2013,8 +2019,9 @@ _rclc_default_scheduling(rclc_executor_t * executor, uint64_t start)
       }
     }
   }
-  printf("ReadInput %lu %d %ld\n", (unsigned long) executor, 0, overhead);
-  printf("OverheadInput %lu %d %ld\n", (unsigned long) executor, 0, overhead + overhead_wait);
+  //printf("ReadInput %lu %d %ld\n", (unsigned long) executor, 0, overhead);
+  printf("OverheadInput %lu %ld %ld\n", (unsigned long) executor, executor->output_index, overhead + overhead_wait);
+  executor->output_index++;
   executor->input_overhead += overhead;
   return rc;
 }
@@ -2124,9 +2131,9 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
       rc = _rclc_let_scheduling(executor);
       break;
     case RCLCPP_EXECUTOR:
-      rc = rcutils_steady_time_now(&now);
+      // rc = rcutils_steady_time_now(&now);
       uint64_t start = _rclc_get_current_thread_time_ns();
-      printf("Period %lu %d %ld\n", (unsigned long) executor, 0, now);
+      //printf("Period %lu %d %ld\n", (unsigned long) executor, 0, now);
       if (!rcl_context_is_valid(executor->context)) {
         PRINT_RCLC_ERROR(rclc_executor_spin_some, rcl_context_not_valid);
         return RCL_RET_ERROR;
@@ -2207,7 +2214,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
     }
 
     pthread_mutex_lock(&executor->let_executor->mutex);
-    printf("WaitInput %lu spin_index %ld input_index %ld state %d\n", (unsigned long) executor, executor->let_executor->spin_index, executor->let_executor->input_index, executor->let_executor->state);
+    //printf("WaitInput %lu spin_index %ld input_index %ld state %d\n", (unsigned long) executor, executor->let_executor->spin_index, executor->let_executor->input_index, executor->let_executor->state);
     while (executor->let_executor->state != INPUT_READ && executor->let_executor->spin_index >= executor->let_executor->input_index)
     {
       pthread_cond_wait(&executor->let_executor->let_input_done, &executor->let_executor->mutex);
@@ -2221,7 +2228,7 @@ rclc_executor_spin_one_period(rclc_executor_t * executor, const uint64_t period_
       case CANCEL_CURRENT_PERIOD:
       case RUN_AT_LOW_PRIORITY:
       case CANCEL_NEXT_PERIOD:
-        printf("Executor %lu %ld\n", (unsigned long) executor, executor->let_executor->spin_index);
+        //printf("Executor %lu %ld\n", (unsigned long) executor, executor->let_executor->spin_index);
         ret = rclc_executor_spin_some(executor, executor->timeout_ns);
         if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
           RCL_SET_ERROR_MSG("rclc_executor_spin_some error");
@@ -2501,10 +2508,10 @@ rclc_executor_let_init(
   pthread_cond_init(&(executor->let_executor->let_input_done), NULL);
   pthread_cond_init(&(executor->let_executor->cond_callback), NULL);
   CHECK_RCL_RET(rclc_init_priority_queue(&(executor->let_executor->output_invocation_times), sizeof(int), 
-    executor->max_handles), (unsigned long) executor);
+    executor->max_handles, executor->allocator), (unsigned long) executor);
   // initialize let handle
   for (size_t i = 0; i < executor->max_handles; i++) {
-    CHECK_RCL_RET(rclc_executor_let_handle_init(&executor->handles[i], number_of_let_handles), (unsigned long) executor);
+    CHECK_RCL_RET(rclc_executor_let_handle_init(&executor->handles[i], number_of_let_handles, executor->allocator), (unsigned long) executor);
   }
 
   return RCL_RET_OK;
@@ -2541,15 +2548,14 @@ rclc_executor_let_fini(rclc_executor_t * executor)
 {
   if (_rclc_executor_let_is_valid(executor)) {
     CHECK_RCL_RET(rclc_fini_priority_queue(&(executor->let_executor->output_invocation_times)), (unsigned long) executor);
-    executor->let_executor->max_let_handles_per_callback = 0;
     pthread_mutex_destroy(&(executor->let_executor->mutex));
     pthread_cond_destroy(&(executor->let_executor->exec_period));
     pthread_cond_destroy(&(executor->let_executor->let_input_done));
     pthread_cond_destroy(&(executor->let_executor->cond_callback));
     executor->allocator->deallocate(executor->let_executor, executor->allocator->state);
       // de-initialize let handle
-    for (size_t i = 0; i < executor->max_handles && executor->handles[i].initialized; i++) {
-      rclc_executor_let_handle_fini(&executor->handles[i]);
+    for (size_t i = 0; i < executor->max_handles; i++) {
+      rclc_executor_let_handle_fini(&executor->handles[i], executor->allocator);
     }
   } else {
     // Repeated calls to fini or calling fini on a zero initialized executor is ok
@@ -2591,13 +2597,20 @@ rclc_executor_add_publisher_LET(
         if(executor->handles[i].type == type && 
           (executor->handles[i].timer == handle_ptr || executor->handles[i].subscription == handle_ptr))
         {
+          if (executor->handles[i].callback_info->let_num >= executor->let_executor->max_let_handles_per_callback)
+          {
+            printf("Number of publishers in this callback exceeds the pre-defined max let handles per callback\n");
+            return RCL_RET_ERROR;
+          }
+
           executor->handles[i].callback_info->let_handles[executor->handles[i].callback_info->let_num] = let_handle;
           executor->handles[i].callback_info->let_num++;
           ret = rclc_publisher_let_init(publisher, 
                       message_size, 
                       buffer_capacity, 
                       executor->handles[i].callback_info->num_period_per_let,
-                      &(executor->let_executor->spin_index));
+                      &(executor->let_executor->spin_index),
+                      executor->allocator);
           return ret;
         }
       }
@@ -2850,8 +2863,8 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
       return rc;
     }
   }
-  rc = rcutils_steady_time_now(&now);
-  printf("TakingInput %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+  // rc = rcutils_steady_time_now(&now);
+  //printf("TakingInput %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
   if (executor->trigger_function(
@@ -2883,8 +2896,8 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
         else if (rc != RCL_RET_OK)
           return rc;
         
-        rc = rcutils_steady_time_now(&now);
-        printf("Input %lu %ld %ld\n", (unsigned long) executor->handles[i].timer, executor->let_executor->input_index, now);
+        // rc = rcutils_steady_time_now(&now);
+        //printf("Input %lu %ld %ld\n", (unsigned long) executor->handles[i].timer, executor->let_executor->input_index, now);
       }
 
       if (executor->let_executor->overrun_option == NO_ERROR_HANDLING)
@@ -2899,8 +2912,7 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
         pthread_mutex_unlock(&executor->let_executor->mutex_state);
       }
     }
-    rc = rcutils_steady_time_now(&end);
-    printf("InputTriggered %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, end);
+    printf("InputTriggered %lu %ld 0\n", (unsigned long) executor, executor->let_executor->input_index);
   }
   return rc;
 }
@@ -2911,14 +2923,17 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t end_time_point, now;
   rcutils_duration_value_t sleep_time;
-  uint64_t start, stop;
+  uint64_t start, stop, start_period, stop_period;
+  executor->input_overhead = 0;
+  start = _rclc_get_current_thread_time_ns();
   while(true)
   {
     if (executor->data_comm_semantics == LET)
     {
-      ret = rcutils_steady_time_now(&now);
-      printf("Period %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
-      start = _rclc_get_current_thread_time_ns();
+      start_period = _rclc_get_current_thread_time_ns();
+      // ret = rcutils_steady_time_now(&now);
+      //printf("Period %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+     
       ret = _rclc_let_scheduling_input(executor);
       if (ret != RCL_RET_OK)
         printf("Reading input failed \n");
@@ -2945,11 +2960,11 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
       ret = rcutils_system_time_now(&end_time_point);
       executor->let_executor->input_invocation_time += executor->period_ns;
       sleep_time = executor->let_executor->input_invocation_time - end_time_point;
-      stop = _rclc_get_current_thread_time_ns();
-      executor->input_overhead += (stop-start);
-      ret = rcutils_steady_time_now(&end_time_point);
-      printf("StopInput %lu %ld %ld\n", (unsigned long) executor, stop, end_time_point);
-      printf("OverheadInput %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index-1, stop-start);
+
+      // ret = rcutils_steady_time_now(&end_time_point);
+      //printf("StopInput %lu %ld %ld\n", (unsigned long) executor, stop, end_time_point);
+      stop_period = _rclc_get_current_thread_time_ns();
+      printf("OverheadInput %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index-1, stop_period-start_period);
       if (sleep_time > 0) {
         rclc_sleep_ns(sleep_time);
       }
@@ -2966,6 +2981,8 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
       rclc_sleep_ms(5);
     }
   }
+  stop = _rclc_get_current_thread_time_ns();
+  executor->input_overhead += (stop-start);
   return 0;
 }
 
@@ -2975,15 +2992,16 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t next_wakeup_time, now;
   rcutils_duration_value_t sleep_time;
-
+  uint64_t start, stop, start_period, stop_period;
+  executor->output_overhead = 0;
+  start = _rclc_get_current_thread_time_ns();
   while(true)
   {
     if (executor->data_comm_semantics == LET)
     {
-      ret = rcutils_steady_time_now(&now);
-      uint64_t start, stop;
-      start = _rclc_get_current_thread_time_ns();
-      printf("StartOutput %lu %ld %ld %ld\n", (unsigned long) executor, executor->output_index, start, now);
+      //ret = rcutils_steady_time_now(&now);
+      start_period = _rclc_get_current_thread_time_ns();
+      //printf("StartOutput %lu %ld %ld %ld\n", (unsigned long) executor, executor->output_index, start, now);
       ret = _rclc_let_scheduling_output(executor, &next_wakeup_time);
       if (ret != RCL_RET_OK)
         printf("Writing output failed \n");
@@ -3007,11 +3025,10 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
 
       // Sleep to the next wake up point
       sleep_time = next_wakeup_time - now;
-      stop = _rclc_get_current_thread_time_ns();
-      executor->output_overhead += (stop-start);
-      ret = rcutils_steady_time_now(&now);
-      printf("StopOutput %lu %ld %ld\n", (unsigned long) executor, stop, now);
-      printf("OverheadOutput %lu %ld %ld\n", (unsigned long) executor, executor->output_index, stop-start);
+      //ret = rcutils_steady_time_now(&now);
+      //printf("StopOutput %lu %ld %ld\n", (unsigned long) executor, stop, now);
+      stop_period = _rclc_get_current_thread_time_ns();
+      printf("OverheadOutput %lu %ld %ld\n", (unsigned long) executor, executor->output_index, stop_period-start_period);
       if (sleep_time > 0) {
         rclc_sleep_ns(sleep_time);
       }
@@ -3028,6 +3045,8 @@ void * _rclc_let_scheduling_output_wrapper(void * arg)
       rclc_sleep_ms(5);
     }
   }
+  stop = _rclc_get_current_thread_time_ns();
+  executor->output_overhead += (stop-start);
   return 0;
 }
 

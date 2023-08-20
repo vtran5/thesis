@@ -85,6 +85,7 @@ rclc_publisher_init(
   if (rc != RCL_RET_OK) {
     PRINT_RCLC_ERROR(rclc_publisher_init_best_effort, rcl_publisher_init);
   }
+  publisher->message_buffer = NULL;
   publisher->internal_overhead = 0;
   publisher->overhead = 0;
   return rc;
@@ -108,10 +109,10 @@ _rclc_publish_LET(
 {
   RCLC_UNUSED(allocation);
   uint64_t executor_index = *(publisher->executor_index);
-  int buffer_size = publisher->message_buffer.size;
+  int buffer_size = publisher->message_buffer->size;
   int index = (int) (executor_index%buffer_size);
   printf("Publish %lu at index %d %ld %d\n", (unsigned long) publisher, index, executor_index, buffer_size);
-  rcl_ret_t ret = rclc_enqueue_2d_circular_queue(&(publisher->message_buffer), 
+  rcl_ret_t ret = rclc_enqueue_2d_circular_queue(publisher->message_buffer, 
                   ros_message, index);
   return ret;
 }
@@ -136,13 +137,13 @@ rclc_publish(
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
-    ret = rcutils_steady_time_now(&now);
+    // ret = rcutils_steady_time_now(&now);
     start = _rclc_get_current_thread_time_ns();
     ret = _rclc_publish_default(publisher, ros_message, allocation);
     stop = _rclc_get_current_thread_time_ns();
-    int64_t * ptr = ros_message;
-    printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
-    printf("PublishInternalOverhead %lu %ld\n", (unsigned long) publisher, 0);
+    //int64_t * ptr = ros_message;
+    //printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
+    // printf("PublishInternalOverhead %lu %ld\n", (unsigned long) publisher, 0);
     printf("PublishOverhead %lu %ld\n", (unsigned long) publisher, stop-start);
     publisher->overhead += stop-start;
   }
@@ -155,12 +156,18 @@ rclc_publisher_let_init(
   const int message_size,
   const int _1d_capacity,
   const int _2d_capacity,
-  uint64_t * executor_index_ptr)
+  uint64_t * executor_index_ptr,
+  const rcl_allocator_t * allocator)
 {
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
   if (message_size <= 0 || _1d_capacity <= 0 || _2d_capacity <= 0 || executor_index_ptr == NULL)
     return RCL_RET_INVALID_ARGUMENT;
+  publisher->message_buffer = allocator->allocate(sizeof(rclc_2d_circular_queue_t), allocator->state);
   publisher->executor_index = executor_index_ptr;
-  rcl_ret_t rc = rclc_init_2d_circular_queue(&(publisher->message_buffer), _2d_capacity, message_size, _1d_capacity);
+  publisher->allocator = allocator;
+  rcl_ret_t rc = rclc_init_2d_circular_queue(publisher->message_buffer, _2d_capacity, message_size, _1d_capacity, allocator); 
+  if (rc != RCL_RET_OK)
+    printf("Init 2d queue fail\n");
   return rc;
 }
 
@@ -171,14 +178,14 @@ rclc_LET_output(rclc_publisher_t * publisher, int queue_index, uint64_t output_i
   rcutils_time_point_value_t start, stop, now;
   ret = rcutils_steady_time_now(&now);
   start = _rclc_get_current_thread_time_ns();
-  while(!rclc_is_empty_circular_queue(rclc_get_queue(&(publisher->message_buffer), queue_index)))
+  while(!rclc_is_empty_circular_queue(rclc_get_queue(publisher->message_buffer, queue_index)))
   {
-    //ret = rcutils_steady_time_now(&now);
+    ret = rcutils_steady_time_now(&now);
     void * array;
-    rclc_dequeue_2d_circular_queue(&(publisher->message_buffer), &array, queue_index);
-    int64_t * ptr = array;
+    rclc_dequeue_2d_circular_queue(publisher->message_buffer, &array, queue_index);
+    // int64_t * ptr = array;
     printf("OutputData %lu %ld %ld\n", executor, output_index, start);
-    printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
+    // printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
   stop = _rclc_get_current_thread_time_ns();
@@ -190,7 +197,13 @@ rclc_LET_output(rclc_publisher_t * publisher, int queue_index, uint64_t output_i
 rcl_ret_t
 rclc_publisher_fini(rclc_publisher_t * publisher, rcl_node_t * node)
 {
-  rcl_ret_t rc = rclc_fini_2d_circular_queue(&(publisher->message_buffer));
+  rcl_ret_t rc = RCL_RET_OK;
+  if (publisher->message_buffer != NULL)
+  {
+    rc = rclc_fini_2d_circular_queue(publisher->message_buffer);
+    publisher->allocator->deallocate(publisher->message_buffer, publisher->allocator->state);
+  }
+    
   rc = rcl_publisher_fini(&(publisher->rcl_publisher), node);
   return rc;
 }
@@ -199,7 +212,7 @@ rcl_ret_t
 rclc_publisher_check_buffer_state(rclc_publisher_t * publisher, 
   int queue_index, rclc_queue_state_t * state)
 {
-  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
+  rclc_circular_queue_t * queue = rclc_get_queue(publisher->message_buffer, queue_index);
 
   if (queue == NULL)
     return RCL_RET_ERROR;
@@ -211,7 +224,7 @@ rcl_ret_t
 rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   int queue_index)
 {
-  rclc_circular_queue_t * queue = rclc_get_queue(&(publisher->message_buffer), queue_index);
+  rclc_circular_queue_t * queue = rclc_get_queue(publisher->message_buffer, queue_index);
   rcl_ret_t ret = rclc_flush_circular_queue(queue);
   return ret;
 }
