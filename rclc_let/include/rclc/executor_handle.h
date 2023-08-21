@@ -349,11 +349,11 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle);
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_executor_let_handle_init(rclc_executor_handle_t * handle);
+rclc_executor_let_handle_init(rclc_executor_handle_t * handle, const rcl_allocator_t * allocator);
 
 RCLC_PUBLIC
 rcl_ret_t
-rclc_executor_let_handle_fini(rclc_executor_handle_t * handle);
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle, const rcl_allocator_t * allocator);
 
 #if __cplusplus
 }

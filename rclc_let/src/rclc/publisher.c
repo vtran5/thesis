@@ -26,11 +26,12 @@ rclc_publisher_init_default(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  rclc_executor_semantics_t semantics)
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator)
 {
   return rclc_publisher_init(
     publisher, node, type_support, topic_name,
-    &rmw_qos_profile_default, semantics);
+    &rmw_qos_profile_default, semantics, allocator);
 }
 
 rcl_ret_t
@@ -39,11 +40,12 @@ rclc_publisher_init_best_effort(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  rclc_executor_semantics_t semantics)
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator)
 {
   return rclc_publisher_init(
     publisher, node, type_support, topic_name,
-    &rmw_qos_profile_sensor_data, semantics);
+    &rmw_qos_profile_sensor_data, semantics, allocator);
 }
 
 rcl_ret_t
@@ -53,7 +55,8 @@ rclc_publisher_init(
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
   const rmw_qos_profile_t * qos_profile,
-  rclc_executor_semantics_t semantics)
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator)
 {
   RCL_CHECK_FOR_NULL_WITH_MSG(
     publisher, "publisher is a null pointer", return RCL_RET_INVALID_ARGUMENT);
@@ -82,9 +85,10 @@ rclc_publisher_init(
 
   if (semantics == LET)
   {
+    publisher->allocator = allocator;
     if(publisher->let_publisher != NULL)
       return RCL_RET_OK;
-    publisher->let_publisher = option.allocator.allocate(sizeof(rclc_publisher_let_t), option.allocator.state);
+    publisher->let_publisher = allocator->allocate(sizeof(rclc_publisher_let_t), allocator->state);
     if(publisher->let_publisher == NULL)
       return RCL_RET_BAD_ALLOC;    
 
@@ -93,7 +97,7 @@ rclc_publisher_init(
     publisher->let_publisher->qos_profile = qos_profile;
     publisher->let_publisher->type_support = type_support;
     publisher->let_publisher->node = node;
-    publisher->let_publisher->topic_name = option.allocator.allocate(strlen(topic_name) + 1, option.allocator.state);
+    publisher->let_publisher->topic_name = allocator->allocate(strlen(topic_name) + 1, allocator->state);
     if (publisher->let_publisher->topic_name == NULL)
       return RCL_RET_BAD_ALLOC;
     strcpy(publisher->let_publisher->topic_name, topic_name);
@@ -181,12 +185,11 @@ rclc_publisher_let_fini(rclc_publisher_t * publisher)
 {
   if (publisher->let_publisher != NULL)
   {
-    rcl_allocator_t allocator = rcl_get_default_allocator();
     if (publisher->let_publisher->let_publishers != NULL)
-      allocator.deallocate(publisher->let_publisher->let_publishers, allocator.state);
+      publisher->allocator->deallocate(publisher->let_publisher->let_publishers, publisher->allocator->state);
     if (publisher->let_publisher->topic_name != NULL)
-      allocator.deallocate(publisher->let_publisher->topic_name, allocator.state);
-    allocator.deallocate(publisher->let_publisher, allocator.state);
+      publisher->allocator->deallocate(publisher->let_publisher->topic_name, publisher->allocator->state);
+    publisher->allocator->deallocate(publisher->let_publisher, publisher->allocator->state);
     publisher->let_publisher = NULL;
   }  
   return RCL_RET_OK;

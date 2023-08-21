@@ -94,7 +94,7 @@ rcl_ret_t _rclc_output_handle_init(
 		allocator->deallocate(intermediate_topic, allocator->state);
 
 		// Allocate memory to store subscriber data
-		CHECK_RCL_RET(rclc_init_array(&output->data_arr, output->handle.publisher->let_publisher->message_size, num_period_per_let), 
+		CHECK_RCL_RET(rclc_init_array(&output->data_arr, output->handle.publisher->let_publisher->message_size, num_period_per_let, allocator), 
 										(unsigned long) output);
 
 		// Initialize the intermediate publisher to the original topic
@@ -103,7 +103,7 @@ rcl_ret_t _rclc_output_handle_init(
 				handle.publisher->let_publisher->type_support,
 				handle.publisher->let_publisher->topic_name,
 				handle.publisher->let_publisher->qos_profile,
-				RCLCPP_EXECUTOR),
+				RCLCPP_EXECUTOR, allocator),
 				(unsigned long) output);
 
 		// Disconnect the original publisher to the original topic

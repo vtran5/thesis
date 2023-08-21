@@ -222,6 +222,130 @@ void node4_subscriber4_callback(const void * msgin)
   subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
+typedef struct {
+  size_t current_memory_size;
+  size_t max_memory_size;
+} rcl_allocator_state_t;
+
+void *my_allocate(size_t size, void *state) {
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = size;
+    alloc_state->current_memory_size += size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(ptr + 1);
+}
+
+void *main_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    printf("Main Allocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void *support_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    printf("Support Allocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void *executor_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    printf("Exe Allocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void my_deallocate(void *pointer, void *state) {
+    if (!pointer) return;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)pointer - 1;
+    alloc_state->current_memory_size -= *ptr;
+    free(ptr);
+}
+
+void main_deallocate(void *pointer, void *state) {
+    printf("Main Deallocate %lu\n", (unsigned long)pointer);
+    my_deallocate(pointer, state);
+}
+
+void support_deallocate(void *pointer, void *state) {
+    printf("Support Deallocate %lu\n", (unsigned long)pointer);
+    my_deallocate(pointer, state);
+}
+
+void executor_deallocate(void *pointer, void *state) {
+    printf("Exe Deallocate %lu\n", (unsigned long)pointer);
+    my_deallocate(pointer, state);
+}
+
+void *my_reallocate(void *pointer, size_t size, void *state) {
+    if (!pointer) return my_allocate(size, state);
+    size_t *old_ptr = (size_t *)pointer - 1;
+    size_t old_size = *old_ptr;
+    size_t *new_ptr = (size_t *)realloc(old_ptr, size + sizeof(size_t));
+    if (!new_ptr) return NULL;
+    *new_ptr = size;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    alloc_state->current_memory_size += size - old_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(new_ptr + 1);
+}
+
+void *main_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    printf("Main Reallocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void *support_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    printf("Support Reallocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void *executor_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    printf("Exe Reallocate %lu size %zu\n", (unsigned long) ptr, size);
+    return ptr;
+}
+
+void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    size_t total_size = number_of_elements * size_of_element;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(total_size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = total_size; // Storing the total size
+    alloc_state->current_memory_size += total_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    void *user_ptr = (void *)(ptr + 1);
+    memset(user_ptr, 0, total_size); // Set all bytes to zero
+    return user_ptr;
+}
+
+void *main_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    printf("Main Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
+    return ptr;
+}
+
+void *support_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    printf("Support Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
+    return ptr;
+}
+
+void *executor_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    printf("Exe Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
+    return ptr;
+}
+
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
@@ -231,12 +355,18 @@ int main(int argc, char const *argv[])
     bool let = false;
 
     parse_user_arguments(argc, argv, &executor_period_input, &timer_period, &experiment_duration, &let);
+    rcl_allocator_t allocator_main;
+    rcl_allocator_state_t alloc_main_state = {0,0};
+    allocator_main.state = &alloc_main_state;
+    allocator_main.allocate = main_allocate;
+    allocator_main.deallocate = main_deallocate;
+    allocator_main.reallocate = main_reallocate;
+    allocator_main.zero_allocate = main_zero_allocate;
 
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    node1 = create_node(NODE1_TIMER_NUMBER, NODE1_PUBLISHER_NUMBER, NODE1_SUBSCRIBER_NUMBER, 2);
-    node2 = create_node(NODE2_TIMER_NUMBER, NODE2_PUBLISHER_NUMBER, NODE2_SUBSCRIBER_NUMBER, 1);
-    node3 = create_node(NODE3_TIMER_NUMBER, NODE3_PUBLISHER_NUMBER, NODE3_SUBSCRIBER_NUMBER, 0);
-    node4 = create_node(NODE4_TIMER_NUMBER, NODE4_PUBLISHER_NUMBER, NODE4_SUBSCRIBER_NUMBER, 0);
+    node1 = create_node(NODE1_TIMER_NUMBER, NODE1_PUBLISHER_NUMBER, NODE1_SUBSCRIBER_NUMBER, &allocator_main);
+    node2 = create_node(NODE2_TIMER_NUMBER, NODE2_PUBLISHER_NUMBER, NODE2_SUBSCRIBER_NUMBER, &allocator_main);
+    node3 = create_node(NODE3_TIMER_NUMBER, NODE3_PUBLISHER_NUMBER, NODE3_SUBSCRIBER_NUMBER, &allocator_main);
+    node4 = create_node(NODE4_TIMER_NUMBER, NODE4_PUBLISHER_NUMBER, NODE4_SUBSCRIBER_NUMBER, &allocator_main);
 
     node1->timer_callback[0] = &node1_timer1_callback;
     node1->timer_callback[1] = &node1_timer2_callback;
@@ -262,7 +392,14 @@ int main(int argc, char const *argv[])
     const uint64_t node2_timer_timeout_ns[NODE2_TIMER_NUMBER] = {RCL_MS_TO_NS(160)};
 
     // create init_options
-    RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
+    rcl_allocator_t allocator_support;
+    rcl_allocator_state_t alloc_support_state = {0,0};
+    allocator_support.state = &alloc_support_state;
+    allocator_support.allocate = support_allocate;
+    allocator_support.deallocate = support_deallocate;
+    allocator_support.reallocate = support_reallocate;
+    allocator_support.zero_allocate = support_zero_allocate;
+    RCCHECK(rclc_support_init(&support, 0, NULL, &allocator_support));
 
     // create rcl_node
     init_node(node1, &support, "node_1");
@@ -270,15 +407,15 @@ int main(int argc, char const *argv[])
     init_node(node3, &support, "node_3");
     init_node(node4, &support, "node_4");
 
-    char ** node1_pub_topic_name = create_topic_name_array(NODE1_PUBLISHER_NUMBER);
-    char ** node2_pub_topic_name = create_topic_name_array(NODE2_PUBLISHER_NUMBER);
-    char ** node3_pub_topic_name = create_topic_name_array(NODE3_PUBLISHER_NUMBER);
-    char ** node4_pub_topic_name = create_topic_name_array(NODE4_PUBLISHER_NUMBER);
+    char ** node1_pub_topic_name = create_topic_name_array(NODE1_PUBLISHER_NUMBER, &allocator_main);
+    char ** node2_pub_topic_name = create_topic_name_array(NODE2_PUBLISHER_NUMBER, &allocator_main);
+    char ** node3_pub_topic_name = create_topic_name_array(NODE3_PUBLISHER_NUMBER, &allocator_main);
+    char ** node4_pub_topic_name = create_topic_name_array(NODE4_PUBLISHER_NUMBER, &allocator_main);
 
-    char ** node1_sub_topic_name = create_topic_name_array(NODE1_SUBSCRIBER_NUMBER);
-    char ** node2_sub_topic_name = create_topic_name_array(NODE2_SUBSCRIBER_NUMBER);
-    char ** node3_sub_topic_name = create_topic_name_array(NODE3_SUBSCRIBER_NUMBER);
-    char ** node4_sub_topic_name = create_topic_name_array(NODE4_SUBSCRIBER_NUMBER);
+    char ** node1_sub_topic_name = create_topic_name_array(NODE1_SUBSCRIBER_NUMBER, &allocator_main);
+    char ** node2_sub_topic_name = create_topic_name_array(NODE2_SUBSCRIBER_NUMBER, &allocator_main);
+    char ** node3_sub_topic_name = create_topic_name_array(NODE3_SUBSCRIBER_NUMBER, &allocator_main);
+    char ** node4_sub_topic_name = create_topic_name_array(NODE4_SUBSCRIBER_NUMBER, &allocator_main);
 
 
     sprintf(node1_pub_topic_name[0], "topic01");        
@@ -327,18 +464,36 @@ int main(int argc, char const *argv[])
     // Setting the DDS QoS profile to have buffer depth = 1
     rmw_qos_profile_t profile = rmw_qos_profile_default;
     profile.depth = 1;
+    const int num_executor = 4;
+
+    rcl_allocator_t * allocator = malloc(num_executor*sizeof(rcl_allocator_t));
+    rcl_allocator_state_t * alloc_state = malloc(num_executor*sizeof(rcl_allocator_state_t));
+    if (allocator == NULL)
+      printf("Fail to allocate memory for allocator\n");
+
+    for (int i = 0; i < num_executor; i++)
+    {
+      alloc_state[i].max_memory_size = 0;
+      alloc_state[i].current_memory_size = 0;
+      allocator[i].state = &alloc_state[i];
+      allocator[i].allocate = executor_allocate;
+      allocator[i].deallocate = executor_deallocate;
+      allocator[i].reallocate = executor_reallocate;
+      allocator[i].zero_allocate = executor_zero_allocate;
+    } 
+
     // Init node 1
     init_node_timer(node1, &support, node1_timer_timeout_ns);
-    init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics);
+    init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics, &allocator[0]);
 
     // Init node 2
     init_node_timer(node2, &support, node2_timer_timeout_ns);
     init_node_subscriber(node2, my_type_support, node2_sub_topic_name, &profile);
-    init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile, semantics);
+    init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile, semantics, &allocator[1]);
 
     // Init node 3
     init_node_subscriber(node3, my_type_support, node3_sub_topic_name, &profile);
-    init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile, semantics);
+    init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile, semantics, &allocator[2]);
 
     // Init node 4
     init_node_subscriber(node4, my_type_support, node4_sub_topic_name, &profile);
@@ -346,9 +501,7 @@ int main(int argc, char const *argv[])
     ////////////////////////////////////////////////////////////////////////////
     // Configuration of RCL Executor
     ////////////////////////////////////////////////////////////////////////////
-    const uint64_t timeout_ns = 0.2*executor_period_input;
-    
-    const int num_executor = 4;
+    const uint64_t timeout_ns = 0;
     
     rclc_executor_t * executor = malloc(num_executor*sizeof(rclc_executor_t));
     if(executor == NULL)
@@ -358,14 +511,15 @@ int main(int argc, char const *argv[])
     if(executor_semantics == NULL)
       printf("Fail to allocate memory for executor semantics\n");
     
-    rcutils_time_point_value_t * callback_let_timer1 = create_time_array(NODE1_TIMER_NUMBER);
-    rcutils_time_point_value_t * callback_let_subscriber1 = create_time_array(NODE1_SUBSCRIBER_NUMBER);
-    rcutils_time_point_value_t * callback_let_timer2 = create_time_array(NODE2_TIMER_NUMBER);
-    rcutils_time_point_value_t * callback_let_subscriber2 = create_time_array(NODE2_SUBSCRIBER_NUMBER);
-    rcutils_time_point_value_t * callback_let_timer3 = create_time_array(NODE3_TIMER_NUMBER);
-    rcutils_time_point_value_t * callback_let_subscriber3 = create_time_array(NODE3_SUBSCRIBER_NUMBER);
-    rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER);
-    rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER);
+
+    rcutils_time_point_value_t * callback_let_timer1 = create_time_array(NODE1_TIMER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_subscriber1 = create_time_array(NODE1_SUBSCRIBER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_timer2 = create_time_array(NODE2_TIMER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_subscriber2 = create_time_array(NODE2_SUBSCRIBER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_timer3 = create_time_array(NODE3_TIMER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_subscriber3 = create_time_array(NODE3_SUBSCRIBER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER, &allocator_main);
+    rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER, &allocator_main);
 
     callback_let_timer1[0] = RCUTILS_MS_TO_NS(8);
     callback_let_timer1[1] = RCUTILS_MS_TO_NS(8);
@@ -386,7 +540,7 @@ int main(int argc, char const *argv[])
 
     unsigned int num_handles = 4;
     
-    rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
+    rcutils_time_point_value_t * executor_period = create_time_array(num_executor, &allocator_main);
     executor_period[0] = RCUTILS_MS_TO_NS(10);
     executor_period[1] = RCUTILS_MS_TO_NS(20);
     executor_period[2] = RCUTILS_MS_TO_NS(50);
@@ -398,15 +552,16 @@ int main(int argc, char const *argv[])
     executor_semantics[3] = semantics;
 
     const int max_number_per_callback = 2; // Max number of calls per publisher per callback
-    const int num_let_handles = 4; // max number of let handles per executor
+    const int num_let_handles = 4; // max number of let handles per callback
     const int max_intermediate_handles = 20; // max number of intermediate handles per executor
 
     int i;
     for (i = 0; i < num_executor; i++)
     {
       executor[i] = rclc_executor_get_zero_initialized_executor();
-      RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator)); 
-      RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, max_intermediate_handles, CANCEL_NEXT_PERIOD));
+      RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator[i])); 
+      if (semantics == LET)
+        RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, max_intermediate_handles, CANCEL_NEXT_PERIOD));
       RCCHECK(rclc_executor_set_semantics(&executor[i], executor_semantics[i]));
       RCCHECK(rclc_executor_set_period(&executor[i], executor_period[i]));
       RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
@@ -509,6 +664,7 @@ int main(int argc, char const *argv[])
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
         thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
     }
+
     pthread_setname_np(pthread_self(), "main");
     sleep_ms(experiment_duration);
     exit_flag = true;
@@ -520,49 +676,57 @@ int main(int argc, char const *argv[])
     pthread_join(thread3, NULL);
     pthread_join(thread4, NULL);
 
-
+    
     // clean up 
     for (i = 0; i < num_executor; i++)
     {
-      printf("OutputOverhead %lu %ld\n", &executor[i], executor[i].let_executor->let_output_node.output_overhead);
+      if (semantics == LET)
+        printf("OutputOverhead %lu %ld\n", &executor[i], executor[i].let_executor->let_output_node.output_overhead);
       RCCHECK(rclc_executor_let_fini(&executor[i]));
       RCCHECK(rclc_executor_fini(&executor[i]));
     }
 
-    destroy_node(node1);
-    destroy_node(node2);
-    destroy_node(node3);
-    destroy_node(node4);
+    destroy_node(node1, &allocator_main);
+    destroy_node(node2, &allocator_main);
+    destroy_node(node3, &allocator_main);
+    destroy_node(node4, &allocator_main);
 
     RCCHECK(rclc_support_fini(&support));  
 
-    destroy_topic_name_array(node1_pub_topic_name, NODE1_PUBLISHER_NUMBER);
-    destroy_topic_name_array(node2_pub_topic_name, NODE2_PUBLISHER_NUMBER);
-    destroy_topic_name_array(node3_pub_topic_name, NODE3_PUBLISHER_NUMBER);
-    destroy_topic_name_array(node4_pub_topic_name, NODE4_PUBLISHER_NUMBER);
+    destroy_topic_name_array(node1_pub_topic_name, NODE1_PUBLISHER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node2_pub_topic_name, NODE2_PUBLISHER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node3_pub_topic_name, NODE3_PUBLISHER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node4_pub_topic_name, NODE4_PUBLISHER_NUMBER, &allocator_main);
 
-    destroy_topic_name_array(node1_sub_topic_name, NODE1_SUBSCRIBER_NUMBER);
-    destroy_topic_name_array(node2_sub_topic_name, NODE2_SUBSCRIBER_NUMBER);
-    destroy_topic_name_array(node3_sub_topic_name, NODE3_SUBSCRIBER_NUMBER);
-    destroy_topic_name_array(node4_sub_topic_name, NODE4_SUBSCRIBER_NUMBER);
+    destroy_topic_name_array(node1_sub_topic_name, NODE1_SUBSCRIBER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node2_sub_topic_name, NODE2_SUBSCRIBER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node3_sub_topic_name, NODE3_SUBSCRIBER_NUMBER, &allocator_main);
+    destroy_topic_name_array(node4_sub_topic_name, NODE4_SUBSCRIBER_NUMBER, &allocator_main);
 
-    destroy_time_array(callback_let_timer1);
-    destroy_time_array(callback_let_timer2);
-    destroy_time_array(callback_let_timer3);
-    destroy_time_array(callback_let_timer4);
-    destroy_time_array(callback_let_subscriber1);
-    destroy_time_array(callback_let_subscriber2);
-    destroy_time_array(callback_let_subscriber3);
-    destroy_time_array(callback_let_subscriber4);
+    destroy_time_array(callback_let_timer1, &allocator_main);
+    destroy_time_array(callback_let_timer2, &allocator_main);
+    destroy_time_array(callback_let_timer3, &allocator_main);
+    destroy_time_array(callback_let_timer4, &allocator_main);
+    destroy_time_array(callback_let_subscriber1, &allocator_main);
+    destroy_time_array(callback_let_subscriber2, &allocator_main);
+    destroy_time_array(callback_let_subscriber3, &allocator_main);
+    destroy_time_array(callback_let_subscriber4, &allocator_main);
 
-    destroy_time_array(executor_period);
+    destroy_time_array(executor_period, &allocator_main);
+
+    for (int i = 0; i < num_executor; i++)
+    {
+      printf("Memory Executor %lu max size %zu current size %zu\n", (unsigned long) &executor[i], alloc_state[i].max_memory_size, alloc_state[i].current_memory_size);
+    }
+
+    printf("Memory Main max size %zu current size %zu\n", alloc_main_state.max_memory_size, alloc_main_state.current_memory_size);
+
+    printf("Memory Support max size %zu current size %zu\n", alloc_support_state.max_memory_size, alloc_support_state.current_memory_size);
+
     free(executor);
     free(executor_semantics);
-
-    // printf("%s", stat1);
-    // printf("%s", stat2);
-    // printf("%s", stat3);
-    // printf("%s", stat4);
+    free(allocator);
+    free(alloc_state);
  
     return 0;
 }

@@ -7,7 +7,7 @@ if(NOT CMAKE_C_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wall -Wextra -g -Wpedantic)
 endif()
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -47,8 +47,8 @@ add_compile_definitions(RCUTILS_LOG_MIN_SEVERITY=RCUTILS_LOG_MIN_SEVERITY_WARN)
 #add_executable(exp6 src/exp_single_thread_multi_core.c src/utilities.c)
 #ament_target_dependencies(exp6 rcl rclc custom_interfaces)
 
-add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
-ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
+# add_executable(exp7 src/exp_multi_thread_single_core_let.c src/utilities.c)
+# ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 
 #add_executable(exp8 src/exp8.c src/utilities.c)
 #ament_target_dependencies(exp8 rcl rclc_let custom_interfaces)
@@ -59,8 +59,8 @@ ament_target_dependencies(exp7 rcl rclc_let custom_interfaces)
 add_executable(test1 src/test1.c src/utilities.c)
 ament_target_dependencies(test1 rcl rclc_let custom_interfaces)
 
-add_executable(test2 src/test2.c src/utilities.c)
-ament_target_dependencies(test2 rcl rclc_let custom_interfaces)
+# add_executable(test2 src/test2.c src/utilities.c)
+# ament_target_dependencies(test2 rcl rclc_let custom_interfaces)
 
 #add_executable(mytest src/test.c src/utilities.c)
 #ament_target_dependencies(mytest rcl rclc custom_interfaces)
@@ -93,11 +93,11 @@ install(TARGETS
 #  exp4
 #  exp5
 #  exp6
-  exp7
+  # exp7
 #  exp8
 #  exp9
   test1
-  test2
+  # test2
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -139,177 +139,117 @@ void print_ret(rcl_ret_t ret, unsigned long ptr)
 }
 
 // Circular Queue
-rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size, int capacity) {
-    rcl_ret_t ret = RCL_RET_OK;
-    queue->front = -1;
-    queue->rear = -1;
-    queue->elem_size = elem_size;
-    queue->capacity = capacity;
-    queue->buffer = NULL;
-    queue->state = UNLOCKED;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    queue->buffer = allocator.allocate(capacity*elem_size, allocator.state);
-    if (NULL == queue->buffer)
-        return RCL_RET_BAD_ALLOC;
-    return ret;
+rcl_ret_t rclc_init_circular_queue(
+  rclc_circular_queue_t* queue, 
+  int elem_size, 
+  int capacity,
+  const rcl_allocator_t * allocator) {
+  if (elem_size <= 0 || capacity <= 0 || !queue) 
+    return RCL_RET_INVALID_ARGUMENT;
+
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+
+  queue->allocator = allocator;
+  queue->buffer = NULL;
+
+  queue->buffer = queue->allocator->allocate(capacity*elem_size, queue->allocator->state);
+  if (NULL == queue->buffer)
+      return RCL_RET_BAD_ALLOC;
+
+  queue->front = queue->rear = -1;
+  queue->elem_size = elem_size;
+  queue->capacity = capacity;
+  queue->state = RCLC_QUEUE_EMPTY;
+
+  return RCL_RET_OK;
 }
 
-rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item, int index) {
-    rcl_ret_t ret = RCL_RET_OK;
+rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t* queue) {
+  if (!queue) 
+    return RCL_RET_INVALID_ARGUMENT;
 
-    if (queue->state == LOCKED || queue->state == POP_ONLY)
-    {
-        printf("Queue is locked\n");
-        return RCL_RET_ERROR;
-    }
+  if (queue->buffer == NULL)
+    return RCL_RET_OK;
 
-    if (rclc_is_full_circular_queue(queue)) {
-        printf("Queue is full \n");
-        return RCL_RET_ERROR;
-    }
+  queue->allocator->deallocate(queue->buffer, queue->allocator->state);
+  queue->front = queue->rear = -1;
+  queue->elem_size = 0;
+  queue->capacity = 0;
+  queue->state = RCLC_QUEUE_EMPTY;
 
-    if (queue->front == -1) {
-        queue->front = queue->rear = 0;
-        if (index < 0)
-            index = queue->rear;
-    } else {
-        int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
-        if (index >= num_elems || index < 0) {
-            queue->rear = (queue->rear + 1) % queue->capacity;
-            index = queue->rear;
-        } else {
-            for (int i = queue->rear; i >= index; i--) {
-                memcpy((char*)queue->buffer + ((i + 1) % queue->capacity) * queue->elem_size,
-                       (char*)queue->buffer + i * queue->elem_size,
-                       queue->elem_size);
-            }
-            queue->rear = (queue->rear + 1) % queue->capacity;
-        }
-    }
-
-    memcpy((char*)queue->buffer + index * queue->elem_size, item, queue->elem_size);
-    return ret;
+  return RCL_RET_OK;
 }
 
-rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void* item, int index) {
-    rcl_ret_t ret = RCL_RET_OK;
+rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t* queue, const void* item) {
+  if (!queue || !item)
+  {
+    printf("Invalid argument\n");
+    return RCL_RET_INVALID_ARGUMENT;
+  }
+    
 
-    if (queue->state == LOCKED || queue->state == PUSH_ONLY)
-    {
-        printf("Queue is locked\n");
-        return RCL_RET_ERROR;
-    }
+  if(rclc_is_full_circular_queue(queue))
+  {
+    printf("Queue is full\n");
+    return RCL_RET_ERROR;
+  }
 
-    if (rclc_is_empty_circular_queue(queue)) {
-        return RCL_RET_ERROR;
-    }
+  queue->rear = (queue->rear + 1) % queue->capacity;
+  memcpy((char*)queue->buffer + queue->rear * queue->elem_size, item, queue->elem_size);
 
-    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
-    if (index >= num_elems) {
-        return RCL_RET_ERROR;
-    }
+  if (queue->front == -1) queue->front = 0;
 
-    if (index < 0) {
-        index = queue->front;
-    }
+  queue->state = RCLC_QUEUE_NORMAL;
 
-    memcpy(item, (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size, queue->elem_size);
-
-    for (int i = index; i != queue->rear; i = (i + 1) % queue->capacity) {
-        memcpy((char*)queue->buffer + i * queue->elem_size,
-               (char*)queue->buffer + ((i + 1) % queue->capacity) * queue->elem_size,
-               queue->elem_size);
-    }
-    if (queue->front == queue->rear) {
-        queue->front = queue->rear = -1;
-    } else {
-        queue->rear = (queue->rear - 1 + queue->capacity) % queue->capacity;
-    }
-    return ret;
+  return RCL_RET_OK;
 }
 
-rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t * queue, void* item, int index) {
-    rcl_ret_t ret = RCL_RET_OK;
+rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t* queue, void** item) {
+  if (!queue || !item)
+    return RCL_RET_INVALID_ARGUMENT;
 
-    if (rclc_is_empty_circular_queue(queue)) {
-        return RCL_RET_ERROR;
-    }
+  if(rclc_is_empty_circular_queue(queue))
+    return RCL_RET_ERROR;
+  
+  *item = (char*)queue->buffer + queue->front * queue->elem_size;
 
-    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
-    if (index >= num_elems) {
-        return RCL_RET_ERROR;
-    }
+  if (queue->front == queue->rear) {
+      queue->front = queue->rear = -1;
+      queue->state = RCLC_QUEUE_EMPTY;
+  } else {
+      queue->front = (queue->front + 1) % queue->capacity;
+  }
 
-    if (index < 0) {
-        index = queue->front;
-    }
-
-    memcpy(item, (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size, queue->elem_size);
-
-    return ret;
+  return RCL_RET_OK;
 }
 
-rcl_ret_t rclc_get_circular_queue(rclc_circular_queue_t * queue, void** item, int index) {
-    rcl_ret_t ret = RCL_RET_OK;
+rcl_ret_t rclc_peek_circular_queue(rclc_circular_queue_t* queue, void** item) {
+  if (!queue || !item)
+    return RCL_RET_INVALID_ARGUMENT;
 
-    if (queue->state == LOCKED)
-    {
-        printf("Queue is locked\n");
-        return RCL_RET_ERROR;
-    }
+  if(rclc_is_empty_circular_queue(queue))
+    return RCL_RET_ERROR;
 
-    if (rclc_is_empty_circular_queue(queue)) {
-        return RCL_RET_ERROR;
-    }
+  *item = (char*)queue->buffer + queue->front * queue->elem_size;
 
-    int num_elems = (queue->rear - queue->front + queue->capacity) % queue->capacity + 1;
-    if (index >= num_elems) {
-        return RCL_RET_ERROR;
-    }
-
-    if (index < 0) {
-        index = queue->front;
-    }
-
-    *item = (char*)queue->buffer + ((queue->front + index) % queue->capacity) * queue->elem_size;
-
-    return ret;
+  return RCL_RET_OK;
 }
 
-
-int rclc_num_elements_circular_queue(rclc_circular_queue_t * queue)
-{
-    if (queue == NULL) {
-        printf("Queue is NULL\n");
-        return -1;
-    }
-
-    if (queue->front == -1) {
-        return 0;
-    }
-
-    if (queue->rear >= queue->front) {
-        return queue->rear - queue->front + 1;
-    } else {
-        return queue->capacity - queue->front + queue->rear + 1;
-    }
+int rclc_num_elements_circular_queue(rclc_circular_queue_t* queue) {
+  if (!queue) return 0;
+  if (queue->front == -1) return 0;
+  if (queue->rear >= queue->front) return queue->rear - queue->front + 1;
+  return queue->rear + queue->capacity - queue->front + 1;
 }
 
-rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t * queue)
-{
-    rcl_ret_t ret = RCL_RET_OK;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    allocator.deallocate(queue->buffer, allocator.state);
-    queue->buffer = NULL;
-    return ret;
+bool rclc_is_empty_circular_queue(rclc_circular_queue_t* queue) {
+  return (!queue || queue->state == RCLC_QUEUE_EMPTY);
 }
 
-bool rclc_is_empty_circular_queue(rclc_circular_queue_t * queue) {
-    return queue->front == -1;
-}
-
-bool rclc_is_full_circular_queue(rclc_circular_queue_t * queue) {
-    return (queue->rear + 1) % queue->capacity == queue->front;
+bool rclc_is_full_circular_queue(rclc_circular_queue_t* queue) {
+  if (!queue) return false;
+  if (queue->state == RCLC_QUEUE_FULL) return true;
+  return (queue->rear + 1) % queue->capacity == queue->front;
 }
 
 rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue) {
@@ -319,35 +259,32 @@ rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue) {
         return RCL_RET_INVALID_ARGUMENT;
     }
 
-    if (queue->state == LOCKED || queue->state == PUSH_ONLY)
-    {
-        printf("Queue is locked\n");
-        return RCL_RET_ERROR;
-    }
-
     queue->front = -1;
     queue->rear = -1;
     return ret;
 }
 
-rcl_ret_t rclc_set_state_queue(rclc_circular_queue_t * queue, rclc_queue_state_t state) {
-    if (queue == NULL) {
-        printf("Queue is NULL\n");
-        return RCL_RET_INVALID_ARGUMENT;
-    }
-    queue->state = state;
-    return RCL_RET_OK;
-}
-
 /************Priority Queue********************/
-rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, int capacity) {
-    rcl_ret_t ret = RCL_RET_OK;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
+rcl_ret_t rclc_init_priority_queue(
+  rclc_priority_queue_t* queue, 
+  int elem_size, 
+  int capacity,
+  const rcl_allocator_t * allocator) 
+{
+    if (queue == NULL | elem_size <= 0 | capacity <= 0)
+    {
+      printf("Invalid priority queue argument\n");
+      return RCL_RET_INVALID_ARGUMENT;
+    }
 
+    RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+
+    rcl_ret_t ret = RCL_RET_OK;
+    queue->allocator = allocator;
     queue->size = 0;
     queue->capacity = capacity;
     queue->elem_size = elem_size;
-    queue->nodes = allocator.allocate(capacity * sizeof(rclc_priority_node_t), allocator.state);
+    queue->nodes = queue->allocator->allocate(capacity * sizeof(rclc_priority_node_t), queue->allocator->state);
 
     if (queue->nodes == NULL) {
         return RCL_RET_BAD_ALLOC;
@@ -357,7 +294,7 @@ rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, 
     for (int i = 0; i < capacity - 1; i++) {
         queue->nodes[i].in_use = false;
         queue->nodes[i].next = &queue->nodes[i+1];
-        queue->nodes[i].item = allocator.allocate(elem_size, allocator.state);
+        queue->nodes[i].item = queue->allocator->allocate(elem_size, queue->allocator->state);
         if (queue->nodes[i].item == NULL) {
             return RCL_RET_BAD_ALLOC;
         }
@@ -365,7 +302,7 @@ rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, 
 
     queue->nodes[capacity - 1].in_use = false;
     queue->nodes[capacity - 1].next = NULL;
-    queue->nodes[capacity - 1].item = allocator.allocate(elem_size, allocator.state);
+    queue->nodes[capacity - 1].item = queue->allocator->allocate(elem_size, queue->allocator->state);
     if (queue->nodes[capacity - 1].item == NULL) {
         return RCL_RET_BAD_ALLOC;
     }    
@@ -458,12 +395,12 @@ bool rclc_is_full_priority_queue(rclc_priority_queue_t* queue) {
 
 rcl_ret_t rclc_fini_priority_queue(rclc_priority_queue_t* queue) {
     rcl_ret_t ret = RCL_RET_OK;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
+
     for (int i = 0; i < queue->capacity; i++) {
-        allocator.deallocate(queue->nodes[i].item, allocator.state);
+        queue->allocator->deallocate(queue->nodes[i].item, queue->allocator->state);
         queue->nodes[i].item = NULL;
     }
-    allocator.deallocate(queue->nodes, allocator.state);
+    queue->allocator->deallocate(queue->nodes, queue->allocator->state);
     queue->nodes = NULL;
     queue->head = NULL;
     queue->size = 0;
@@ -472,17 +409,25 @@ rcl_ret_t rclc_fini_priority_queue(rclc_priority_queue_t* queue) {
 }
 
 /********************* Multimap **************************/
-rcl_ret_t rclc_init_map(rclc_map_t *map, int key_size, int value_size, int max_values_per_key, int capacity) {
-  rcl_allocator_t allocator = rcl_get_default_allocator();
-  map->entries = allocator.allocate(capacity*sizeof(rclc_map_entry_t), allocator.state);
+rcl_ret_t rclc_init_map(
+  rclc_map_t *map, 
+  int key_size, 
+  int value_size, 
+  int max_values_per_key, 
+  int capacity,
+  const rcl_allocator_t * allocator)
+{
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+  map->allocator = allocator;
+  map->entries = map->allocator->allocate(capacity*sizeof(rclc_map_entry_t), map->allocator->state);
   if (NULL == map->entries)
     return RCL_RET_BAD_ALLOC;
 
   for (int i = 0; i < capacity; i++) {
-    map->entries[i].key = allocator.allocate(key_size, allocator.state);
+    map->entries[i].key = map->allocator->allocate(key_size, map->allocator->state);
     if (NULL == map->entries[i].key)
         return RCL_RET_BAD_ALLOC;
-    map->entries[i].values = allocator.allocate(max_values_per_key*value_size, allocator.state);
+    map->entries[i].values = map->allocator->allocate(max_values_per_key*value_size, map->allocator->state);
     if (NULL == map->entries[i].values)
         return RCL_RET_BAD_ALLOC;
   }
@@ -578,14 +523,14 @@ rcl_ret_t rclc_remove_key_map(rclc_map_t *map, const void *key) {
 }
 
 rcl_ret_t rclc_fini_map(rclc_map_t *map) {
-  rcl_allocator_t allocator = rcl_get_default_allocator();
+
   for (int i = 0; i < map->capacity; i++) {
-    allocator.deallocate(map->entries[i].key, allocator.state);
-    allocator.deallocate(map->entries[i].values, allocator.state);
+    map->allocator->deallocate(map->entries[i].key, map->allocator->state);
+    map->allocator->deallocate(map->entries[i].values, map->allocator->state);
     map->entries[i].key = NULL;
     map->entries[i].values = NULL;
   }
-  allocator.deallocate(map->entries, allocator.state);
+  map->allocator->deallocate(map->entries, map->allocator->state);
   map->entries = NULL;
   return RCL_RET_OK;
 }
@@ -617,15 +562,30 @@ bool rclc_contains_key_map(rclc_map_t *map, const void *key) {
 }
 
 /************2D Circular Queue********************/
-rcl_ret_t rclc_init_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, int _2d_capacity, int elem_size, int _1d_capacity) {
+rcl_ret_t rclc_init_2d_circular_queue(
+  rclc_2d_circular_queue_t * queue2d, 
+  int _2d_capacity,
+  int elem_size, 
+  int _1d_capacity,
+  const rcl_allocator_t * allocator) 
+  {
+    if (queue2d == NULL | elem_size <= 0 | _2d_capacity <= 0 | _1d_capacity <= 0)
+    {
+      printf("Invalid priority queue argument\n");
+      return RCL_RET_INVALID_ARGUMENT;
+    }
+    RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
     queue2d->size = _2d_capacity;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    queue2d->queues = allocator.allocate(_2d_capacity*sizeof(rclc_circular_queue_t), allocator.state);
+    queue2d->allocator = allocator;
+
+    queue2d->queues = queue2d->allocator->allocate(_2d_capacity*sizeof(rclc_circular_queue_t), queue2d->allocator->state);
     if (queue2d->queues == NULL)
         return RCL_RET_BAD_ALLOC;
-
+    rcl_ret_t rc;
     for (int i = 0; i < _2d_capacity; i++) {
-        rclc_init_circular_queue(&(queue2d->queues[i]), elem_size, _1d_capacity);
+        rc = rclc_init_circular_queue(&(queue2d->queues[i]), elem_size, _1d_capacity, queue2d->allocator);
+        if (rc != RCL_RET_OK)
+          return rc;
     }
 
     return RCL_RET_OK;
@@ -636,29 +596,28 @@ rcl_ret_t rclc_fini_2d_circular_queue(rclc_2d_circular_queue_t * queue2d) {
         rclc_fini_circular_queue(&(queue2d->queues[i]));
     }
 
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    allocator.deallocate(queue2d->queues, allocator.state);
+    queue2d->allocator->deallocate(queue2d->queues, queue2d->allocator->state);
     queue2d->queues = NULL;
     queue2d->size = 0;
 
     return RCL_RET_OK;
 }
 
-rcl_ret_t rclc_enqueue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, const void* item, int queue_index, int item_index) {
+rcl_ret_t rclc_enqueue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, const void* item, int queue_index) {
     if (queue_index >= queue2d->size || queue_index < 0) {
         printf("Incorrect queue_index");
         return RCL_RET_INVALID_ARGUMENT;
     }
 
-    return rclc_enqueue_circular_queue(&(queue2d->queues[queue_index]), item, item_index);
+    return rclc_enqueue_circular_queue(&(queue2d->queues[queue_index]), item);
 }
 
-rcl_ret_t rclc_dequeue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, void * item, int queue_index) {
+rcl_ret_t rclc_dequeue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, void ** item, int queue_index) {
     if (queue_index >= queue2d->size || queue_index < 0) {
         return RCL_RET_INVALID_ARGUMENT;
     }
 
-    return rclc_dequeue_circular_queue(&(queue2d->queues[queue_index]), item, -1);
+    return rclc_dequeue_circular_queue(&(queue2d->queues[queue_index]), item);
 }
 
 rclc_circular_queue_t* rclc_get_queue(rclc_2d_circular_queue_t * queue2d, int queue_index) {
@@ -669,17 +628,29 @@ rclc_circular_queue_t* rclc_get_queue(rclc_2d_circular_queue_t * queue2d, int qu
     return &(queue2d->queues[queue_index]);
 }
 /******************** Array *************************/
-rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
+rcl_ret_t rclc_init_array(
+  rclc_array_t * array, 
+  int elem_size, 
+  int capacity,
+  const rcl_allocator_t * allocator) 
+{
+    if (array == NULL | elem_size <= 0 | capacity <= 0)
+    {
+      printf("Invalid priority queue argument\n");
+      return RCL_RET_INVALID_ARGUMENT;
+    }
+    RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
     array->capacity = capacity;
     array->elem_size = elem_size;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    array->buffer = allocator.allocate(capacity * sizeof(rclc_array_element_t), allocator.state);
+    array->allocator = allocator;
+
+    array->buffer = array->allocator->allocate(capacity * sizeof(rclc_array_element_t), array->allocator->state);
     if (array->buffer == NULL) {
         return RCL_RET_BAD_ALLOC;
     }
     for(int i = 0; i < capacity; i++) {
         array->buffer[i].status = UNAVAILABLE;
-        array->buffer[i].item = allocator.allocate(elem_size, allocator.state);
+        array->buffer[i].item = array->allocator->allocate(elem_size, array->allocator->state);
         if (array->buffer[i].item == NULL) {
             return RCL_RET_BAD_ALLOC;
         }
@@ -690,14 +661,14 @@ rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity) {
 rcl_ret_t rclc_fini_array(rclc_array_t * array) {
     if (array->buffer == NULL || array->capacity == 0)
         return RCL_RET_OK;
-    rcl_allocator_t allocator = rcl_get_default_allocator();
+
     for(int i = 0; i < array->capacity; i++) {
         if (array->buffer[i].item == NULL)
             continue;
-        allocator.deallocate(array->buffer[i].item, allocator.state);
+        array->allocator->deallocate(array->buffer[i].item, array->allocator->state);
         array->buffer[i].item = NULL;
     }
-    allocator.deallocate(array->buffer, allocator.state);
+    array->allocator->deallocate(array->buffer, array->allocator->state);
     array->buffer = NULL;
     array->capacity = 0;
     return RCL_RET_OK;

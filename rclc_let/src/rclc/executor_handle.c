@@ -159,13 +159,14 @@ rclc_executor_handle_get_ptr(rclc_executor_handle_t * handle)
 }
 
 rcl_ret_t
-rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
+rclc_executor_let_handle_init(rclc_executor_handle_t * handle, const rcl_allocator_t * allocator)
 {
   RCL_CHECK_ARGUMENT_FOR_NULL(handle, RCL_RET_INVALID_ARGUMENT);
-  rcl_allocator_t allocator = rcl_get_default_allocator();
-  handle->callback_info = allocator.allocate(
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+
+  handle->callback_info = allocator->allocate(
     (sizeof(rclc_callback_let_info_t)),
-    allocator.state);
+    allocator->state);
   if (handle->callback_info == NULL)
     return RCL_RET_BAD_ALLOC;
   handle->callback_info->callback_let_ns = 0;
@@ -176,19 +177,16 @@ rclc_executor_let_handle_init(rclc_executor_handle_t * handle)
 }
 
 rcl_ret_t
-rclc_executor_let_handle_fini(rclc_executor_handle_t * handle)
+rclc_executor_let_handle_fini(rclc_executor_handle_t * handle, const rcl_allocator_t * allocator)
 {
-  if (0 != handle->callback_info->callback_let_ns)
+  RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);
+  if ((0 != handle->callback_info->callback_let_ns) && (NULL != handle->callback_info))
   {
     rclc_fini_array(&handle->callback_info->data);
     rclc_fini_array(&handle->callback_info->data_available);
     rclc_fini_array(&handle->callback_info->state);
-    rcl_allocator_t allocator = rcl_get_default_allocator();
-    if (NULL != handle->callback_info)
-    {
-      allocator.deallocate(handle->callback_info, allocator.state);
-      handle->callback_info = NULL;      
-    }
+    allocator->deallocate(handle->callback_info, allocator->state);
+    handle->callback_info = NULL;      
   }
   return RCL_RET_OK;
 }

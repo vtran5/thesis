@@ -44,6 +44,7 @@ typedef struct
 {
   rcl_publisher_t rcl_publisher;
   rclc_publisher_let_t * let_publisher;
+  const rcl_allocator_t * allocator;
 } rclc_publisher_t;
 
 /**
@@ -71,7 +72,8 @@ rclc_publisher_init_default(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  rclc_executor_semantics_t semantics);
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator);
 
 /**
  *  Creates an rcl publisher with quality-of-service option best effort
@@ -98,7 +100,8 @@ rclc_publisher_init_best_effort(
   const rcl_node_t * node,
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
-  rclc_executor_semantics_t semantics);
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator);
 
 /**
  *  Creates an rcl publisher with defined QoS
@@ -127,7 +130,8 @@ rclc_publisher_init(
   const rosidl_message_type_support_t * type_support,
   const char * topic_name,
   const rmw_qos_profile_t * qos_profile,
-  rclc_executor_semantics_t semantics);
+  rclc_executor_semantics_t semantics,
+  const rcl_allocator_t * allocator);
 
 RCLC_PUBLIC
 rcl_ret_t

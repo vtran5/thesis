@@ -1,0 +1,439 @@
+--------------------------------------------------------------------------------
+Command:            ./build/rclc_exp/test1 -let true -ed 1000
+Massif arguments:   --time-unit=ms --threshold=0.1 --stacks=yes
+ms_print arguments: massif.out.35177
+--------------------------------------------------------------------------------
+
+
+    MB
+195.7^                                                     :                  
+      24, 25, 27, 29, 30, 32, 33, 34, 35, 36, 37, 38, 39 (peak), 44, 49, 59, 69, 79, 89]
+
+--------------------------------------------------------------------------------
+  n       time(ms)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1          1,229            5,952                0             0        5,952
+  2          1,967            1,928                0             0        1,928
+  3          2,948        8,099,616        8,078,255           529       20,832
+  4          4,036        8,119,192        8,100,243         1,501       17,448
+  5          5,369        8,158,312        8,138,501         2,483       17,328
+  6          6,330        8,250,352        8,227,824         5,336       17,192
+  7          7,072        8,323,272        8,299,266         6,678       17,328
+  8          7,968        8,393,344        8,364,063         8,737       20,544
+  9          8,943        8,403,584        8,373,827         9,773       19,984
+ 10         10,143        8,433,272        8,405,050        10,998       17,224
+ 11         11,083        8,491,520        8,461,508        12,636       17,376
+ 12         12,315        8,580,624        8,491,678        13,666       75,280
+ 13         13,142        8,564,208        8,495,538        13,942       54,728
+ 14         14,350       10,004,000        9,923,167        24,177       56,656
+ 15         15,123       10,112,352       10,030,501        30,419       51,432
+ 16         16,465       10,210,176       10,129,261        31,763       49,152
+ 17         17,384       10,417,808       10,335,201        33,087       49,520
+ 18         18,209       10,557,360       10,475,289        34,055       48,016
+ 19         19,318       10,682,400       10,585,828        35,596       60,976
+ 20         20,047       10,739,184       10,634,163        41,085       63,936
+ 21         21,143       10,735,400       10,671,631        44,089       19,680
+ 22         22,604       21,362,400       21,257,444        52,996       51,960
+ 23         23,515       33,533,688       33,418,248        63,480       51,960
+ 24         24,337       43,283,024       43,155,512        72,352       55,160
+ 25         25,616       67,321,496       67,197,127        76,657       47,712
+ 26         26,512       71,371,688       71,252,407        80,289       38,992
+ 27         27,460       78,670,680       78,537,176        85,792       47,712
+ 28         28,816       91,628,720       91,485,965        94,819       47,936
+ 29         30,085      107,823,760      107,667,181       105,491       51,088
+ 30         31,059      115,961,048      115,793,528       113,232       54,288
+ 31         31,810      124,029,448      123,881,119       118,425       29,904
+ 32         32,951      140,249,376      140,068,957       129,331       51,088
+ 33         34,335      150,012,752      149,826,536       138,504       47,712
+ 34         35,718      161,357,344      161,156,972       146,084       54,288
+ 35         36,654      171,040,904      170,872,732       152,812       15,360
+ 36         37,411      175,950,984      175,746,564       156,708       47,712
+ 37         38,459      188,110,872      187,894,789       164,995       51,088
+ 38         39,256      193,000,352      192,776,276       169,788       54,288
+ 39         40,219      205,133,488      204,905,565       176,835       51,088
+ 40         40,987      203,493,816      203,300,800       176,880       16,136
+ 41         41,755      203,495,648      203,302,528       176,864       16,256
+ 42         42,523      203,532,560      203,309,473       177,823       45,264
+ 43         43,291      204,373,936      203,316,256       178,728      878,952
+ 44         44,059      205,176,440      203,320,696       179,600    1,676,144
+ 45         44,827      205,162,176      203,320,696       179,600    1,661,880
+ 46         45,595      205,171,976      203,320,696       179,600    1,671,680
+ 47         46,363      205,172,320      203,320,696       179,600    1,672,024
+ 48         47,131      205,172,128      203,320,696       179,600    1,671,832
+ 49         47,899      205,171,984      203,320,696       179,600    1,671,688
+ 50         48,628      205,172,016      203,320,696       179,600    1,671,720
+ 51         49,357      205,183,720      203,320,696       179,600    1,683,424
+ 52         50,086      205,176,264      203,320,696       179,600    1,675,968
+ 53         50,815      205,183,632      203,320,696       179,600    1,683,336
+ 54         51,555      205,183,832      203,320,696       179,600    1,683,536
+ 55         52,284      205,172,416      203,320,696       179,600    1,672,120
+ 56         53,013      205,162,152      203,320,696       179,600    1,661,856
+ 57         53,742      205,171,288      203,320,696       179,600    1,670,992
+ 58         54,471      205,172,320      203,320,696       179,600    1,672,024
+ 59         55,200      205,176,272      203,320,696       179,600    1,675,976
+ 60         55,929      205,162,264      203,320,696       179,600    1,661,968
+ 61         56,658      205,183,760      203,320,696       179,600    1,683,464
+ 62         57,387      205,172,504      203,320,716       179,620    1,672,168
+ 63         58,116      205,171,416      203,320,716       179,620    1,671,080
+ 64         58,845      205,172,136      203,320,716       179,620    1,671,800
+ 65         59,574      205,184,008      203,320,716       179,620    1,683,672
+ 66         60,303      205,183,880      203,320,716       179,620    1,683,544
+ 67         61,032      205,172,360      203,320,716       179,620    1,672,024
+ 68         61,761      204,357,568      203,320,716       179,620      857,232
+ 69         62,490      199,481,736      199,278,309       176,755       26,672
+ 70         63,219      193,832,672      193,618,645       173,179       40,848
+ 71         63,948      193,816,552      193,615,676       172,548       28,328
+ 72         64,677      185,711,608      185,519,353       165,639       26,616
+ 73         65,406      179,262,496      179,079,462       163,010       20,024
+ 74         66,135      174,406,616      174,217,615       159,353       29,648
+ 75         66,864      166,301,008      166,119,393       152,231       29,384
+ 76         67,593      163,102,264      162,920,104       152,280       29,880
+ 77         68,322      156,612,640      156,437,976       146,816       27,848
+ 78         69,051      145,341,072      145,152,559       140,625       47,888
+ 79         69,780      140,456,848      140,280,219       136,101       40,528
+ 80         70,509      132,351,864      132,200,955       130,677       20,232
+ 81         71,238      126,747,008      126,597,030       130,130       19,848
+ 82         71,967      116,255,552      116,095,089       123,223       37,240
+ 83         72,696      106,570,296      106,415,174       117,746       37,376
+ 84         73,425      103,319,984      103,176,186       115,134       28,664
+ 85         74,154       90,411,120       90,256,920       107,016       47,184
+ 86         74,883       83,914,384       83,775,602       101,542       37,240
+ 87         75,612       75,839,424       75,715,593        96,927       26,904
+ 88         76,341       64,501,816       64,376,498        88,046       37,272
+ 89         77,070       53,265,224       53,156,747        85,933       22,544
+ 90         77,799       37,173,552       37,067,086        80,042       26,424
+ 91         78,528       24,227,544       24,120,476        69,996       37,072
+ 92         79,257        3,215,328        3,131,165        53,403       30,760
+ 93         79,986        1,084,856        1,060,870        20,386        3,600
+
+99.89% (204,905,565B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->69.45% (142,468,660B) 0x31D2D625: eprosima::fastrtps::rtps::TopicPayloadPool::do_allocate(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->69.42% (142,405,816B) 0x31D2E832: eprosima::fastrtps::rtps::PreallocatedTopicPayloadPool::reserve_history(eprosima::fastrtps::rtps::PoolConfig const&, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->35.10% (72,002,880B) 0x31DC9E0A: eprosima::fastdds::dds::DataWriterImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->35.10% (72,002,880B) 0x31DD0409: eprosima::fastdds::dds::DataWriterImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->35.10% (72,002,880B) 0x31DC30D9: eprosima::fastdds::dds::DataWriter::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->35.10% (72,002,880B) 0x31DE8A66: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterImpl*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->35.10% (72,002,880B) 0x31DE8D62: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterQos const&, eprosima::fastdds::dds::DataWriterListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |         ->35.10% (72,002,880B) 0x31851AFA: rmw_fastrtps_cpp::create_publisher(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_publisher_options_s const*, bool, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->35.10% (72,002,880B) 0x3186E6B5: rmw_create_publisher (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->35.10% (72,002,880B) 0x30767915: rmw_create_publisher (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->35.10% (72,002,880B) 0x304A9C6C: rcl_publisher_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->26.52% (54,402,176B) 0x304788A7: _rclc_output_handle_init (let_output_node.c:76)
+| | |                 | ->26.52% (54,402,176B) 0x3047967D: rclc_let_output_node_add_publisher (let_output_node.c:261)
+| | |                 |   ->26.52% (54,402,176B) 0x30475A72: rclc_executor_add_publisher_LET (executor.c:2993)
+| | |                 |     ->12.48% (25,601,024B) 0x10EC9E: main (test1.c:607)
+| | |                 |     | 
+| | |                 |     ->12.48% (25,601,024B) 0x10ED80: main (test1.c:612)
+| | |                 |     | 
+| | |                 |     ->01.56% (3,200,128B) 0x10EBBC: main (test1.c:602)
+| | |                 |       
+| | |                 ->08.58% (17,600,704B) 0x3046593C: rclc_publisher_init (publisher.c:76)
+| | |                   ->07.80% (16,000,640B) 0x10B137: init_node_publisher (my_node.h:215)
+| | |                   | ->03.12% (6,400,256B) 0x10DFFA: main (test1.c:492)
+| | |                   | | 
+| | |                   | ->03.12% (6,400,256B) 0x10E059: main (test1.c:496)
+| | |                   | | 
+| | |                   | ->01.56% (3,200,128B) 0x10DF7E: main (test1.c:487)
+| | |                   |   
+| | |                   ->00.78% (1,600,064B) in 1+ places, all below ms_print's threshold (01.00%)
+| | |                   
+| | ->34.32% (70,402,816B) 0x31E01FBC: eprosima::fastdds::dds::DataReaderImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->34.32% (70,402,816B) 0x31E07003: eprosima::fastdds::dds::DataReaderImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->34.32% (70,402,816B) 0x31DFB259: eprosima::fastdds::dds::DataReader::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->34.32% (70,402,816B) 0x31DF2EA0: eprosima::fastdds::dds::SubscriberImpl::create_datareader(eprosima::fastdds::dds::TopicDescription*, eprosima::fastdds::dds::DataReaderQos const&, eprosima::fastdds::dds::DataReaderListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->34.32% (70,402,816B) 0x31A00693: rmw_fastrtps_shared_cpp::create_datareader(eprosima::fastdds::dds::DataReaderQos const&, rmw_subscription_options_s const*, eprosima::fastdds::dds::Subscriber*, eprosima::fastdds::dds::TopicDescription*, SubListener*, eprosima::fastdds::dds::DataReader**) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| | |         ->34.32% (70,402,816B) 0x31880B7F: rmw_fastrtps_cpp::create_subscription(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_subscription_options_s const*, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->34.32% (70,402,816B) 0x3187C5FB: rmw_create_subscription (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->34.32% (70,402,816B) 0x30768086: rmw_create_subscription (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->34.32% (70,402,816B) 0x304AFF76: rcl_subscription_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->34.32% (70,402,816B) 0x30466238: rclc_subscription_init (subscription.c:69)
+| | |                   ->26.52% (54,402,176B) 0x3047895E: _rclc_output_handle_init (let_output_node.c:84)
+| | |                   | ->26.52% (54,402,176B) 0x3047967D: rclc_let_output_node_add_publisher (let_output_node.c:261)
+| | |                   |   ->26.52% (54,402,176B) 0x30475A72: rclc_executor_add_publisher_LET (executor.c:2993)
+| | |                   |     ->12.48% (25,601,024B) 0x10EC9E: main (test1.c:607)
+| | |                   |     | 
+| | |                   |     ->12.48% (25,601,024B) 0x10ED80: main (test1.c:612)
+| | |                   |     | 
+| | |                   |     ->01.56% (3,200,128B) 0x10EBBC: main (test1.c:602)
+| | |                   |       
+| | |                   ->07.80% (16,000,640B) 0x10B338: init_node_subscriber (my_node.h:245)
+| | |                     ->03.12% (6,400,256B) 0x10E01E: main (test1.c:495)
+| | |                     | 
+| | |                     ->03.12% (6,400,256B) 0x10E07D: main (test1.c:499)
+| | |                     | 
+| | |                     ->01.56% (3,200,128B) 0x10DFBF: main (test1.c:491)
+| | |                       
+| | ->00.00% (120B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.03% (62,844B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->28.09% (57,617,600B) 0x10CD6C: my_allocate (test1.c:232)
+| ->24.19% (49,614,604B) 0x10CE92: executor_allocate (test1.c:255)
+| | ->24.18% (49,602,202B) 0x30478004: rclc_init_array (buffer.c:653)
+| | | ->13.26% (27,200,816B) 0x30478A3A: _rclc_output_handle_init (let_output_node.c:97)
+| | | | ->13.26% (27,200,816B) 0x3047967D: rclc_let_output_node_add_publisher (let_output_node.c:261)
+| | | |   ->13.26% (27,200,816B) 0x30475A72: rclc_executor_add_publisher_LET (executor.c:2993)
+| | | |     ->06.24% (12,800,384B) 0x10EC9E: main (test1.c:607)
+| | | |     | 
+| | | |     ->06.24% (12,800,384B) 0x10ED80: main (test1.c:612)
+| | | |     | 
+| | | |     ->00.78% (1,600,048B) in 1+ places, all below ms_print's threshold (01.00%)
+| | | |     
+| | | ->10.92% (22,400,672B) 0x3046A5C2: rclc_executor_add_subscription (executor.c:269)
+| | | | ->06.24% (12,800,384B) 0x10E9D0: main (test1.c:587)
+| | | | | 
+| | | | ->03.12% (6,400,192B) 0x10E825: main (test1.c:577)
+| | | | | 
+| | | | ->01.56% (3,200,096B) 0x10EACC: main (test1.c:593)
+| | | |   
+| | | ->00.00% (714B) in 1+ places, all below ms_print's threshold (01.00%)
+| | | 
+| | ->00.01% (12,402B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->03.90% (8,002,224B) 0x10CDF2: main_allocate (test1.c:243)
+| | ->03.90% (8,000,184B) 0x10AB8E: create_node (my_node.h:120)
+| | | ->01.56% (3,200,072B) 0x10D4DE: main (test1.c:368)
+| | | | 
+| | | ->01.56% (3,200,072B) 0x10D503: main (test1.c:369)
+| | | | 
+| | | ->00.78% (1,600,040B) in 1+ places, all below ms_print's threshold (01.00%)
+| | | 
+| | ->00.00% (2,040B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.00% (772B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->01.29% (2,642,553B) in 674 places, all below massif's threshold (0.10%)
+| 
+->01.06% (2,176,752B) in 4+ places, all below ms_print's threshold (01.00%)
+
+Memory Executor 94173711315040 max size 1603712 current size 1748
+Memory Executor 94173711315304 max size 19207616 current size 3812
+Memory Executor 94173711315568 max size 25608036 current size 3716
+Memory Executor 94173711315832 max size 3202720 current size 556
+Memory Main max size 8001768 current size 480
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-21 11:18:02 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+52258   0  52258    8388608    8327168      89720     1      8               (nil) main
+52258   1  52261    8388608    8388608      17096     0      6      0x7f73a1302240 test1
+52258   2  52263    8388608    8388608      14280     0      6      0x7f73a1302240 test1
+52258   3  52259    8388608    8388608      12680     0      6      0x7f73a1302240 test1
+52258   4  52262    8388608    8388608      12184     0      6      0x7f73a1302240 test1
+52258   5  52264    8388608    8388608      12184     0      6      0x7f73a1302240 test1
+52258   6  52265    8388608    8388608      13224     0      6      0x7f73a1302240 test1
+52258   7  52267    8388608    8388608      15880     0      6      0x7f73a1302240 test1
+52258   8  52260    8388608    8388608      14888     0      6      0x7f73a1302240 test1
+52258   9  52266    8388608    8388608      12616     0      6      0x7f73a1302240 test1
+52258  10  52268    8388608    8388608     829536     9      6      0x55a6560ac99f 94173711315040
+52258  11  52271    8388608    8388608      25640     0      5      0x55a6560ac99f 94173711315832
+52258  12  52272    8388608    8388608      67424     0      5      0x7f73a1829064 I94173711315040
+52258  13  52273    8388608    8388608      82432     0      5      0x7f73a1829064 I94173711315832
+52258  14  52275    8388608    8388608      16904     0      1      0x7f73a182a7b5 O94173711315832
+52258  15  52274    8388608    8388608      85984     1      5      0x7f73a182a7b5 O94173711315040
+52258  16  52269    8388608    8388608     829536     9      5      0x55a6560ac99f 94173711315304
+52258  17  52276    8388608    8388608      82432     0      4      0x7f73a1829064 I94173711315304
+52258  18  52277    8388608    8388608      85984     1      4      0x7f73a182a7b5 O94173711315304
+52258  19  52270    8388608    8388608      29536     0      5      0x55a6560ac99f 94173711315568
+52258  20  52278    8388608    8388608      82432     0      5      0x7f73a1829064 I94173711315568
+52258  21  52279    8388608    8388608      85984     1      4      0x7f73a182a7b5 O94173711315568
+
+
+Without LET:
+Memory Executor 93926913850368 max size 600 current size 0
+Memory Executor 93926913850632 max size 616 current size 0
+Memory Executor 93926913850896 max size 632 current size 0
+Memory Executor 93926913851160 max size 632 current size 0
+Memory Main max size 8001768 current size 480
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-21 11:10:37 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+50335   0  50335    8388608    8331264      87816     1      2               (nil) main
+50335   1  50341    8388608    8388608      13768     0      2      0x7f178a005240 test1
+50335   2  50342    8388608    8388608      14280     0      2      0x7f178a005240 test1
+50335   3  50340    8388608    8388608      13224     0      2      0x7f178a005240 test1
+50335   4  50339    8388608    8388608      12184     0      2      0x7f178a005240 test1
+50335   5  50337    8388608    8388608      14888     0      2      0x7f178a005240 test1
+50335   6  50338    8388608    8388608      17096     0      2      0x7f178a005240 test1
+50335   7  50336    8388608    8388608      12680     0      2      0x7f178a005240 test1
+50335   8  50353    8388608    8388608     832336     9      1      0x556ce038299f 93926913850368
+50335   9  50343    8388608    8388608      12616     0      2      0x7f178a005240 test1
+50335  10  50352    8388608    8388608      15880     0      2      0x7f178a005240 test1
+50335  11  50356    8388608    8388608      85760     1      1      0x556ce038299f 93926913851160
+50335  12  50354    8388608    8388608     832336     9      1      0x556ce038299f 93926913850632
+50335  13  50355    8388608    8388608      85760     1      0      0x556ce038299f 93926913850896
+--------------------------------------------------------------------------------
+  n       time(ms)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1            484            4,408                0             0        4,408
+  2          1,362            5,952                0             0        5,952
+  3          1,736            5,552                0             0        5,552
+  4          2,003            5,664                0             0        5,664
+  5          2,274            1,440                0             0        1,440
+  6          2,562            1,856                0             0        1,856
+  7          2,883        8,077,152        8,075,160           344        1,648
+  8          3,113        8,099,616        8,078,255           529       20,832
+  9          3,435        8,101,096        8,079,590           562       20,944
+ 10          3,834        8,119,360        8,100,155         1,485       17,720
+ 11          4,346        8,119,712        8,100,243         1,501       17,968
+ 12          4,858        8,119,456        8,100,243         1,501       17,712
+ 13          5,114        8,119,512        8,100,331         1,517       17,664
+ 14          5,533        8,158,312        8,138,501         2,483       17,328
+ 15          5,973        8,202,064        8,181,013         3,811       17,240
+ 16          6,365        8,240,432        8,218,173         4,931       17,328
+ 17          6,805        8,282,776        8,259,480         6,080       17,216
+ 18          7,250        8,323,272        8,299,266         6,678       17,328
+ 19          7,745        8,364,704        8,339,622         7,906       17,176
+ 20          8,145        8,393,368        8,364,065         8,759       20,544
+ 21          8,545        8,393,856        8,364,909         8,851       20,096
+ 22          8,802        8,406,600        8,377,478         9,666       19,456
+ 23          9,202        8,403,272        8,373,980         9,804       19,488
+ 24          9,403        8,402,072        8,374,440         9,896       17,736
+ 25          9,803        8,432,144        8,403,972        10,948       17,224
+ 26         10,203        8,467,432        8,438,210        11,998       17,224
+ 27         10,442        8,491,520        8,461,508        12,636       17,376
+ 28         10,842        8,526,296        8,487,654        13,450       25,192
+ 29         11,243        8,580,624        8,491,678        13,666       75,280
+ 30         11,643        8,553,064        8,493,698        13,790       45,576
+ 31         11,852        8,559,216        8,497,504        14,104       47,608
+ 32         12,249        8,718,216        8,645,183        22,873       50,160
+ 33         12,713       10,066,704        9,972,607        26,233       67,864
+ 34         13,096       10,123,984       10,031,803        30,365       61,816
+ 35         13,494       10,122,016       10,043,281        30,959       47,776
+ 36         13,795       10,210,176       10,129,261        31,763       49,152
+ 37         14,053       10,313,968       10,233,076        32,444       48,448
+ 38         14,361       10,417,808       10,335,201        33,087       49,520
+ 39         14,717       10,523,192       10,435,024        33,752       54,416
+ 40         14,916       10,567,960       10,484,665        34,063       49,232
+ 41         15,293       10,631,464       10,546,200        34,784       50,480
+ 42         15,691       10,684,768       10,586,479        35,689       62,600
+ 43         16,184       10,739,184       10,634,163        41,085       63,936
+ 44         16,582       10,756,344       10,668,375        42,865       45,104
+ 45         16,980       10,761,720       10,672,384        44,168       45,168
+ 46         17,305       12,416,016       12,318,568        45,384       52,064
+ 47         17,653       15,662,872       15,561,316        47,716       53,840
+ 48         18,171       21,360,288       21,256,792        52,856       50,640
+ 49         18,542       27,033,872       26,922,900        57,132       53,840
+ 50         18,668       27,858,024       27,745,256        58,928       53,840
+ 51         18,669       28,658,120       28,545,328        58,952       53,840
+ 52         18,794       29,482,256       29,367,652        60,764       53,840
+ 53         18,796       30,282,352       30,167,724        60,788       53,840
+ 54         18,924       31,106,768       30,993,896        62,232       50,640
+ 55         18,925       31,906,880       31,793,952        62,288       50,640
+ 56         19,045       32,731,128       32,617,300        63,188       50,640
+ 57         19,046       33,531,240       33,417,356        63,244       50,640
+ 58         19,170       34,356,288       34,241,496        64,152       50,640
+ 59         19,171       35,156,400       35,041,552        64,208       50,640
+ 60         19,289       35,980,704       35,864,972        65,092       50,640
+ 61         19,290       36,780,816       36,665,028        65,148       50,640
+ 62         19,402       37,604,792       37,484,504        66,448       53,840
+ 63         19,404       38,404,888       38,284,576        66,472       53,840
+ 64         19,538       39,230,952       39,108,764        68,348       53,840
+ 65         19,539       40,031,048       39,908,836        68,372       53,840
+ 66         19,669       40,855,784       40,731,768        70,176       53,840
+ 67         19,671       41,655,880       41,531,840        70,200       53,840
+ 68         19,803       42,480,160       42,354,308        72,012       53,840
+ 69         19,804       43,280,256       43,154,380        72,036       53,840
+ 70         20,003       43,260,216       43,167,756        73,060       19,400
+ 71         20,202       43,268,728       43,167,940        73,100       27,688
+ 72         20,241       44,071,496       43,167,972        73,140      830,384
+ 73         20,440       44,148,504       43,170,436        73,300      904,768
+ 74         20,639       44,135,712       43,170,748        73,460      891,504
+ 75         20,837       44,937,960       43,170,736        73,504    1,693,720
+ 76         21,036       44,120,136       43,171,084        73,692      875,360
+ 77         21,235       43,316,920       43,171,156        73,708       72,056
+ 78         21,434       43,327,848       43,171,084        73,692       83,072
+ 79         21,633       44,107,616       43,171,084        73,692      862,840
+ 80         21,832       43,262,968       43,169,724        73,652       19,592
+ 81         22,031       43,273,952       43,166,413        73,099       34,440
+ 82         22,230       40,023,616       39,926,650        71,326       25,640
+ 83         22,429       36,779,240       36,684,838        69,162       25,240
+ 84         22,628       33,535,960       33,442,440        66,984       26,536
+ 85         22,827       28,693,096       28,604,238        63,602       25,256
+ 86         23,026       25,448,480       25,362,850        61,534       24,096
+ 87         23,225       20,599,696       20,503,798        57,914       37,984
+ 88         23,424       15,736,600       15,645,937        52,703       37,960
+ 89         23,623        7,672,616        7,587,313        47,327       37,976
+ 90         23,822        2,840,840        2,766,819        45,365       28,656
+ 91         24,021        2,727,280        2,664,299        37,773       25,208
+ 92         24,220        2,432,928        2,382,483        33,277       17,168
+ 93         24,419        1,067,280        1,047,476        17,372        2,432
+ 94         24,618          641,208          623,608        15,128        2,472
+ 95         24,817          435,872          422,003        11,453        2,416
+96.07% (43,170,736B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->71.31% (32,043,828B) 0x31D2D625: eprosima::fastrtps::rtps::TopicPayloadPool::do_allocate(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->71.21% (32,001,400B) 0x31D2E832: eprosima::fastrtps::rtps::PreallocatedTopicPayloadPool::reserve_history(eprosima::fastrtps::rtps::PoolConfig const&, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->35.61% (16,000,640B) 0x31DC9E0A: eprosima::fastdds::dds::DataWriterImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->35.61% (16,000,640B) 0x31DD0409: eprosima::fastdds::dds::DataWriterImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->35.61% (16,000,640B) 0x31DC30D9: eprosima::fastdds::dds::DataWriter::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->35.61% (16,000,640B) 0x31DE8A66: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterImpl*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->35.61% (16,000,640B) 0x31DE8D62: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterQos const&, eprosima::fastdds::dds::DataWriterListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |         ->35.61% (16,000,640B) 0x31851AFA: rmw_fastrtps_cpp::create_publisher(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_publisher_options_s const*, bool, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->35.61% (16,000,640B) 0x3186E6B5: rmw_create_publisher (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->35.61% (16,000,640B) 0x30767915: rmw_create_publisher (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->35.61% (16,000,640B) 0x304A9C6C: rcl_publisher_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->35.61% (16,000,640B) 0x3046593C: rclc_publisher_init (publisher.c:76)
+| | |                   ->35.61% (16,000,640B) 0x10B137: init_node_publisher (my_node.h:215)
+| | |                     ->14.24% (6,400,256B) 0x10DFFA: main (test1.c:492)
+| | |                     | 
+| | |                     ->14.24% (6,400,256B) 0x10E059: main (test1.c:496)
+| | |                     | 
+| | |                     ->07.12% (3,200,128B) 0x10DF7E: main (test1.c:487)
+| | |                       
+| | ->35.61% (16,000,640B) 0x31E01FBC: eprosima::fastdds::dds::DataReaderImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->35.61% (16,000,640B) 0x31E07003: eprosima::fastdds::dds::DataReaderImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->35.61% (16,000,640B) 0x31DFB259: eprosima::fastdds::dds::DataReader::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->35.61% (16,000,640B) 0x31DF2EA0: eprosima::fastdds::dds::SubscriberImpl::create_datareader(eprosima::fastdds::dds::TopicDescription*, eprosima::fastdds::dds::DataReaderQos const&, eprosima::fastdds::dds::DataReaderListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->35.61% (16,000,640B) 0x31A00693: rmw_fastrtps_shared_cpp::create_datareader(eprosima::fastdds::dds::DataReaderQos const&, rmw_subscription_options_s const*, eprosima::fastdds::dds::Subscriber*, eprosima::fastdds::dds::TopicDescription*, SubListener*, eprosima::fastdds::dds::DataReader**) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| | |         ->35.61% (16,000,640B) 0x31880B7F: rmw_fastrtps_cpp::create_subscription(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_subscription_options_s const*, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->35.61% (16,000,640B) 0x3187C5FB: rmw_create_subscription (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->35.61% (16,000,640B) 0x30768086: rmw_create_subscription (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->35.61% (16,000,640B) 0x304AFF76: rcl_subscription_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->35.61% (16,000,640B) 0x30466238: rclc_subscription_init (subscription.c:69)
+| | |                   ->35.61% (16,000,640B) 0x10B338: init_node_subscriber (my_node.h:245)
+| | |                     ->14.24% (6,400,256B) 0x10E01E: main (test1.c:495)
+| | |                     | 
+| | |                     ->14.24% (6,400,256B) 0x10E07D: main (test1.c:499)
+| | |                     | 
+| | |                     ->07.12% (3,200,128B) 0x10DFBF: main (test1.c:491)
+| | |                       
+| | ->00.00% (120B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.09% (42,428B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->17.81% (8,005,460B) 0x10CD6C: my_allocate (test1.c:232)
+| ->17.81% (8,002,224B) 0x10CDF2: main_allocate (test1.c:243)
+| | ->17.80% (8,000,184B) 0x10AB8E: create_node (my_node.h:120)
+| | | ->07.12% (3,200,072B) 0x10D4DE: main (test1.c:368)
+| | | | 
+| | | ->07.12% (3,200,072B) 0x10D503: main (test1.c:369)
+| | | | 
+| | | ->03.56% (1,600,040B) 0x10D4B9: main (test1.c:367)
+| | |   
+| | ->00.00% (2,040B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.01% (3,236B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->02.04% (917,056B) 0x31D6050A: eprosima::fastrtps::rtps::SendBuffersManager::init(eprosima::fastrtps::rtps::RTPSParticipantImpl const*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->02.04% (917,056B) 0x31D727C1: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->02.04% (917,056B) 0x31D73458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->02.04% (917,056B) 0x31D8375F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->02.04% (917,056B) 0x31E300BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->02.04% (917,056B) 0x31E39EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->02.04% (917,056B) 0x31E191F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->02.04% (917,056B) 0x3199880F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               ->02.04% (917,056B) 0x31999368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                 ->02.04% (917,056B) 0x3184995F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                   ->02.04% (917,056B) 0x3184A0A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                     ->02.04% (917,056B) 0x3186D7E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                       ->02.04% (917,056B) 0x30767702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                         ->02.04% (917,056B) 0x304A7C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                           ->02.04% (917,056B) 0x30469459: rclc_node_init_with_options (node.c:74)
+|                             ->02.04% (917,056B) 0x30469169: rclc_node_init_default (node.c:41)
+|                               ->02.04% (917,056B) 0x10B045: init_node (my_node.h:199)
+|                                 ->02.04% (917,056B) 0x10D754: main (test1.c:405)
+|                                   
+->01.43% (643,716B) in 658 places, all below massif's threshold (0.10%)
+| 
+->03.47% (1,560,676B) in 9+ places, all below ms_print's threshold (01.00%)
