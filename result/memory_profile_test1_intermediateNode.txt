@@ -437,3 +437,7 @@ stackusage log at 2023-08-21 11:10:37 ----------------------------------------
 ->01.43% (643,716B) in 658 places, all below massif's threshold (0.10%)
 | 
 ->03.47% (1,560,676B) in 9+ places, all below ms_print's threshold (01.00%)
+Without LET: 2.4K executor malloc (0.6-0.6-0.6-0.6), Stacks: (841K-841K-89K-89K)
+32MB total for DDS memory: 0.9M for nodes (DomainParticipant), 16M for publishers (DataWriter): 1.6M per pub, 16M for subscribers (DataReader): 1.6M per sub
+WithLET:
+DDS: extra 56M for publishers, extra 54.4M for subscriber, 49.6M executor malloc, Stacks: (Ex-In-Out): (829K-67K-16K)-(829K-82K-85K)-(29K-82K-85K)-(25K-82K-16K)
