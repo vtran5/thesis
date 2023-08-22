@@ -2268,9 +2268,12 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
       rclc_enqueue_priority_queue(&(executor->let_executor->output_invocation_times), &callback_id, 
                                 executor->invocation_time + executor->handles[i].callback_info->callback_let_ns);
     }
+    const int input_id = -2;
+    CHECK_RCL_RET(rclc_enqueue_priority_queue(&(executor->let_executor->output_invocation_times), &input_id, executor->invocation_time), 
+                      (unsigned long) executor);
     executor->timeout_ns = 0;
     _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);    
+    //_rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);    
   }
 
   while (true) {
@@ -2289,7 +2292,7 @@ rclc_executor_spin_period(rclc_executor_t * executor, const uint64_t period_ns)
     pthread_mutex_unlock(&executor->let_executor->mutex);
 
     pthread_join(thread_id_output, NULL);
-    pthread_join(thread_id_input, NULL);
+    //pthread_join(thread_id_input, NULL);
   }
   return ret;
 }
@@ -2316,9 +2319,12 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
       CHECK_RCL_RET(rclc_enqueue_priority_queue(&(executor->let_executor->output_invocation_times), &callback_id, add_wakeup_time), 
                       (unsigned long) executor);
     }
+    const int input_id = -2;
+    CHECK_RCL_RET(rclc_enqueue_priority_queue(&(executor->let_executor->output_invocation_times), &input_id, executor->invocation_time), 
+                      (unsigned long) executor);
     executor->timeout_ns = 0;
     _rclc_thread_create(&thread_id_output, SCHED_FIFO, 99, -1, _rclc_let_scheduling_output_wrapper, executor);
-    _rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);
+    //_rclc_thread_create(&thread_id_input, SCHED_FIFO, 99, -1, _rclc_let_scheduling_input_wrapper, executor);
   }
 
   while (!(*exit_flag)) {
@@ -2337,7 +2343,7 @@ rclc_executor_spin_period_with_exit(rclc_executor_t * executor, const uint64_t p
     pthread_cond_broadcast(&executor->let_executor->let_input_done);
     pthread_mutex_unlock(&executor->let_executor->mutex);
     pthread_join(thread_id_output, NULL);
-    pthread_join(thread_id_input, NULL);
+   // pthread_join(thread_id_input, NULL);
   }
   printf("Exe exit %lu\n", (unsigned long) executor);
   return RCL_RET_OK;
@@ -2474,7 +2480,7 @@ rclc_executor_let_init(
   pthread_cond_init(&(executor->let_executor->let_input_done), NULL);
   pthread_cond_init(&(executor->let_executor->cond_callback), NULL);
   CHECK_RCL_RET(rclc_init_priority_queue(&(executor->let_executor->output_invocation_times), sizeof(int), 
-    executor->max_handles, executor->allocator), (unsigned long) executor);
+    executor->max_handles + 1, executor->allocator), (unsigned long) executor);
   // initialize let handle
   for (size_t i = 0; i < executor->max_handles; i++) {
     CHECK_RCL_RET(rclc_executor_let_handle_init(&executor->handles[i], number_of_let_handles, executor->allocator), (unsigned long) executor);
@@ -2780,7 +2786,27 @@ static rcl_ret_t _rclc_write_output(
 {
   rcl_ret_t rc = RCL_RET_OK;
 
-  for (size_t i = 0; callback_id[i] > -1; i++) {
+  for (size_t i = 0; callback_id[i] != -1; i++) {
+    if (callback_id[i] == -2)
+    {
+      rcutils_time_point_value_t now;
+      rc = rcutils_steady_time_now(&now);
+      printf("Period %lu %ld %ld\n", (unsigned long) executor, executor->let_executor->input_index, now);
+      rc = _rclc_let_scheduling_input(executor);
+      if (rc != RCL_RET_OK)
+        printf("Reading input failed \n");      
+      pthread_mutex_lock(&executor->let_executor->mutex);
+      // Increment input_index
+      if (executor->let_executor->state != IDLE){
+        executor->let_executor->input_index++;
+        // Only update the executor state if it's not executing callbacks
+        if (executor->let_executor->state != EXECUTING)
+          executor->let_executor->state = INPUT_READ;
+        pthread_cond_signal(&executor->let_executor->let_input_done);
+      }
+      pthread_mutex_unlock(&executor->let_executor->mutex); 
+      continue;
+    }
     rc = _rclc_write_output_single_callback(executor, callback_id[i]);
     if (rc != RCL_RET_OK) {
       return rc;
