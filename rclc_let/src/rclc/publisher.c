@@ -147,7 +147,7 @@ rclc_publisher_let_init(
 
 
 rcl_ret_t
-rclc_LET_output(rclc_publisher_t * publisher, int queue_index, uint64_t output_index, unsigned long executor)
+rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
