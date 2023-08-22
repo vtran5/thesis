@@ -2920,6 +2920,9 @@ rcl_ret_t _rclc_let_scheduling_input(rclc_executor_t * executor)
 void * _rclc_let_scheduling_input_wrapper(void * arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
+  char input_name[22];
+  snprintf(input_name, sizeof(input_name), "I%lu", (unsigned long) executor);
+  pthread_setname_np(pthread_self(), input_name);
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t end_time_point, now;
   rcutils_duration_value_t sleep_time;
@@ -2989,6 +2992,9 @@ void * _rclc_let_scheduling_input_wrapper(void * arg)
 void * _rclc_let_scheduling_output_wrapper(void * arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
+  char output_name[22];
+  snprintf(output_name, sizeof(output_name), "O%lu", (unsigned long) executor);
+  pthread_setname_np(pthread_self(), output_name);
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t next_wakeup_time, now;
   rcutils_duration_value_t sleep_time;

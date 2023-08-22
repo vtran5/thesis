@@ -41,6 +41,9 @@ void *rclc_executor_spin_period_with_exit_wrapper(void *arg)
   rclc_support_t * support = arguments->support;
   const uint64_t period = arguments->period;
   rcl_ret_t ret = RCL_RET_OK;
+  char thread_name[15];
+  snprintf(thread_name, sizeof(thread_name), "%lu", (unsigned long) executor);
+  pthread_setname_np(pthread_self(), thread_name);
   ret = rclc_executor_spin_period_with_exit(executor, period, &exit_flag);
   if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
     printf("Executor spin failed %d\n", ret);

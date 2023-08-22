@@ -1,0 +1,698 @@
+--------------------------------------------------------------------------------
+Command:            ./build/rclc_exp/test1 -let true -ed 5000
+Massif arguments:   --time-unit=ms --threshold=0.1 --stacks=yes
+ms_print arguments: massif.out.73852
+
+--------------------------------------------------------------------------------
+  n       time(ms)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1          1,171            5,952                0             0        5,952
+  2          1,688            5,144                0             0        5,144
+  3          2,581           73,344           72,704             8          632
+  4          3,227        8,101,368        8,079,894           562       20,912
+  5          3,999        8,119,632        8,100,547         1,501       17,584
+  6          4,978        8,132,248        8,113,351         1,745       17,152
+  7          6,092        8,240,704        8,218,477         4,931       17,296
+  8          7,028        8,323,544        8,299,570         6,678       17,296
+  9          7,924        8,392,040        8,363,972         8,668       19,400
+ 10          8,579        8,395,648        8,366,289         8,927       20,432
+ 11          9,275        8,404,584        8,374,593         9,903       20,088
+ 12         10,035        8,450,944        8,420,396        11,436       19,112
+ 13         10,851        8,528,752        8,487,350        13,362       28,040
+ 14         11,743        8,579,472        8,491,993        13,679       73,800
+ 15         12,935       10,057,136        9,970,843        26,189       60,104
+ 16         13,516       10,113,352       10,034,291        30,477       48,584
+ 17         14,401       10,314,240       10,233,380        32,444       48,416
+ 18         15,106       10,523,464       10,435,328        33,752       54,384
+ 19         16,024       10,668,824       10,573,375        35,577       59,872
+ 20         16,599       10,739,440       10,634,467        41,069       63,904
+ 21         17,291       10,734,064       10,671,307        43,861       18,896
+ 22         18,439       18,111,472       18,010,008        50,904       50,560
+ 23         19,287       30,282,304       30,167,772        60,724       53,808
+ 24         20,033       39,230,904       39,108,812        68,284       53,808
+ 25         20,906      120,070,280      119,978,878        76,378       15,024
+ 26         21,802      120,117,416      119,984,862        76,874       55,680
+ 27         22,698      120,918,912      119,986,030        77,218      855,664
+ 28         23,818      120,918,656      119,986,030        77,218      855,408
+ 29         24,472      120,927,168      119,986,030        77,218      863,920
+ 30         25,126      120,918,984      119,986,030        77,218      855,736
+ 31         25,780      120,929,032      119,986,030        77,218      865,784
+ 32         26,434      120,917,280      119,986,030        77,218      854,032
+ 33         27,088      120,915,120      119,986,030        77,218      851,872
+ 34         27,742      120,913,384      119,986,030        77,218      850,136
+ 35         28,396      120,908,632      119,985,358        77,202      846,072
+ 36         29,050      120,918,456      119,985,358        77,202      855,896
+ 37         29,704      120,920,504      119,985,358        77,202      857,944
+ 38         30,358      120,918,392      119,985,358        77,202      855,832
+ 39         31,012      120,908,616      119,985,358        77,202      846,056
+ 40         31,666      120,920,280      119,985,358        77,202      857,720
+ 41         32,657      120,920,656      119,985,358        77,202      858,096
+ 42         33,657      120,919,040      119,985,358        77,202      856,480
+ 43         34,657      120,918,688      119,985,358        77,202      856,128
+ 44         35,657      120,907,024      119,985,358        77,202      844,464
+ 45         36,657      120,919,200      119,985,358        77,202      856,640
+ 46         37,657      120,917,776      119,985,358        77,202      855,216
+ 47         38,657      120,919,200      119,985,358        77,202      856,640
+ 48         39,657      120,919,000      119,985,358        77,202      856,440
+ 49         40,311      120,917,512      119,985,358        77,202      854,952
+ 50         40,828      120,918,736      119,985,358        77,202      856,176
+ 51         41,345      120,908,976      119,985,358        77,202      846,416
+ 52         41,862      120,920,648      119,985,358        77,202      858,088
+ 53         42,379      120,908,744      119,985,358        77,202      846,184
+ 54         42,896      120,918,544      119,985,358        77,202      855,984
+ 55         43,413      120,920,776      119,985,358        77,202      858,216
+ 56         43,930      120,907,160      119,985,358        77,202      844,600
+ 57         44,447      120,908,760      119,985,358        77,202      846,200
+ 58         44,964      120,918,880      119,985,358        77,202      856,320
+ 59         45,481      120,918,736      119,985,358        77,202      856,176
+ 60         45,998      120,941,184      119,985,358        77,202      878,624
+ 61         46,515      120,918,960      119,985,358        77,202      856,400
+ 62         47,032      120,920,792      119,985,358        77,202      858,232
+ 63         47,549      120,918,576      119,985,358        77,202      856,016
+ 64         48,066      120,918,576      119,985,358        77,202      856,016
+ 65         48,583      120,920,840      119,985,358        77,202      858,280
+ 66         49,100       96,069,872       95,970,624        73,832       25,416
+ 67         49,617       76,803,880       76,706,959        70,385       26,536
+ 68         50,134       55,890,744       55,807,062        63,954       19,728
+ 69         50,651       20,600,888       20,504,033        57,791       39,064
+ 70         51,168        7,669,456        7,584,858        46,950       37,648
+ 71         51,685        2,726,224        2,660,851        37,669       27,704
+ 72         52,202          853,016          833,914        15,478        3,624
+ 73         52,719           48,872           43,422         1,826        3,624
+
+99.92% (119,978,878B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->70.64% (84,816,446B) 0x10D1A9: my_allocate (test1.c:232)
+| ->63.97% (76,813,146B) 0x10D2CF: executor_allocate (test1.c:255)
+| | ->45.31% (54,401,360B) 0x304776D8: rclc_init_circular_queue (buffer.c:155)
+| | | ->45.31% (54,401,360B) 0x30478EA1: rclc_init_2d_circular_queue (buffer.c:586)
+| | |   ->45.31% (54,401,360B) 0x30465D8E: rclc_publisher_let_init (publisher.c:168)
+| | |     ->45.31% (54,401,360B) 0x30473F3B: rclc_executor_add_publisher_LET (executor.c:2616)
+| | |       ->21.32% (25,600,640B) 0x10F09D: main (test1.c:606)
+| | |       | 
+| | |       ->21.32% (25,600,640B) 0x10F17F: main (test1.c:611)
+| | |       | 
+| | |       ->02.67% (3,200,080B) 0x10EFBB: main (test1.c:601)
+| | |         
+| | ->18.66% (22,401,386B) 0x304791C8: rclc_init_array (buffer.c:653)
+| | | ->18.66% (22,400,672B) 0x3046A6E1: rclc_executor_add_subscription (executor.c:266)
+| | | | ->10.66% (12,800,384B) 0x10EDCF: main (test1.c:586)
+| | | | | 
+| | | | ->05.33% (6,400,192B) 0x10EC24: main (test1.c:576)
+| | | | | 
+| | | | ->02.67% (3,200,096B) 0x10EECB: main (test1.c:592)
+| | | |   
+| | | ->00.00% (714B) in 1+ places, all below ms_print's threshold (01.00%)
+| | | 
+| | ->00.01% (10,400B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->06.66% (8,002,528B) 0x10D22F: main_allocate (test1.c:243)
+| | ->06.66% (8,000,184B) 0x10AB4E: create_node (my_node.h:121)
+| | | ->02.67% (3,200,072B) 0x10D91B: main (test1.c:368)
+| | | | 
+| | | ->02.67% (3,200,072B) 0x10D940: main (test1.c:369)
+| | | | 
+| | | ->01.33% (1,600,040B) 0x10D8F6: main (test1.c:367)
+| | |   
+| | ->00.00% (2,344B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.00% (772B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->26.69% (32,043,828B) 0x31D2B625: eprosima::fastrtps::rtps::TopicPayloadPool::do_allocate(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->26.65% (32,001,400B) 0x31D2C832: eprosima::fastrtps::rtps::PreallocatedTopicPayloadPool::reserve_history(eprosima::fastrtps::rtps::PoolConfig const&, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->13.33% (16,000,640B) 0x31DC7E0A: eprosima::fastdds::dds::DataWriterImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->13.33% (16,000,640B) 0x31DCE409: eprosima::fastdds::dds::DataWriterImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->13.33% (16,000,640B) 0x31DC10D9: eprosima::fastdds::dds::DataWriter::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->13.33% (16,000,640B) 0x31DE6A66: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterImpl*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->13.33% (16,000,640B) 0x31DE6D62: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterQos const&, eprosima::fastdds::dds::DataWriterListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |         ->13.33% (16,000,640B) 0x3184FAFA: rmw_fastrtps_cpp::create_publisher(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_publisher_options_s const*, bool, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->13.33% (16,000,640B) 0x3186C6B5: rmw_create_publisher (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->13.33% (16,000,640B) 0x30765915: rmw_create_publisher (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->13.33% (16,000,640B) 0x304A7C6C: rcl_publisher_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->13.33% (16,000,640B) 0x30465921: rclc_publisher_init (publisher.c:79)
+| | |                   ->13.33% (16,000,640B) 0x10B0E8: init_node_publisher (my_node.h:215)
+| | |                     ->05.33% (6,400,256B) 0x10E244: main (test1.c:474)
+| | |                     | 
+| | |                     ->05.33% (6,400,256B) 0x10E295: main (test1.c:478)
+| | |                     | 
+| | |                     ->02.67% (3,200,128B) 0x10E1D6: main (test1.c:469)
+| | |                       
+| | ->13.33% (16,000,640B) 0x31DFFFBC: eprosima::fastdds::dds::DataReaderImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->13.33% (16,000,640B) 0x31E05003: eprosima::fastdds::dds::DataReaderImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->13.33% (16,000,640B) 0x31DF9259: eprosima::fastdds::dds::DataReader::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->13.33% (16,000,640B) 0x31DF0EA0: eprosima::fastdds::dds::SubscriberImpl::create_datareader(eprosima::fastdds::dds::TopicDescription*, eprosima::fastdds::dds::DataReaderQos const&, eprosima::fastdds::dds::DataReaderListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->13.33% (16,000,640B) 0x319FE693: rmw_fastrtps_shared_cpp::create_datareader(eprosima::fastdds::dds::DataReaderQos const&, rmw_subscription_options_s const*, eprosima::fastdds::dds::Subscriber*, eprosima::fastdds::dds::TopicDescription*, SubListener*, eprosima::fastdds::dds::DataReader**) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| | |         ->13.33% (16,000,640B) 0x3187EB7F: rmw_fastrtps_cpp::create_subscription(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_subscription_options_s const*, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->13.33% (16,000,640B) 0x3187A5FB: rmw_create_subscription (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->13.33% (16,000,640B) 0x30766086: rmw_create_subscription (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->13.33% (16,000,640B) 0x304ADF76: rcl_subscription_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->13.33% (16,000,640B) 0x3046628C: rclc_subscription_init (subscription.c:69)
+| | |                   ->13.33% (16,000,640B) 0x10B2E8: init_node_subscriber (my_node.h:245)
+| | |                     ->05.33% (6,400,256B) 0x10E268: main (test1.c:477)
+| | |                     | 
+| | |                     ->05.33% (6,400,256B) 0x10E2B9: main (test1.c:481)
+| | |                     | 
+| | |                     ->02.67% (3,200,128B) 0x10E217: main (test1.c:473)
+| | |                       
+| | ->00.00% (120B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.04% (42,428B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->02.60% (3,118,604B) in 9+ places, all below ms_print's threshold (01.00%)
+
+Memory Executor 94550686891056 max size 3202066 current size 0
+Memory Executor 94550686891344 max size 32003764 current size 0
+Memory Executor 94550686891632 max size 38404184 current size 0
+Memory Executor 94550686891920 max size 3202108 current size 0
+Memory Main max size 8002072 current size 544
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-21 15:39:59 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+84385   0  84385    8388608    8327168      88488     1      8               (nil) test1
+84385   1  84387    8388608    8388608      14888     0      7      0x7fd193bd4240 test1
+84385   2  84386    8388608    8388608      12680     0      7      0x7fd193bd4240 test1
+84385   3  84388    8388608    8388608      17096     0      7      0x7fd193bd4240 test1
+84385   4  84392    8388608    8388608      14280     0      7      0x7fd193bd4240 test1
+84385   5  84393    8388608    8388608      12616     0      7      0x7fd193bd4240 test1
+84385   6  84391    8388608    8388608      12184     0      7      0x7fd193bd4240 test1
+84385   7  84390    8388608    8388608      13224     0      7      0x7fd193bd4240 test1
+84385   8  84395    8388608    8388608     835000     9      6      0x55fe1aaa5194 94550686891056
+84385   9  84389    8388608    8388608      12184     0      6      0x7fd193bd4240 test1
+84385  10  84396    8388608    8388608      17440     0      5      0x7fd1940fc25c O94550686891056
+84385  11  84394    8388608    8388608      15880     0      6      0x7fd193bd4240 test1
+84385  12  84397    8388608    8388608      62336     0      5      0x7fd1940fbf4c I94550686891056
+84385  13  84400    8388608    8388608      34840     0      6      0x55fe1aaa5194 94550686891920
+84385  14  84398    8388608    8388608     835000     9      6      0x55fe1aaa5194 94550686891344
+84385  15  84401    8388608    8388608      12936     0      5      0x7fd1940fc25c O94550686891920
+84385  16  84402    8388608    8388608      16832     0      5      0x7fd1940fc25c O94550686891344
+84385  17  84403    8388608    8388608      77344     0      5      0x7fd1940fbf4c I94550686891920
+84385  18  84404    8388608    8388608      77344     0      5      0x7fd1940fbf4c I94550686891344
+84385  19  84399    8388608    8388608      35000     0      6      0x55fe1aaa5194 94550686891632
+84385  20  84406    8388608    8388608      16832     0      4      0x7fd1940fc25c O94550686891632
+84385  21  84407    8388608    8388608      77344     0      4      0x7fd1940fbf4c I94550686891632
+
+Without LET:
+--------------------------------------------------------------------------------
+Command:            ./build/rclc_exp/test1 -let false -ed 5000
+Massif arguments:   --time-unit=ms --threshold=0.1 --stacks=yes
+ms_print arguments: massif.out.80589
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+  n       time(ms)         total(B)   useful-heap(B) extra-heap(B)    stacks(B)
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1            435            4,408                0             0        4,408
+  2          1,196            5,952                0             0        5,952
+  3          1,754            5,664                0             0        5,664
+  4          2,536           73,056           72,704             8          344
+  5          3,147        8,101,368        8,079,894           562       20,912
+  6          3,898        8,119,688        8,100,547         1,501       17,640
+  7          4,354        8,119,456        8,100,547         1,501       17,408
+  8          4,930        8,126,928        8,108,177         1,607       17,144
+  9          5,245        8,158,584        8,138,805         2,483       17,296
+ 10          5,821        8,216,624        8,195,141         4,251       17,232
+ 11          6,308        8,264,000        8,240,988         5,852       17,160
+ 12          6,894        8,323,544        8,299,570         6,678       17,296
+ 13          7,398        8,367,152        8,342,044         7,964       17,144
+ 14          7,902        8,394,232        8,365,059         8,813       20,360
+ 15          8,298        8,406,872        8,377,782         9,666       19,424
+ 16          8,802        8,404,424        8,374,593         9,903       19,928
+ 17          9,552        8,450,296        8,421,570        11,534       17,192
+ 18          9,948        8,491,792        8,461,812        12,636       17,344
+ 19         10,364        8,524,208        8,487,968        13,440       22,800
+ 20         10,752        8,580,928        8,491,982        13,666       75,280
+ 21         11,168        8,560,912        8,497,138        13,918       49,856
+ 22         11,584        8,589,016        8,514,838        22,706       51,472
+ 23         12,198       10,065,232        9,973,155        26,309       65,768
+ 24         12,984       10,138,952       10,057,249        31,319       50,384
+ 25         13,606       10,345,408       10,262,876        32,604       49,928
+ 26         14,171       10,513,776       10,424,319        33,713       55,744
+ 27         14,681       10,619,248       10,529,689        34,575       54,984
+ 28         15,189       10,687,120       10,588,496        35,944       62,680
+ 29         15,642       10,725,464       10,624,943        37,993       62,528
+ 30         16,150       10,756,416       10,668,735        42,881       44,800
+ 31         16,824       12,414,496       12,318,648        45,288       50,560
+ 32         17,618       21,360,176       21,256,840        52,776       50,560
+ 33         17,953       26,233,696       26,122,876        57,012       53,808
+ 34         18,426       33,531,112       33,417,404        63,148       50,560
+ 35         19,168       43,280,176       43,154,428        71,940       53,808
+ 36         19,594       44,081,032       43,168,372        73,092      839,568
+ 37         20,137       44,948,456       43,171,464        73,640    1,703,352 
+ 38         20,579       43,326,840       43,171,556        73,676       81,608
+ 39         21,021       43,334,424       43,171,556        73,676       89,192
+ 40         21,463       43,327,136       43,171,412        73,644       82,080
+ 41         21,905       44,140,320       43,171,556        73,676      895,088
+ 42         22,347       44,952,552       43,171,484        73,660    1,707,408
+ 43         22,789       43,335,688       43,171,556        73,676       90,456
+ 44         23,231       43,336,624       43,171,636        73,708       91,280
+ 45         23,673       43,336,472       43,171,708        73,724       91,040
+ 46         24,115       43,334,824       43,171,780        73,740       89,304
+ 47         24,557       44,128,520       43,171,884        73,844      882,792
+ 48         24,999       43,283,104       43,171,636        73,820       37,648
+ 49         25,441       41,644,448       41,547,443        72,237       24,768
+ 50         25,756       36,777,512       36,684,138        68,942       24,432
+ 51         26,071       31,915,368       31,823,337        65,191       26,840
+ 52         26,386       22,220,416       22,136,562        59,686       24,168
+ 53         26,701       10,904,168       10,827,227        50,845       26,096
+ 54         27,016        2,840,968        2,766,979        45,349       28,640
+ 55         27,331        2,492,920        2,438,853        36,963       17,104
+ 56         27,646          905,208          886,862        15,874        2,472
+ 57         27,961          360,464          350,087         8,137        2,240
+96.05% (43,171,464B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->71.29% (32,043,828B) 0x31D2B625: eprosima::fastrtps::rtps::TopicPayloadPool::do_allocate(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->71.20% (32,001,400B) 0x31D2C832: eprosima::fastrtps::rtps::PreallocatedTopicPayloadPool::reserve_history(eprosima::fastrtps::rtps::PoolConfig const&, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->35.60% (16,000,640B) 0x31DC7E0A: eprosima::fastdds::dds::DataWriterImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->35.60% (16,000,640B) 0x31DCE409: eprosima::fastdds::dds::DataWriterImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->35.60% (16,000,640B) 0x31DC10D9: eprosima::fastdds::dds::DataWriter::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->35.60% (16,000,640B) 0x31DE6A66: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterImpl*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->35.60% (16,000,640B) 0x31DE6D62: eprosima::fastdds::dds::PublisherImpl::create_datawriter(eprosima::fastdds::dds::Topic*, eprosima::fastdds::dds::DataWriterQos const&, eprosima::fastdds::dds::DataWriterListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |         ->35.60% (16,000,640B) 0x3184FAFA: rmw_fastrtps_cpp::create_publisher(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_publisher_options_s const*, bool, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->35.60% (16,000,640B) 0x3186C6B5: rmw_create_publisher (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->35.60% (16,000,640B) 0x30765915: rmw_create_publisher (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->35.60% (16,000,640B) 0x304A7C6C: rcl_publisher_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->35.60% (16,000,640B) 0x30465921: rclc_publisher_init (publisher.c:79)
+| | |                   ->35.60% (16,000,640B) 0x10B0E8: init_node_publisher (my_node.h:215)
+| | |                     ->14.24% (6,400,256B) 0x10E244: main (test1.c:474)
+| | |                     | 
+| | |                     ->14.24% (6,400,256B) 0x10E295: main (test1.c:478)
+| | |                     | 
+| | |                     ->07.12% (3,200,128B) 0x10E1D6: main (test1.c:469)
+| | |                       
+| | ->35.60% (16,000,640B) 0x31DFFFBC: eprosima::fastdds::dds::DataReaderImpl::get_payload_pool() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | | ->35.60% (16,000,640B) 0x31E05003: eprosima::fastdds::dds::DataReaderImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |   ->35.60% (16,000,640B) 0x31DF9259: eprosima::fastdds::dds::DataReader::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |     ->35.60% (16,000,640B) 0x31DF0EA0: eprosima::fastdds::dds::SubscriberImpl::create_datareader(eprosima::fastdds::dds::TopicDescription*, eprosima::fastdds::dds::DataReaderQos const&, eprosima::fastdds::dds::DataReaderListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | |       ->35.60% (16,000,640B) 0x319FE693: rmw_fastrtps_shared_cpp::create_datareader(eprosima::fastdds::dds::DataReaderQos const&, rmw_subscription_options_s const*, eprosima::fastdds::dds::Subscriber*, eprosima::fastdds::dds::TopicDescription*, SubListener*, eprosima::fastdds::dds::DataReader**) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| | |         ->35.60% (16,000,640B) 0x3187EB7F: rmw_fastrtps_cpp::create_subscription(CustomParticipantInfo const*, rosidl_message_type_support_t const*, char const*, rmw_qos_profile_s const*, rmw_subscription_options_s const*, bool) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |           ->35.60% (16,000,640B) 0x3187A5FB: rmw_create_subscription (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| | |             ->35.60% (16,000,640B) 0x30766086: rmw_create_subscription (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| | |               ->35.60% (16,000,640B) 0x304ADF76: rcl_subscription_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| | |                 ->35.60% (16,000,640B) 0x3046628C: rclc_subscription_init (subscription.c:69)
+| | |                   ->35.60% (16,000,640B) 0x10B2E8: init_node_subscriber (my_node.h:245)
+| | |                     ->14.24% (6,400,256B) 0x10E268: main (test1.c:477)
+| | |                     | 
+| | |                     ->14.24% (6,400,256B) 0x10E2B9: main (test1.c:481)
+| | |                     | 
+| | |                     ->07.12% (3,200,128B) 0x10E217: main (test1.c:473)
+| | |                       
+| | ->00.00% (120B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.09% (42,428B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->17.81% (8,005,844B) 0x10D1A9: my_allocate (test1.c:232)
+| ->17.80% (8,002,528B) 0x10D22F: main_allocate (test1.c:243)
+| | ->17.80% (8,000,184B) 0x10AB4E: create_node (my_node.h:121)
+| | | ->07.12% (3,200,072B) 0x10D91B: main (test1.c:368)
+| | | | 
+| | | ->07.12% (3,200,072B) 0x10D940: main (test1.c:369)
+| | | | 
+| | | ->03.56% (1,600,040B) 0x10D8F6: main (test1.c:367)
+| | |   
+| | ->00.01% (2,344B) in 1+ places, all below ms_print's threshold (01.00%)
+| | 
+| ->00.01% (3,316B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->02.04% (917,056B) 0x31D5E50A: eprosima::fastrtps::rtps::SendBuffersManager::init(eprosima::fastrtps::rtps::RTPSParticipantImpl const*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->02.04% (917,056B) 0x31D707C1: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->02.04% (917,056B) 0x31D71458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->02.04% (917,056B) 0x31D8175F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->02.04% (917,056B) 0x31E2E0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->02.04% (917,056B) 0x31E37EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->02.04% (917,056B) 0x31E171F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->02.04% (917,056B) 0x3199680F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               ->02.04% (917,056B) 0x31997368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                 ->02.04% (917,056B) 0x3184795F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                   ->02.04% (917,056B) 0x318480A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                     ->02.04% (917,056B) 0x3186B7E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                       ->02.04% (917,056B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                         ->02.04% (917,056B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                           ->02.04% (917,056B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|                             ->02.04% (917,056B) 0x30469189: rclc_node_init_default (node.c:41)
+|                               ->02.04% (917,056B) 0x10B00B: init_node (my_node.h:200)
+|                                 ->02.04% (917,056B) 0x10DB9A: main (test1.c:405)
+|                                   
+->01.43% (644,060B) in 658 places, all below massif's threshold (0.10%)
+| 
+->03.47% (1,560,676B) in 9+ places, all below ms_print's threshold (01.00%)
+Memory Executor 94400797191216 max size 600 current size 0
+Memory Executor 94400797191504 max size 616 current size 0
+Memory Executor 94400797191792 max size 632 current size 0
+Memory Executor 94400797192080 max size 632 current size 0
+Memory Main max size 8002072 current size 544
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-21 15:36:42 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+84114   0  84114    8388608    8331264      87432     1      6               (nil) test1
+84114   1  84119    8388608    8388608      14280     0      6      0x7fdaefe92240 test1
+84114   2  84116    8388608    8388608      14888     0      6      0x7fdaefe92240 test1
+84114   3  84121    8388608    8388608      13224     0      6      0x7fdaefe92240 test1
+84114   4  84118    8388608    8388608      13768     0      6      0x7fdaefe92240 test1
+84114   5  84117    8388608    8388608      17096     0      6      0x7fdaefe92240 test1
+84114   6  84115    8388608    8388608      12680     0      6      0x7fdaefe92240 test1
+84114   7  84123    8388608    8388608      15880     0      6      0x7fdaefe92240 test1
+84114   8  84124    8388608    8388608     841568    10      6      0x55db345ee194 94400797191216
+84114   9  84120    8388608    8388608      12184     0      5      0x7fdaefe92240 test1
+84114  10  84127    8388608    8388608      89872     1      4      0x55db345ee194 94400797192080
+84114  11  84122    8388608    8388608      12616     0      5      0x7fdaefe92240 test1
+84114  12  84125    8388608    8388608     841568    10      5      0x55db345ee194 94400797191504
+84114  13  84126    8388608    8388608      89872     1      5      0x55db345ee194 94400797191792
+
+32MB total for DDS memory: 0.9M for nodes (DomainParticipant), 16M for publishers (DataWriter): 1.6M per pub, 16M for subscribers (DataReader): 1.6M per sub
+With LET: 76M exec28utor malloc (3.2M-32M-38M-3.2M), Stacks: (Ex-In-Out): (835K-62K-17K)-(835K-77K-16K)-(35K-77K-16K)-(34K-77K-12K)
+Without LET: 2.4K executor malloc (0.6-0.6-0.6-0.6), Stacks: (841K-841K-89K-89K)
+
+For intermediate node: WithLET:
+DDS: 56M for publishers, 54.4M for subscriber, 49.6M executor malloc, Stacks: (Ex-In-Out): (829K-67K-16K)-(829K-82K-85K)-(29K-82K-85K)-(25K-82K-16K)
+
+#######################################################################################################
+#######################################################################################################
+#######################################################################################################
+
+
+For message size = 800B
+--------------------------------------------------------------------------------
+Command:            ./../build/rclc_exp/test1 -let true -ed 1000
+Massif arguments:   --stacks=yes
+ms_print arguments: massif.out.5917
+--------------------------------------------------------------------------------
+  0              0                0                0             0            0
+  1      1,403,236            1,448                0             0        1,448
+  2      2,625,618            1,864                0             0        1,864
+  3      3,735,292            1,608                0             0        1,608
+  4      4,571,042            1,608                0             0        1,608
+  5      5,314,358            1,864                0             0        1,864
+  6      6,550,439            1,384                0             0        1,384
+  7      7,689,749          117,856           96,211           829       20,816
+  8      8,400,471          127,312          108,459         1,485       17,368
+  9      9,921,792          127,632          108,459         1,485       17,688                                                            
+ 10     10,825,887          127,792          108,459         1,485       17,848
+ 11     12,371,004          127,640          108,547         1,501       17,592
+ 12     13,822,697          127,640          108,547         1,501       17,592
+ 13     14,548,426          127,736          108,547         1,501       17,688
+ 14     15,566,991          127,736          108,547         1,501       17,688
+ 15     16,730,855          127,736          108,547         1,501       17,688
+ 16     17,602,616          127,736          108,547         1,501       17,688
+ 17     18,769,648          127,736          108,547         1,501       17,688
+ 18     19,649,325          127,896          108,547         1,501       17,848
+ 19     20,750,193          127,736          108,547         1,501       17,688
+ 20     22,071,933          127,736          108,547         1,501       17,688
+ 21     23,171,806          127,736          108,547         1,501       17,688
+ 22     23,933,492          180,944          160,667         2,981       17,296
+ 23     25,233,580          400,136          371,972         8,684       19,480
+ 24     26,635,414          411,728          381,977         9,783       19,968
+ 25     27,841,653          446,528          416,512        11,112       18,904
+ 26     28,734,519          521,680          491,030        13,306       17,344
+ 27     29,962,473          602,496          502,761        13,735       86,000
+ 28     30,838,451          566,416          503,857        13,991       48,568
+ 29     32,148,666          726,568          653,487        22,953       50,128
+ 30     32,977,377        1,741,152        1,662,949        24,091       54,112
+ 31     34,553,157        2,114,384        2,024,030        29,138       61,216
+ 32     35,708,007        2,135,872        2,047,114        30,574       58,184
+ 33     36,473,679        2,208,120        2,126,291        31,573       50,256  
+ 34     37,857,944        2,576,024        2,492,961        33,927       49,136
+ 35     39,048,830        2,663,064        2,574,320        34,840       53,904
+ 36     40,535,067        2,777,720        2,669,713        42,191       65,816  
+ 37     41,410,198        2,765,192        2,676,567        42,649       45,976
+ 38     42,285,227        2,739,104        2,678,649        43,231       17,224
+ 39     43,159,719        2,768,760        2,681,336        44,032       43,392
+ 40     44,482,656        2,930,616        2,777,979        47,965      104,672  
+ 41     45,892,836        3,014,376        2,778,891        48,141      187,344
+ 42     46,767,339        2,860,672        2,778,891        48,141       33,640
+ 43     48,079,100        2,888,536        2,778,891        48,141       61,504
+ 44     48,953,690        2,888,784        2,778,891        48,141       61,752
+ 45     49,828,239        2,911,904        2,778,891        48,141       84,872
+ 46     50,702,734        2,849,712        2,778,891        48,141       22,680
+ 47     51,577,260        2,883,152        2,778,891        48,141       56,120
+ 48     52,451,761        2,870,936        2,778,891        48,141       43,904
+ 49     53,326,327        2,850,016        2,778,891        48,141       22,984
+ 50     54,037,115        2,849,736        2,778,891        48,141       22,704
+ 51     54,747,856        2,871,000        2,778,891        48,141       43,968
+ 52     55,458,583        2,870,920        2,778,891        48,141       43,888  
+ 53     56,169,342        2,847,592        2,778,891        48,141       20,560
+ 54     56,880,073        2,810,088        2,737,977        44,679       27,432
+ 55     57,590,798        2,705,848        2,638,561        40,543       26,744
+ 56     58,301,528        2,345,088        2,295,434        31,342       18,312
+ 57     59,012,253          432,056          417,325        11,331        3,400
+92.19% (2,778,891B) (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+->30.42% (917,056B) 0x3155C50A: eprosima::fastrtps::rtps::SendBuffersManager::init(eprosima::fastrtps::rtps::RTPSParticipantImpl const*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->30.42% (917,056B) 0x3156E7C1: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->30.42% (917,056B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->30.42% (917,056B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->30.42% (917,056B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->30.42% (917,056B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->30.42% (917,056B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->30.42% (917,056B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               ->30.42% (917,056B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                 ->30.42% (917,056B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                   ->30.42% (917,056B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                     ->30.42% (917,056B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                       ->30.42% (917,056B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                         ->30.42% (917,056B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                           ->30.42% (917,056B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|                             ->30.42% (917,056B) 0x30469189: rclc_node_init_default (node.c:41)
+|                               ->30.42% (917,056B) 0x10B04B: init_node (my_node.h:200)
+|                                 ->30.42% (917,056B) 0x10DB76: main (test1.c:405)
+|                                   
+->12.04% (362,960B) 0x3053C791: __new_exitfn (cxa_atexit.c:114)
+| ->12.04% (362,960B) 0x3053C90A: __internal_atexit (cxa_atexit.c:44)
+|   ->12.04% (362,960B) 0x3053C90A: __cxa_atexit (cxa_atexit.c:70)
+|     ->12.04% (362,960B) in 346 places, all below massif's threshold (1.00%)
+|       
+->10.80% (325,445B) in 654 places, all below massif's threshold (1.00%)
+| 
+->09.95% (300,032B) 0x3171ACA4: eprosima::fastrtps::types::TypeObjectFactory::add_type_object(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, eprosima::fastrtps::types::TypeIdentifier const*, eprosima::fastrtps::types::TypeObject const*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->09.95% (300,032B) in 30 places, all below massif's threshold (1.00%)
+|   
+->06.52% (196,500B) 0x3164377D: eprosima::fastdds::rtps::ChannelResource::ChannelResource(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->06.52% (196,500B) 0x316445AA: eprosima::fastdds::rtps::UDPChannelResource::UDPChannelResource(eprosima::fastdds::rtps::UDPTransportInterface*, asio::basic_datagram_socket<asio::ip::udp, asio::execution::any_executor<asio::execution::context_as_t<asio::execution_context&>, asio::execution::detail::blocking::never_t<0>, asio::execution::prefer_only<asio::execution::detail::blocking::possibly_t<0> >, asio::execution::prefer_only<asio::execution::detail::outstanding_work::tracked_t<0> >, asio::execution::prefer_only<asio::execution::detail::outstanding_work::untracked_t<0> >, asio::execution::prefer_only<asio::execution::detail::relationship::fork_t<0> >, asio::execution::prefer_only<asio::execution::detail::relationship::continuation_t<0> > > >&, unsigned int, eprosima::fastrtps::rtps::Locator_t const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, eprosima::fastdds::rtps::TransportReceiverInterface*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->06.52% (196,500B) 0x31675159: eprosima::fastdds::rtps::UDPTransportInterface::CreateInputChannelResource(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, eprosima::fastrtps::rtps::Locator_t const&, bool, unsigned int, eprosima::fastdds::rtps::TransportReceiverInterface*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->06.52% (196,500B) 0x31676D78: eprosima::fastdds::rtps::UDPTransportInterface::OpenAndBindInputSockets(eprosima::fastrtps::rtps::Locator_t const&, eprosima::fastdds::rtps::TransportReceiverInterface*, bool, unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->06.52% (196,500B) 0x3166339B: eprosima::fastdds::rtps::UDPv4Transport::OpenInputChannel(eprosima::fastrtps::rtps::Locator_t const&, eprosima::fastdds::rtps::TransportReceiverInterface*, unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->06.52% (196,500B) 0x31569C8F: eprosima::fastrtps::rtps::ReceiverResource::ReceiverResource(eprosima::fastdds::rtps::TransportInterface&, eprosima::fastrtps::rtps::Locator_t const&, unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->06.52% (196,500B) 0x315689E6: eprosima::fastrtps::rtps::NetworkFactory::BuildReceiverResources(eprosima::fastrtps::rtps::Locator_t&, std::vector<std::shared_ptr<eprosima::fastrtps::rtps::ReceiverResource>, std::allocator<std::shared_ptr<eprosima::fastrtps::rtps::ReceiverResource> > >&, unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->06.52% (196,500B) 0x3156CEF5: eprosima::fastrtps::rtps::RTPSParticipantImpl::createReceiverResources(eprosima::fastdds::rtps::LocatorList&, bool, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               ->02.17% (65,500B) 0x3156E6C5: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               | ->02.17% (65,500B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |   ->02.17% (65,500B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |     ->02.17% (65,500B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |       ->02.17% (65,500B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |         ->02.17% (65,500B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |           ->02.17% (65,500B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               |             ->02.17% (65,500B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               |               ->02.17% (65,500B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                 ->02.17% (65,500B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                   ->02.17% (65,500B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                     ->02.17% (65,500B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|               |                       ->02.17% (65,500B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|               |                         ->02.17% (65,500B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|               |                           ->02.17% (65,500B) 0x30469189: rclc_node_init_default (node.c:41)
+|               |                             ->02.17% (65,500B) 0x10B04B: init_node (my_node.h:200)
+|               |                               ->02.17% (65,500B) 0x10DB76: main (test1.c:405)
+|               |                                 
+|               ->02.17% (65,500B) 0x3156E6DB: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               | ->02.17% (65,500B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |   ->02.17% (65,500B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |     ->02.17% (65,500B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |       ->02.17% (65,500B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |         ->02.17% (65,500B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               |           ->02.17% (65,500B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               |             ->02.17% (65,500B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|               |               ->02.17% (65,500B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                 ->02.17% (65,500B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                   ->02.17% (65,500B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|               |                     ->02.17% (65,500B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|               |                       ->02.17% (65,500B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|               |                         ->02.17% (65,500B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|               |                           ->02.17% (65,500B) 0x30469189: rclc_node_init_default (node.c:41)
+|               |                             ->02.17% (65,500B) 0x10B04B: init_node (my_node.h:200)
+|               |                               ->02.17% (65,500B) 0x10DB76: main (test1.c:405)
+|               |                                 
+|               ->02.17% (65,500B) 0x3156E6EE: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                 ->02.17% (65,500B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                   ->02.17% (65,500B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                     ->02.17% (65,500B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                       ->02.17% (65,500B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                         ->02.17% (65,500B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|                           ->02.17% (65,500B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                             ->02.17% (65,500B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                               ->02.17% (65,500B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                                 ->02.17% (65,500B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                                   ->02.17% (65,500B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                                     ->02.17% (65,500B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                                       ->02.17% (65,500B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                                         ->02.17% (65,500B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|                                           ->02.17% (65,500B) 0x30469189: rclc_node_init_default (node.c:41)
+|                                             ->02.17% (65,500B) 0x10B04B: init_node (my_node.h:200)
+|                                               ->02.17% (65,500B) 0x10DB76: main (test1.c:405)
+|                                                 
+->05.29% (159,392B) 0x3171A99B: eprosima::fastrtps::types::TypeObjectFactory::add_type_object(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, eprosima::fastrtps::types::TypeIdentifier const*, eprosima::fastrtps::types::TypeObject const*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->05.29% (159,392B) in 15 places, all below massif's threshold (1.00%)
+|   
+->04.35% (131,008B) 0x3155863A: eprosima::fastrtps::rtps::RTPSMessageGroup::RTPSMessageGroup(eprosima::fastrtps::rtps::RTPSParticipantImpl*, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->02.17% (65,504B) 0x317A6FEE: eprosima::fastdds::rtps::FlowControllerFactory::init(eprosima::fastrtps::rtps::RTPSParticipantImpl*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->02.17% (65,504B) 0x3156E7D3: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |   ->02.17% (65,504B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |     ->02.17% (65,504B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |       ->02.17% (65,504B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |         ->02.17% (65,504B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |           ->02.17% (65,504B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |             ->02.17% (65,504B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| |               ->02.17% (65,504B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| |                 ->02.17% (65,504B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                   ->02.17% (65,504B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                     ->02.17% (65,504B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                       ->02.17% (65,504B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| |                         ->02.17% (65,504B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| |                           ->02.17% (65,504B) 0x30469479: rclc_node_init_with_options (node.c:74)
+| |                             ->02.17% (65,504B) 0x30469189: rclc_node_init_default (node.c:41)
+| |                               ->02.17% (65,504B) 0x10B04B: init_node (my_node.h:200)
+| |                                 ->02.17% (65,504B) 0x10DB76: main (test1.c:405)
+| |                                   
+| ->02.17% (65,504B) 0x317A70FB: eprosima::fastdds::rtps::FlowControllerFactory::init(eprosima::fastrtps::rtps::RTPSParticipantImpl*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->02.17% (65,504B) 0x3156E7D3: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->02.17% (65,504B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->02.17% (65,504B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->02.17% (65,504B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->02.17% (65,504B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->02.17% (65,504B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               ->02.17% (65,504B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                 ->02.17% (65,504B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                   ->02.17% (65,504B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                     ->02.17% (65,504B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                       ->02.17% (65,504B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                         ->02.17% (65,504B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                           ->02.17% (65,504B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                             ->02.17% (65,504B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|                               ->02.17% (65,504B) 0x30469189: rclc_node_init_default (node.c:41)
+|                                 ->02.17% (65,504B) 0x10B04B: init_node (my_node.h:200)
+|                                   ->02.17% (65,504B) 0x10DB76: main (test1.c:405)
+|                                     
+->04.35% (131,008B) 0x31558653: eprosima::fastrtps::rtps::RTPSMessageGroup::RTPSMessageGroup(eprosima::fastrtps::rtps::RTPSParticipantImpl*, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->02.17% (65,504B) 0x317A6FEE: eprosima::fastdds::rtps::FlowControllerFactory::init(eprosima::fastrtps::rtps::RTPSParticipantImpl*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->02.17% (65,504B) 0x3156E7D3: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |   ->02.17% (65,504B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |     ->02.17% (65,504B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |       ->02.17% (65,504B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |         ->02.17% (65,504B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |           ->02.17% (65,504B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| |             ->02.17% (65,504B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| |               ->02.17% (65,504B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+| |                 ->02.17% (65,504B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                   ->02.17% (65,504B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                     ->02.17% (65,504B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+| |                       ->02.17% (65,504B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+| |                         ->02.17% (65,504B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+| |                           ->02.17% (65,504B) 0x30469479: rclc_node_init_with_options (node.c:74)
+| |                             ->02.17% (65,504B) 0x30469189: rclc_node_init_default (node.c:41)
+| |                               ->02.17% (65,504B) 0x10B04B: init_node (my_node.h:200)
+| |                                 ->02.17% (65,504B) 0x10DB76: main (test1.c:405)
+| |                                   
+| ->02.17% (65,504B) 0x317A70FB: eprosima::fastdds::rtps::FlowControllerFactory::init(eprosima::fastrtps::rtps::RTPSParticipantImpl*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|   ->02.17% (65,504B) 0x3156E7D3: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|     ->02.17% (65,504B) 0x3156F458: eprosima::fastrtps::rtps::RTPSParticipantImpl::RTPSParticipantImpl(unsigned int, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::GuidPrefix_t const&, eprosima::fastrtps::rtps::RTPSParticipant*, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|       ->02.17% (65,504B) 0x3157F75F: eprosima::fastrtps::rtps::RTPSDomain::createParticipant(unsigned int, bool, eprosima::fastrtps::rtps::RTPSParticipantAttributes const&, eprosima::fastrtps::rtps::RTPSParticipantListener*) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|         ->02.17% (65,504B) 0x3162C0BF: eprosima::fastdds::dds::DomainParticipantImpl::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|           ->02.17% (65,504B) 0x31635EDB: eprosima::fastdds::dds::DomainParticipant::enable() (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|             ->02.17% (65,504B) 0x316151F8: eprosima::fastdds::dds::DomainParticipantFactory::create_participant(unsigned int, eprosima::fastdds::dds::DomainParticipantQos const&, eprosima::fastdds::dds::DomainParticipantListener*, eprosima::fastdds::dds::StatusMask const&) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+|               ->02.17% (65,504B) 0x3119480F: __create_participant(char const*, eprosima::fastdds::dds::DomainParticipantQos const&, bool, publishing_mode_t, rmw_dds_common::Context*, unsigned long) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                 ->02.17% (65,504B) 0x31195368: rmw_fastrtps_shared_cpp::create_participant(char const*, unsigned long, rmw_security_options_s const*, bool, char const*, rmw_dds_common::Context*) (in /home/oem/ros2_humble/install/rmw_fastrtps_shared_cpp/lib/librmw_fastrtps_shared_cpp.so)
+|                   ->02.17% (65,504B) 0x3104595F: init_context_impl(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                     ->02.17% (65,504B) 0x310460A0: rmw_fastrtps_cpp::increment_context_impl_ref_count(rmw_context_s*) (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                       ->02.17% (65,504B) 0x310697E3: rmw_create_node (in /home/oem/ros2_humble/build/rmw_fastrtps_cpp/librmw_fastrtps_cpp.so)
+|                         ->02.17% (65,504B) 0x30765702: rmw_create_node (in /home/oem/ros2_humble/install/rmw_implementation/lib/librmw_implementation.so)
+|                           ->02.17% (65,504B) 0x304A5C1F: rcl_node_init (in /home/oem/ros2_humble/install/rcl/lib/librcl.so)
+|                             ->02.17% (65,504B) 0x30469479: rclc_node_init_with_options (node.c:74)
+|                               ->02.17% (65,504B) 0x30469189: rclc_node_init_default (node.c:41)
+|                                 ->02.17% (65,504B) 0x10B04B: init_node (my_node.h:200)
+|                                   ->02.17% (65,504B) 0x10DB76: main (test1.c:405)
+|                                     
+->03.39% (102,302B) 0x10D185: my_allocate (test1.c:232)
+| ->03.01% (90,714B) 0x10D2AB: executor_allocate (test1.c:255)
+| | ->01.85% (55,760B) 0x30477654: rclc_init_circular_queue (buffer.c:155)
+| | | ->01.85% (55,760B) 0x30478E1D: rclc_init_2d_circular_queue (buffer.c:586)
+| | |   ->01.85% (55,760B) 0x30465D8E: rclc_publisher_let_init (publisher.c:168)
+| | |     ->01.85% (55,760B) 0x30473E6E: rclc_executor_add_publisher_LET (executor.c:2608)
+| | |       ->01.85% (55,760B) in 3 places, all below massif's threshold (1.00%)
+| | |         
+| | ->01.16% (34,954B) in 12 places, all below massif's threshold (1.00%)
+| |   
+| ->00.38% (11,588B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->02.41% (72,704B) 0x308ED939: ??? (in /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+| ->02.41% (72,704B) 0x2FC0B47D: call_init.part.0 (dl-init.c:70)
+|   ->02.41% (72,704B) 0x2FC0B567: call_init (dl-init.c:33)
+|     ->02.41% (72,704B) 0x2FC0B567: _dl_init (dl-init.c:117)
+|       ->02.41% (72,704B) 0x2FC252E9: ??? (in /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2)
+|         ->02.41% (72,704B) 0x4: ???
+|           ->02.41% (72,704B) 0x1FFEFF3892: ???
+|             ->02.41% (72,704B) 0x1FFEFF38AC: ???
+|               ->02.41% (72,704B) 0x1FFEFF38B1: ???
+|                 ->02.41% (72,704B) 0x1FFEFF38B6: ???
+|                   ->02.41% (72,704B) 0x1FFEFF38BA: ???
+|                     
+->01.43% (43,252B) 0x31529625: eprosima::fastrtps::rtps::TopicPayloadPool::do_allocate(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| ->01.43% (43,132B) 0x3152A972: eprosima::fastrtps::rtps::PreallocatedReallocTopicPayloadPool::reserve_history(eprosima::fastrtps::rtps::PoolConfig const&, bool) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+| | ->01.43% (43,132B) in 6 places, all below massif's threshold (1.00%)
+| |   
+| ->00.00% (120B) in 1+ places, all below ms_print's threshold (01.00%)
+| 
+->01.24% (37,232B) 0x3151EE31: eprosima::fastrtps::rtps::CacheChangePool::allocateGroup(unsigned int) (in /home/oem/ros2_humble/install/fastrtps/lib/libfastrtps.so.2.6.4)
+  ->01.24% (37,232B) in 2 places, all below massif's threshold (1.00%)
+
+Memory Executor 94037404397760 max size 5266 current size 0
+Memory Executor 94037404398048 max size 35764 current size 0
+Memory Executor 94037404398336 max size 42584 current size 0
+Memory Executor 94037404398624 max size 5308 current size 0
+Memory Main max size 10072 current size 544
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-22 10:33:46 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+ 7767   0   7767    8388608    8327168      87512     1      8               (nil) test1
+ 7767   1   7768    8388608    8388608      12680     0      7      0x7f9b03d9a240 test1
+ 7767   2   7769    8388608    8388608      14888     0      6      0x7f9b03d9a240 test1
+ 7767   3   7771    8388608    8388608      13768     0      6      0x7f9b03d9a240 test1
+ 7767   4   7770    8388608    8388608      17096     0      6      0x7f9b03d9a240 test1
+ 7767   5   7774    8388608    8388608      14280     0      6      0x7f9b03d9a240 test1
+ 7767   6   7776    8388608    8388608      15880     0      6      0x7f9b03d9a240 test1
+ 7767   7   7777    8388608    8388608      35800     0      6      0x558699c64149 94037404397760
+ 7767   8   7775    8388608    8388608      12616     0      7      0x7f9b03d9a240 test1
+ 7767   9   7772    8388608    8388608      13224     0      6      0x7f9b03d9a240 test1
+ 7767  10   7773    8388608    8388608      12184     0      6      0x7f9b03d9a240 test1
+ 7767  11   7778    8388608    8388608      17440     0      5      0x7f9b042c225c O94037404397760
+ 7767  12   7779    8388608    8388608      62336     0      5      0x7f9b042c1f4c I94037404397760
+ 7767  13   7782    8388608    8388608      34840     0      6      0x558699c64149 94037404398624
+ 7767  14   7780    8388608    8388608      35800     0      6      0x558699c64149 94037404398048
+ 7767  15   7783    8388608    8388608      12936     0      6      0x7f9b042c225c O94037404398624
+ 7767  16   7784    8388608    8388608      17440     0      5      0x7f9b042c225c O94037404398048
+ 7767  17   7785    8388608    8388608      77344     0      4      0x7f9b042c1f4c I94037404398624
+ 7767  18   7786    8388608    8388608      77344     0      4      0x7f9b042c1f4c I94037404398048
+ 7767  19   7781    8388608    8388608      35000     0      5      0x558699c64149 94037404398336
+ 7767  20   7787    8388608    8388608      16832     0      5      0x7f9b042c225c O94037404398336
+ 7767  21   7788    8388608    8388608      77344     0      5      0x7f9b042c1f4c I94037404398336
+
+1.9M total for DDS memory: 43KB for publishers and subscribers in total
+With LET: 90kb executor malloc (5k-35k-42k-5k), Stacks: (Ex-In-Out): (35K-62K-17K)-(35K-77K-16K)-(35K-77K-16K)-(34K-77K-12K)
+Without LET:
+Memory Executor 94324863983808 max size 600 current size 0
+Memory Executor 94324863984096 max size 616 current size 0
+Memory Executor 94324863984384 max size 632 current size 0
+Memory Executor 94324863984672 max size 632 current size 0
+Memory Main max size 10072 current size 544
+Memory Support max size 916 current size 0
+stackusage log at 2023-08-22 10:48:32 ----------------------------------------
+  pid  id    tid  requested     actual     maxuse  max%    dur               funcP name
+ 8536   0   8536    8388608    8331264      87768     1      6               (nil) test1
+ 8536   1   8537    8388608    8388608      12680     0      6      0x7f24887a4240 test1
+ 8536   2   8538    8388608    8388608      14888     0      6      0x7f24887a4240 test1
+ 8536   3   8539    8388608    8388608      17096     0      5      0x7f24887a4240 test1
+ 8536   4   8546    8388608    8388608      74864     0      5      0x55c988012149 94324863983808
+ 8536   5   8543    8388608    8388608      14280     0      6      0x7f24887a4240 test1
+ 8536   6   8542    8388608    8388608      12184     0      5      0x7f24887a4240 test1
+ 8536   7   8544    8388608    8388608      12616     0      6      0x7f24887a4240 test1
+ 8536   8   8549    8388608    8388608      89872     1      5      0x55c988012149 94324863984672
+ 8536   9   8540    8388608    8388608      12184     0      5      0x7f24887a4240 test1
+ 8536  10   8545    8388608    8388608      15880     0      5      0x7f24887a4240 test1
+ 8536  11   8541    8388608    8388608      13224     0      5      0x7f24887a4240 test1
+ 8536  12   8547    8388608    8388608      89872     1      5      0x55c988012149 94324863984096
+ 8536  13   8548    8388608    8388608      89872     1      5      0x55c988012149 94324863984384
+2.4K executor malloc (0.6-0.6-0.6-0.6), Stacks: (74k-89K-89K-89K)
