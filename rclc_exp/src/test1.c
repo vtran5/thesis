@@ -222,133 +222,10 @@ void node4_subscriber4_callback(const void * msgin)
   subscriber_callback_print(node4, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
 }
 
-typedef struct {
-  size_t current_memory_size;
-  size_t max_memory_size;
-} rcl_allocator_state_t;
-
-void *my_allocate(size_t size, void *state) {
-    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
-    size_t *ptr = (size_t *)malloc(size + sizeof(size_t));
-    if (!ptr) return NULL;
-    *ptr = size;
-    alloc_state->current_memory_size += size;
-    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
-        alloc_state->max_memory_size = alloc_state->current_memory_size;
-    }
-    return (void *)(ptr + 1);
-}
-
-void *main_allocate(size_t size, void *state) {
-    void * ptr = my_allocate(size, state);
-    printf("Main Allocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void *support_allocate(size_t size, void *state) {
-    void * ptr = my_allocate(size, state);
-    printf("Support Allocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void *executor_allocate(size_t size, void *state) {
-    void * ptr = my_allocate(size, state);
-    printf("Exe Allocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void my_deallocate(void *pointer, void *state) {
-    if (!pointer) return;
-    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
-    size_t *ptr = (size_t *)pointer - 1;
-    alloc_state->current_memory_size -= *ptr;
-    free(ptr);
-}
-
-void main_deallocate(void *pointer, void *state) {
-    printf("Main Deallocate %lu\n", (unsigned long)pointer);
-    my_deallocate(pointer, state);
-}
-
-void support_deallocate(void *pointer, void *state) {
-    printf("Support Deallocate %lu\n", (unsigned long)pointer);
-    my_deallocate(pointer, state);
-}
-
-void executor_deallocate(void *pointer, void *state) {
-    printf("Exe Deallocate %lu\n", (unsigned long)pointer);
-    my_deallocate(pointer, state);
-}
-
-void *my_reallocate(void *pointer, size_t size, void *state) {
-    if (!pointer) return my_allocate(size, state);
-    size_t *old_ptr = (size_t *)pointer - 1;
-    size_t old_size = *old_ptr;
-    size_t *new_ptr = (size_t *)realloc(old_ptr, size + sizeof(size_t));
-    if (!new_ptr) return NULL;
-    *new_ptr = size;
-    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
-    alloc_state->current_memory_size += size - old_size;
-    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
-        alloc_state->max_memory_size = alloc_state->current_memory_size;
-    }
-    return (void *)(new_ptr + 1);
-}
-
-void *main_reallocate(void *pointer, size_t size, void *state) {
-    void * ptr = my_reallocate(pointer, size, state);
-    printf("Main Reallocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void *support_reallocate(void *pointer, size_t size, void *state) {
-    void * ptr = my_reallocate(pointer, size, state);
-    printf("Support Reallocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void *executor_reallocate(void *pointer, size_t size, void *state) {
-    void * ptr = my_reallocate(pointer, size, state);
-    printf("Exe Reallocate %lu size %zu\n", (unsigned long) ptr, size);
-    return ptr;
-}
-
-void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
-    size_t total_size = number_of_elements * size_of_element;
-    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
-    size_t *ptr = (size_t *)malloc(total_size + sizeof(size_t));
-    if (!ptr) return NULL;
-    *ptr = total_size; // Storing the total size
-    alloc_state->current_memory_size += total_size;
-    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
-        alloc_state->max_memory_size = alloc_state->current_memory_size;
-    }
-    void *user_ptr = (void *)(ptr + 1);
-    memset(user_ptr, 0, total_size); // Set all bytes to zero
-    return user_ptr;
-}
-
-void *main_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
-    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
-    printf("Main Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
-    return ptr;
-}
-
-void *support_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
-    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
-    printf("Support Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
-    return ptr;
-}
-
-void *executor_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
-    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
-    printf("Exe Zero-allocate %lu size %zu\n", (unsigned long) ptr, size_of_element*number_of_elements);
-    return ptr;
-}
-
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
+    printf("Msg size %zu\n", sizeof(custom_interfaces__msg__Message));
     unsigned int timer_period = 100;
     unsigned int executor_period_input = 100;
     unsigned int experiment_duration = 10000;
@@ -757,6 +634,6 @@ int main(int argc, char const *argv[])
     free(executor_semantics);
     free(allocator);
     free(alloc_state);
- 
+
     return 0;
 }

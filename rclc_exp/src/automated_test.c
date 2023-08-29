@@ -5,7 +5,7 @@
 #include "my_node.h"
 
 volatile rcl_time_point_value_t start_time;
-
+rcl_allocator_t allocator_main;
 rclc_executor_semantics_t semantics;
 
 void node_timer_callback(rcl_timer_t * timer, void * context)
@@ -29,7 +29,7 @@ void node_timer_callback(rcl_timer_t * timer, void * context)
   pub_msg.frame_id = context_ptr->node->count[context_ptr->timer_index]++;
   pub_msg.stamp = now;
   printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
-  busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
+  // busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
     RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], &pub_msg, NULL, semantics));
@@ -51,7 +51,7 @@ void node_subscriber_callback(const void * msgin, void * context)
   rcl_time_point_value_t now;
   now = rclc_now(&support);
   printf("Subscriber %lu %ld %ld\n", (unsigned long) &context_ptr->node->subscriber[context_ptr->sub_index], msg->frame_id, now);
-  busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
+  // busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
   now = rclc_now(&support);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
@@ -80,11 +80,11 @@ void initialize_callbacks_and_topics(my_node_t **nodes, int num_nodes)
       nodes[i]->subscriber_callback[j] = &node_subscriber_callback;
     }
 
-    nodes[i]->pub_topic_name = create_topic_name_array(nodes[i]->pub_num);
+    nodes[i]->pub_topic_name = create_topic_name_array(nodes[i]->pub_num, &allocator_main);
     
     if (i == num_nodes -1)
       return;
-    nodes[i+1]->sub_topic_name = create_topic_name_array(nodes[i+1]->sub_num);  
+    nodes[i+1]->sub_topic_name = create_topic_name_array(nodes[i+1]->sub_num, &allocator_main);  
     // Last node doesn't publish to any node
     my_node_t *current_node = nodes[i];
     my_node_t *next_node = nodes[i + 1]; // Next node in the array
@@ -122,7 +122,7 @@ void initialize_node_entities(
 {
   for(int i = 0; i < num_nodes; i++)
   {
-    uint64_t * timer_timeout_ns = malloc(nodes[i]->timer_num * sizeof(uint64_t));
+    uint64_t * timer_timeout_ns = allocator_main.allocate(nodes[i]->timer_num * sizeof(uint64_t), allocator_main.state);
     if (timer_timeout_ns == NULL)
       printf("Allocate memory failed\n");
     for (int j = 0; j < nodes[i]->timer_num; j++)
@@ -132,7 +132,7 @@ void initialize_node_entities(
     init_node_timer(nodes[i], &support, timer_timeout_ns);
     init_node_subscriber(nodes[i], my_type_support, nodes[i]->sub_topic_name, profile);
     init_node_publisher(nodes[i], my_type_support, nodes[i]->pub_topic_name, profile, semantics);
-    free(timer_timeout_ns);
+    allocator_main.allocate(timer_timeout_ns, allocator_main.state);
   }
 }
 
@@ -149,12 +149,12 @@ void add_entities_to_executor(
   for (int i = 0; i < num_nodes; i++)
   {
     int j;
-    nodes[i]->sub_context = malloc(nodes[i]->sub_num*sizeof(subscriber_callback_context_t));
-    nodes[i]->timer_context = malloc(nodes[i]->timer_num*sizeof(timer_callback_context_t));
+    nodes[i]->sub_context = allocator_main.allocate(nodes[i]->sub_num*sizeof(subscriber_callback_context_t), allocator_main.state);
+    nodes[i]->timer_context = allocator_main.allocate(nodes[i]->timer_num*sizeof(timer_callback_context_t), allocator_main.state);
     int pub_num_per_cb = (nodes[i]->pub_num/(nodes[i]->sub_num + nodes[i]->timer_num)) + 1;
     for (j = 0; j < nodes[i]->sub_num; j++)
     {
-      nodes[i]->sub_context[j].pub_index = malloc(sizeof(int)*pub_num_per_cb);
+      nodes[i]->sub_context[j].pub_index = allocator_main.allocate(sizeof(int)*pub_num_per_cb, allocator_main.state);
       nodes[i]->sub_context[j].sub_index = j;
       nodes[i]->sub_context[j].node = nodes[i];
       nodes[i]->sub_context[j].min_execution_time_ms = min_execution_time_ms;
@@ -178,7 +178,7 @@ void add_entities_to_executor(
 
     for (j = 0; j < nodes[i]->timer_num; j++)
     {
-      nodes[i]->timer_context[j].pub_index = malloc(sizeof(int)*pub_num_per_cb);
+      nodes[i]->timer_context[j].pub_index = allocator_main.allocate(sizeof(int)*pub_num_per_cb, allocator_main.state);
       nodes[i]->timer_context[j].timer_index = j;
       nodes[i]->timer_context[j].node = nodes[i];
       nodes[i]->timer_context[j].min_execution_time_ms = min_execution_time_ms;
@@ -215,7 +215,7 @@ void add_entities_to_executor(
 void init_message(custom_interfaces__msg__SequenceMsg msg, int message_size)
 {
   msg.data.capacity = message_size;
-  msg.data.data = (int64_t *) malloc(msg.data.capacity * sizeof(int64_t));
+  msg.data.data = (int64_t *) allocator_main.allocate(msg.data.capacity * sizeof(int64_t), allocator_main.state);
   msg.data.size = 0;
   for (int64_t i = 0; i < message_size; i++)
   {
@@ -234,10 +234,12 @@ void destroy_message(custom_interfaces__msg__SequenceMsg msg)
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-  if (argc != 4) {
-    printf("Usage: %s <config_file>\n", argv[0]);
+  if (argc != 6) {
+    printf("Usage: %s -let <bool> -ed <int> <config_file>\n", argv[0]);
     return 1;
   }
+  int experiment_duration_ms = 120000;
+
   semantics = LET;
   if (strcmp(argv[1], "-let") == 0) {
     printf("Set sematics\n");
@@ -253,7 +255,11 @@ int main(int argc, char const *argv[])
     }
   }
 
-  FILE *file = fopen(argv[3], "r");
+  if (strcmp(argv[3], "-ed") == 0) {
+    experiment_duration_ms = atoi(argv[4]);
+  }
+
+  FILE *file = fopen(argv[5], "r");
   if (!file) {
     printf("Error: Could not open file %s\n", argv[3]);
     return 1;
@@ -265,13 +271,28 @@ int main(int argc, char const *argv[])
   fscanf(file, "timer_period: %d\n", &timer_period);
   fscanf(file, "message_size: %d\n", &message_size);
   fscanf(file, "callback_let: %d\n", &callback_let);
+  printf("CallbackLET %d\n", callback_let);
+  rcl_allocator_state_t alloc_main_state = {0,0};
+  allocator_main.state = &alloc_main_state;
+  allocator_main.allocate = main_allocate;
+  allocator_main.deallocate = main_deallocate;
+  allocator_main.reallocate = main_reallocate;
+  allocator_main.zero_allocate = main_zero_allocate;
 
-  my_node_t ** nodes = malloc(num_nodes*sizeof(my_node_t *));
+  rcl_allocator_t allocator_support;
+  rcl_allocator_state_t alloc_support_state = {0,0};
+  allocator_support.state = &alloc_support_state;
+  allocator_support.allocate = support_allocate;
+  allocator_support.deallocate = support_deallocate;
+  allocator_support.reallocate = support_reallocate;
+  allocator_support.zero_allocate = support_zero_allocate;
+
+  my_node_t ** nodes = allocator_main.allocate(num_nodes*sizeof(my_node_t *), allocator_main.state);
 
   for (int i = 0; i < num_nodes; i++) {
     int node_id, pub_num, sub_num, timer_num;
     fscanf(file, "%d: %d %d %d\n", &node_id, &pub_num, &sub_num, &timer_num);
-    nodes[i] = create_node(timer_num, pub_num, sub_num);
+    nodes[i] = create_node(timer_num, pub_num, sub_num, &allocator_main);
     if(nodes[i] == NULL)
     {
       printf("Create node failed\n");
@@ -281,13 +302,11 @@ int main(int argc, char const *argv[])
 
   fclose(file);
 
-  rcl_allocator_t allocator = rcl_get_default_allocator();
-
   srand(time(NULL));
   exit_flag = false;
   
   // create init_options
-  RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator_support));
 // Assuming `nodes` is an array or similar container of pointers to nodes.
   for (int i = 0; i < num_nodes; i++) {
     char node_name[100];  // Assuming the node name won't exceed 99 characters.
@@ -310,13 +329,29 @@ int main(int argc, char const *argv[])
   ////////////////////////////////////////////////////////////////////////////
   const uint64_t timeout_ns = 0;
   
-  rclc_executor_t * executor = malloc(num_nodes*sizeof(rclc_executor_t));
+  rclc_executor_t * executor = allocator_main.allocate(num_nodes*sizeof(rclc_executor_t), allocator_main.state);
   if(executor == NULL)
     printf("Fail to allocate memory for executor\n");
   
+  rcl_allocator_t * allocator = allocator_main.allocate(num_nodes*sizeof(rcl_allocator_t), allocator_main.state);
+  rcl_allocator_state_t * alloc_state = allocator_main.allocate(num_nodes*sizeof(rcl_allocator_state_t), allocator_main.state);
+  if (allocator == NULL || alloc_state == NULL)
+    printf("Fail to allocate memory for allocator\n");
+
+  for (int i = 0; i < num_nodes; i++)
+  {
+    alloc_state[i].max_memory_size = 0;
+    alloc_state[i].current_memory_size = 0;
+    allocator[i].state = &alloc_state[i];
+    allocator[i].allocate = executor_allocate;
+    allocator[i].deallocate = executor_deallocate;
+    allocator[i].reallocate = executor_reallocate;
+    allocator[i].zero_allocate = executor_zero_allocate;
+  } 
+
   unsigned int num_handles = 4; // max number of handles
-  int min_execution_time_ms = 3;
-  int max_execution_time_ms = 5;
+  int min_execution_time_ms = 1;
+  int max_execution_time_ms = 2;
 
   const int max_call_num_per_callback = 1; // Max number of calls per publisher per callback
   int num_let_handles = 1; // max number of let handles per callback
@@ -329,7 +364,7 @@ int main(int argc, char const *argv[])
   {
     num_handles = nodes[i]->timer_num + nodes[i]->sub_num;
     executor[i] = rclc_executor_get_zero_initialized_executor();
-    RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator)); 
+    RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator[i])); 
     RCCHECK(rclc_executor_set_semantics(&executor[i], semantics));
     RCCHECK(rclc_executor_set_period(&executor[i], RCUTILS_MS_TO_NS(executor_period)));
     RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
@@ -349,11 +384,10 @@ int main(int argc, char const *argv[])
   // Configuration of Linux threads
   ////////////////////////////////////////////////////////////////////////////
   
-  pthread_t * threads = malloc(num_nodes*sizeof(pthread_t));
-  struct arg_spin_period * ex_args = malloc(num_nodes*sizeof(struct arg_spin_period));
+  pthread_t * threads = allocator_main.allocate(num_nodes*sizeof(pthread_t), allocator_main.state);
+  struct arg_spin_period * ex_args = allocator_main.allocate(num_nodes*sizeof(struct arg_spin_period), allocator_main.state);
   int policy = SCHED_FIFO;
   rcl_time_point_value_t now = rclc_now(&support);
-  int experiment_duration_ms = 5000;
   printf("StartTime %ld\n", now);
   for (i = 0; i < num_nodes; i++)
   {
@@ -384,6 +418,7 @@ int main(int argc, char const *argv[])
     printf("Node%d\n", i);
     printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
     printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
+    printf("TriggerOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].trigger_condition_overhead);
     for (int j = 0; j < nodes[i]->pub_num; j++)
     {
       printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
@@ -392,38 +427,43 @@ int main(int argc, char const *argv[])
   }
 
   // clean up 
-  free(threads);
-  free(ex_args);
+  allocator_main.deallocate(threads, allocator_main.state);
+  allocator_main.deallocate(ex_args, allocator_main.state);
   for (i = 0; i < num_nodes; i++)
   {
     if (nodes[i]->sub_context != NULL)
     {
       for (int j = 0; j < nodes[i]->sub_num; j++)
       {
-        free(nodes[i]->sub_context[j].pub_index);
+        allocator_main.deallocate(nodes[i]->sub_context[j].pub_index, allocator_main.state);
       }
-      free(nodes[i]->sub_context);
+      allocator_main.deallocate(nodes[i]->sub_context, allocator_main.state);
       nodes[i]->sub_context = NULL;
     }
     if (nodes[i]->timer_context != NULL)
     {
       for (int j = 0; j < nodes[i]->timer_num; j++)
       {
-        free(nodes[i]->timer_context[j].pub_index);
+        allocator_main.deallocate(nodes[i]->timer_context[j].pub_index, allocator_main.state);
       }
-      free(nodes[i]->timer_context);
+      allocator_main.deallocate(nodes[i]->timer_context, allocator_main.state);
       nodes[i]->timer_context = NULL;
     }
-    destroy_topic_name_array(nodes[i]->pub_topic_name, nodes[i]->pub_num);
-    destroy_topic_name_array(nodes[i]->sub_topic_name, nodes[i]->sub_num);
+    destroy_topic_name_array(nodes[i]->pub_topic_name, nodes[i]->pub_num, &allocator_main);
+    destroy_topic_name_array(nodes[i]->sub_topic_name, nodes[i]->sub_num, &allocator_main);
     RCCHECK(rclc_executor_let_fini(&executor[i]));
     RCCHECK(rclc_executor_fini(&executor[i]));
-    destroy_node(nodes[i]);
+    destroy_node(nodes[i], &allocator_main);
   }
 
   RCCHECK(rclc_support_fini(&support));  
-
-  free(executor);
-  free(nodes);
+  for (int i = 0; i < num_nodes; i++)
+  {
+    printf("Memory Executor %lu max size %zu current size %zu\n", (unsigned long) &executor[i], alloc_state[i].max_memory_size, alloc_state[i].current_memory_size);
+  }
+  printf("Memory Main max size %zu current size %zu\n", alloc_main_state.max_memory_size, alloc_main_state.current_memory_size);
+  printf("Memory Support max size %zu current size %zu\n", alloc_support_state.max_memory_size, alloc_support_state.current_memory_size);
+  allocator_main.deallocate(executor, allocator_main.state);
+  allocator_main.deallocate(nodes, allocator_main.state);
   return 0;
 }

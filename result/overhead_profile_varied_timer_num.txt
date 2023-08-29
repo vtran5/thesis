@@ -1,0 +1,2222 @@
+path: ./result/automated_test_json/varied_timer_num/automated_test10.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 123, 'Q1': 177.0, 'Median': 190.0, 'Q3': 227.0, 'Maximum': 370, 'Whisker Minimum': 123, 'Whisker Maximum': 301}
+ExecutorID: Executor2
+{'Minimum': 139, 'Q1': 178.0, 'Median': 195.0, 'Q3': 245.0, 'Maximum': 415, 'Whisker Minimum': 139, 'Whisker Maximum': 344}
+ExecutorID: Executor3
+{'Minimum': 133, 'Q1': 164.0, 'Median': 180.5, 'Q3': 232.0, 'Maximum': 426, 'Whisker Minimum': 133, 'Whisker Maximum': 333}
+ExecutorID: Executor4
+{'Minimum': 164, 'Q1': 234.0, 'Median': 252.0, 'Q3': 300.0, 'Maximum': 518, 'Whisker Minimum': 164, 'Whisker Maximum': 398}
+ExecutorID: Executor5
+{'Minimum': 155, 'Q1': 230.0, 'Median': 245.0, 'Q3': 291.0, 'Maximum': 534, 'Whisker Minimum': 155, 'Whisker Maximum': 382}
+ExecutorID: Executor6
+{'Minimum': 149, 'Q1': 216.0, 'Median': 243.0, 'Q3': 279.5, 'Maximum': 541, 'Whisker Minimum': 149, 'Whisker Maximum': 374}
+ExecutorID: Executor7
+{'Minimum': 90, 'Q1': 136.0, 'Median': 149.0, 'Q3': 173.0, 'Maximum': 314, 'Whisker Minimum': 90, 'Whisker Maximum': 228}
+With data
+ExecutorID: Executor1
+{'Minimum': 226, 'Q1': 251.5, 'Median': 285.0, 'Q3': 356.5, 'Maximum': 629, 'Whisker Minimum': 226, 'Whisker Maximum': 475}
+ExecutorID: Executor2
+{'Minimum': 187, 'Q1': 278.0, 'Median': 336.0, 'Q3': 397.25, 'Maximum': 761, 'Whisker Minimum': 187, 'Whisker Maximum': 572}
+ExecutorID: Executor3
+{'Minimum': 210, 'Q1': 259.75, 'Median': 358.0, 'Q3': 402.0, 'Maximum': 895, 'Whisker Minimum': 210, 'Whisker Maximum': 612}
+ExecutorID: Executor4
+{'Minimum': 247, 'Q1': 331.5, 'Median': 428.0, 'Q3': 500.5, 'Maximum': 892, 'Whisker Minimum': 247, 'Whisker Maximum': 749}
+ExecutorID: Executor5
+{'Minimum': 214, 'Q1': 328.0, 'Median': 428.5, 'Q3': 505.0, 'Maximum': 1160, 'Whisker Minimum': 214, 'Whisker Maximum': 745}
+ExecutorID: Executor6
+{'Minimum': 247, 'Q1': 323.0, 'Median': 425.0, 'Q3': 484.0, 'Maximum': 1045, 'Whisker Minimum': 247, 'Whisker Maximum': 721}
+ExecutorID: Executor7
+{'Minimum': 330, 'Q1': 357.0, 'Median': 402.0, 'Q3': 528.0, 'Maximum': 950, 'Whisker Minimum': 330, 'Whisker Maximum': 775}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 100, 'Q1': 135.0, 'Median': 151.0, 'Q3': 175.0, 'Maximum': 601, 'Whisker Minimum': 100, 'Whisker Maximum': 234}
+ExecutorID: Executor2
+{'Minimum': 122, 'Q1': 162.0, 'Median': 177.0, 'Q3': 217.0, 'Maximum': 565, 'Whisker Minimum': 122, 'Whisker Maximum': 299}
+ExecutorID: Executor3
+{'Minimum': 108, 'Q1': 147.0, 'Median': 161.0, 'Q3': 207.0, 'Maximum': 447, 'Whisker Minimum': 108, 'Whisker Maximum': 295}
+ExecutorID: Executor4
+{'Minimum': 115, 'Q1': 150.0, 'Median': 166.0, 'Q3': 217.0, 'Maximum': 497, 'Whisker Minimum': 115, 'Whisker Maximum': 316}
+ExecutorID: Executor5
+{'Minimum': 113, 'Q1': 146.0, 'Median': 160.0, 'Q3': 219.0, 'Maximum': 559, 'Whisker Minimum': 113, 'Whisker Maximum': 328}
+ExecutorID: Executor6
+{'Minimum': 119, 'Q1': 176.0, 'Median': 212.0, 'Q3': 247.0, 'Maximum': 486, 'Whisker Minimum': 119, 'Whisker Maximum': 351}
+ExecutorID: Executor7
+{'Minimum': 68, 'Q1': 93.0, 'Median': 111.0, 'Q3': 146.0, 'Maximum': 269, 'Whisker Minimum': 68, 'Whisker Maximum': 225}
+With data
+ExecutorID: Executor1
+{'Minimum': 247, 'Q1': 330.0, 'Median': 361.0, 'Q3': 393.5, 'Maximum': 517, 'Whisker Minimum': 247, 'Whisker Maximum': 468}
+ExecutorID: Executor2
+{'Minimum': 317, 'Q1': 432.5, 'Median': 507.0, 'Q3': 609.5, 'Maximum': 1021, 'Whisker Minimum': 317, 'Whisker Maximum': 874}
+ExecutorID: Executor3
+{'Minimum': 317, 'Q1': 430.5, 'Median': 537.0, 'Q3': 749.5, 'Maximum': 1364, 'Whisker Minimum': 317, 'Whisker Maximum': 1207}
+ExecutorID: Executor4
+{'Minimum': 343, 'Q1': 440.0, 'Median': 572.0, 'Q3': 817.0, 'Maximum': 1473, 'Whisker Minimum': 343, 'Whisker Maximum': 1371}
+ExecutorID: Executor5
+{'Minimum': 313, 'Q1': 452.5, 'Median': 628.0, 'Q3': 891.25, 'Maximum': 1661, 'Whisker Minimum': 313, 'Whisker Maximum': 1497}
+ExecutorID: Executor6
+{'Minimum': 365, 'Q1': 496.0, 'Median': 639.0, 'Q3': 898.0, 'Maximum': 1763, 'Whisker Minimum': 365, 'Whisker Maximum': 1495}
+ExecutorID: Executor7
+{'Minimum': 216, 'Q1': 458.0, 'Median': 565.0, 'Q3': 675.25, 'Maximum': 1239, 'Whisker Minimum': 216, 'Whisker Maximum': 971}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 21, 'Q1': 775.0, 'Median': 879.5, 'Q3': 997.0, 'Maximum': 1381, 'Whisker Minimum': 592, 'Whisker Maximum': 1306}
+ExecutorID: Executor2
+{'Minimum': 9, 'Q1': 855.0, 'Median': 974.0, 'Q3': 1084.0, 'Maximum': 1557, 'Whisker Minimum': 655, 'Whisker Maximum': 1427}
+ExecutorID: Executor3
+{'Minimum': 6, 'Q1': 852.0, 'Median': 966.0, 'Q3': 1109.0, 'Maximum': 1478, 'Whisker Minimum': 648, 'Whisker Maximum': 1478}
+ExecutorID: Executor4
+{'Minimum': 8, 'Q1': 902.0, 'Median': 1039.0, 'Q3': 1162.0, 'Maximum': 1592, 'Whisker Minimum': 745, 'Whisker Maximum': 1513}
+ExecutorID: Executor5
+{'Minimum': 8, 'Q1': 913.0, 'Median': 1047.0, 'Q3': 1179.0, 'Maximum': 1541, 'Whisker Minimum': 753, 'Whisker Maximum': 1541}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 931.0, 'Median': 1063.0, 'Q3': 1192.0, 'Maximum': 1564, 'Whisker Minimum': 748, 'Whisker Maximum': 1564}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 32.0, 'Median': 39.0, 'Q3': 45.0, 'Maximum': 72, 'Whisker Minimum': 27, 'Whisker Maximum': 64}
+With data
+ExecutorID: Executor1
+{'Minimum': 1364, 'Q1': 1669.75, 'Median': 1941.0, 'Q3': 2252.0, 'Maximum': 3041, 'Whisker Minimum': 1364, 'Whisker Maximum': 3041}
+ExecutorID: Executor2
+{'Minimum': 799, 'Q1': 1149.0, 'Median': 1499.0, 'Q3': 1961.75, 'Maximum': 3552, 'Whisker Minimum': 799, 'Whisker Maximum': 3158}
+ExecutorID: Executor3
+{'Minimum': 882, 'Q1': 1216.75, 'Median': 1522.0, 'Q3': 2005.5, 'Maximum': 3664, 'Whisker Minimum': 882, 'Whisker Maximum': 3169}
+ExecutorID: Executor4
+{'Minimum': 981, 'Q1': 1242.25, 'Median': 1614.0, 'Q3': 2098.75, 'Maximum': 3949, 'Whisker Minimum': 981, 'Whisker Maximum': 3319}
+ExecutorID: Executor5
+{'Minimum': 953, 'Q1': 1352.0, 'Median': 1658.5, 'Q3': 2062.25, 'Maximum': 3792, 'Whisker Minimum': 953, 'Whisker Maximum': 3096}
+ExecutorID: Executor6
+{'Minimum': 996, 'Q1': 1388.5, 'Median': 1719.0, 'Q3': 2260.0, 'Maximum': 3918, 'Whisker Minimum': 996, 'Whisker Maximum': 3446}
+input overhead increase total
+  ExecutorID  Difference
+1  Executor1   199578815
+3  Executor2    28057726
+2  Executor3    21114552
+4  Executor4   208864757
+5  Executor5   186941845
+6  Executor6    69724027
+0  Executor7   143161990
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  2252611049
+2  Executor2  2437156870
+3  Executor3  2451401693
+4  Executor4  2645550109
+5  Executor5  2674760200
+6  Executor6  2681068014
+0  Executor7   150236187
+path: ./result/automated_test_json/varied_timer_num/automated_test1.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 64, 'Q1': 95.0, 'Median': 111.0, 'Q3': 125.0, 'Maximum': 199, 'Whisker Minimum': 64, 'Whisker Maximum': 169}
+ExecutorID: Executor2
+{'Minimum': 78, 'Q1': 100.0, 'Median': 111.0, 'Q3': 138.0, 'Maximum': 236, 'Whisker Minimum': 78, 'Whisker Maximum': 194}
+ExecutorID: Executor3
+{'Minimum': 101, 'Q1': 151.0, 'Median': 165.0, 'Q3': 187.0, 'Maximum': 297, 'Whisker Minimum': 101, 'Whisker Maximum': 240}
+ExecutorID: Executor4
+{'Minimum': 95, 'Q1': 120.0, 'Median': 144.0, 'Q3': 163.0, 'Maximum': 264, 'Whisker Minimum': 95, 'Whisker Maximum': 227}
+ExecutorID: Executor5
+{'Minimum': 90, 'Q1': 120.0, 'Median': 140.0, 'Q3': 166.0, 'Maximum': 269, 'Whisker Minimum': 90, 'Whisker Maximum': 234}
+ExecutorID: Executor6
+{'Minimum': 102, 'Q1': 147.25, 'Median': 170.0, 'Q3': 198.0, 'Maximum': 336, 'Whisker Minimum': 102, 'Whisker Maximum': 274}
+ExecutorID: Executor7
+{'Minimum': 98, 'Q1': 137.0, 'Median': 155.0, 'Q3': 175.0, 'Maximum': 298, 'Whisker Minimum': 98, 'Whisker Maximum': 231}
+With data
+ExecutorID: Executor1
+{'Minimum': 89, 'Q1': 125.0, 'Median': 141.5, 'Q3': 165.0, 'Maximum': 408, 'Whisker Minimum': 89, 'Whisker Maximum': 206}
+ExecutorID: Executor2
+{'Minimum': 98, 'Q1': 132.75, 'Median': 207.0, 'Q3': 269.0, 'Maximum': 525, 'Whisker Minimum': 98, 'Whisker Maximum': 472}
+ExecutorID: Executor3
+{'Minimum': 133, 'Q1': 205.0, 'Median': 252.0, 'Q3': 304.0, 'Maximum': 581, 'Whisker Minimum': 133, 'Whisker Maximum': 452}
+ExecutorID: Executor4
+{'Minimum': 111, 'Q1': 184.0, 'Median': 222.0, 'Q3': 275.0, 'Maximum': 612, 'Whisker Minimum': 111, 'Whisker Maximum': 410}
+ExecutorID: Executor5
+{'Minimum': 112, 'Q1': 171.0, 'Median': 204.0, 'Q3': 263.5, 'Maximum': 658, 'Whisker Minimum': 112, 'Whisker Maximum': 401}
+ExecutorID: Executor6
+{'Minimum': 112, 'Q1': 194.0, 'Median': 236.0, 'Q3': 291.0, 'Maximum': 750, 'Whisker Minimum': 112, 'Whisker Maximum': 436}
+ExecutorID: Executor7
+{'Minimum': 101, 'Q1': 176.0, 'Median': 202.0, 'Q3': 255.0, 'Maximum': 670, 'Whisker Minimum': 101, 'Whisker Maximum': 367}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 48, 'Q1': 73.0, 'Median': 83.0, 'Q3': 98.0, 'Maximum': 405, 'Whisker Minimum': 48, 'Whisker Maximum': 135}
+ExecutorID: Executor2
+{'Minimum': 59, 'Q1': 89.0, 'Median': 99.0, 'Q3': 121.0, 'Maximum': 267, 'Whisker Minimum': 59, 'Whisker Maximum': 168}
+ExecutorID: Executor3
+{'Minimum': 57, 'Q1': 76.0, 'Median': 85.0, 'Q3': 115.0, 'Maximum': 262, 'Whisker Minimum': 57, 'Whisker Maximum': 172}
+ExecutorID: Executor4
+{'Minimum': 73, 'Q1': 117.0, 'Median': 125.0, 'Q3': 148.0, 'Maximum': 271, 'Whisker Minimum': 73, 'Whisker Maximum': 194}
+ExecutorID: Executor5
+{'Minimum': 64, 'Q1': 84.0, 'Median': 99.0, 'Q3': 127.0, 'Maximum': 250, 'Whisker Minimum': 64, 'Whisker Maximum': 191}
+ExecutorID: Executor6
+{'Minimum': 64, 'Q1': 84.0, 'Median': 98.0, 'Q3': 119.25, 'Maximum': 256, 'Whisker Minimum': 64, 'Whisker Maximum': 171}
+ExecutorID: Executor7
+{'Minimum': 66, 'Q1': 109.0, 'Median': 122.0, 'Q3': 142.0, 'Maximum': 263, 'Whisker Minimum': 66, 'Whisker Maximum': 191}
+With data
+ExecutorID: Executor1
+{'Minimum': 74, 'Q1': 99.0, 'Median': 111.0, 'Q3': 129.0, 'Maximum': 169, 'Whisker Minimum': 74, 'Whisker Maximum': 169}
+ExecutorID: Executor2
+{'Minimum': 118, 'Q1': 180.0, 'Median': 377.0, 'Q3': 479.0, 'Maximum': 820, 'Whisker Minimum': 118, 'Whisker Maximum': 820}
+ExecutorID: Executor3
+{'Minimum': 116, 'Q1': 184.0, 'Median': 345.0, 'Q3': 447.5, 'Maximum': 1020, 'Whisker Minimum': 116, 'Whisker Maximum': 830}
+ExecutorID: Executor4
+{'Minimum': 137, 'Q1': 224.0, 'Median': 281.0, 'Q3': 383.0, 'Maximum': 1105, 'Whisker Minimum': 137, 'Whisker Maximum': 618}
+ExecutorID: Executor5
+{'Minimum': 130, 'Q1': 212.0, 'Median': 281.0, 'Q3': 364.0, 'Maximum': 1190, 'Whisker Minimum': 130, 'Whisker Maximum': 585}
+ExecutorID: Executor6
+{'Minimum': 141, 'Q1': 204.0, 'Median': 264.0, 'Q3': 340.0, 'Maximum': 1177, 'Whisker Minimum': 141, 'Whisker Maximum': 540}
+ExecutorID: Executor7
+{'Minimum': 140, 'Q1': 191.0, 'Median': 233.0, 'Q3': 293.0, 'Maximum': 796, 'Whisker Minimum': 140, 'Whisker Maximum': 443}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 29, 'Q1': 701.0, 'Median': 802.0, 'Q3': 907.0, 'Maximum': 1184, 'Whisker Minimum': 514, 'Whisker Maximum': 1184}
+ExecutorID: Executor2
+{'Minimum': 12, 'Q1': 772.25, 'Median': 889.0, 'Q3': 991.0, 'Maximum': 1290, 'Whisker Minimum': 545, 'Whisker Maximum': 1290}
+ExecutorID: Executor3
+{'Minimum': 7, 'Q1': 816.5, 'Median': 918.0, 'Q3': 1050.0, 'Maximum': 1339, 'Whisker Minimum': 628, 'Whisker Maximum': 1339}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 810.0, 'Median': 944.0, 'Q3': 1059.0, 'Maximum': 1301, 'Whisker Minimum': 646, 'Whisker Maximum': 1301}
+ExecutorID: Executor5
+{'Minimum': 6, 'Q1': 831.25, 'Median': 958.0, 'Q3': 1060.0, 'Maximum': 1320, 'Whisker Minimum': 660, 'Whisker Maximum': 1320}
+ExecutorID: Executor6
+{'Minimum': 8, 'Q1': 839.25, 'Median': 976.0, 'Q3': 1076.0, 'Maximum': 1358, 'Whisker Minimum': 666, 'Whisker Maximum': 1358}
+ExecutorID: Executor7
+{'Minimum': 6, 'Q1': 34.0, 'Median': 41.0, 'Q3': 45.0, 'Maximum': 86, 'Whisker Minimum': 25, 'Whisker Maximum': 61}
+With data
+ExecutorID: Executor1
+{'Minimum': 1304, 'Q1': 1616.0, 'Median': 1863.0, 'Q3': 2187.0, 'Maximum': 3130, 'Whisker Minimum': 1304, 'Whisker Maximum': 2911}
+ExecutorID: Executor2
+{'Minimum': 956, 'Q1': 1323.75, 'Median': 1503.5, 'Q3': 1686.25, 'Maximum': 2431, 'Whisker Minimum': 956, 'Whisker Maximum': 2228}
+ExecutorID: Executor3
+{'Minimum': 792, 'Q1': 1170.75, 'Median': 1371.5, 'Q3': 1634.75, 'Maximum': 2860, 'Whisker Minimum': 792, 'Whisker Maximum': 2314}
+ExecutorID: Executor4
+{'Minimum': 784, 'Q1': 1115.5, 'Median': 1312.0, 'Q3': 1542.0, 'Maximum': 2811, 'Whisker Minimum': 784, 'Whisker Maximum': 2177}
+ExecutorID: Executor5
+{'Minimum': 756, 'Q1': 1078.0, 'Median': 1235.0, 'Q3': 1424.0, 'Maximum': 2824, 'Whisker Minimum': 756, 'Whisker Maximum': 1917}
+ExecutorID: Executor6
+{'Minimum': 717, 'Q1': 1005.0, 'Median': 1191.0, 'Q3': 1364.0, 'Maximum': 2676, 'Whisker Minimum': 717, 'Whisker Maximum': 1892}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   190883491
+1  Executor2    47433781
+2  Executor3   225740522
+6  Executor4    53334387
+3  Executor5    68028077
+5  Executor6   137481644
+4  Executor7    99800253
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  2091915524
+2  Executor2  2220861436
+3  Executor3  2397111088
+4  Executor4  2392392555
+5  Executor5  2399432641
+6  Executor6  2409526250
+0  Executor7   149429385
+path: ./result/automated_test_json/varied_timer_num/automated_test2.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 66, 'Q1': 98.25, 'Median': 115.0, 'Q3': 133.0, 'Maximum': 202, 'Whisker Minimum': 66, 'Whisker Maximum': 185}
+ExecutorID: Executor2
+{'Minimum': 85, 'Q1': 104.0, 'Median': 109.0, 'Q3': 135.0, 'Maximum': 334, 'Whisker Minimum': 85, 'Whisker Maximum': 181}
+ExecutorID: Executor3
+{'Minimum': 93, 'Q1': 137.0, 'Median': 151.0, 'Q3': 166.0, 'Maximum': 314, 'Whisker Minimum': 95, 'Whisker Maximum': 209}
+ExecutorID: Executor4
+{'Minimum': 105, 'Q1': 152.0, 'Median': 168.0, 'Q3': 184.0, 'Maximum': 331, 'Whisker Minimum': 105, 'Whisker Maximum': 231}
+ExecutorID: Executor5
+{'Minimum': 98, 'Q1': 145.0, 'Median': 154.0, 'Q3': 174.0, 'Maximum': 307, 'Whisker Minimum': 106, 'Whisker Maximum': 216}
+ExecutorID: Executor6
+{'Minimum': 99, 'Q1': 149.0, 'Median': 157.0, 'Q3': 178.0, 'Maximum': 308, 'Whisker Minimum': 108, 'Whisker Maximum': 221}
+ExecutorID: Executor7
+{'Minimum': 88, 'Q1': 134.0, 'Median': 143.0, 'Q3': 161.0, 'Maximum': 314, 'Whisker Minimum': 94, 'Whisker Maximum': 201}
+With data
+ExecutorID: Executor1
+{'Minimum': 106, 'Q1': 128.75, 'Median': 143.5, 'Q3': 170.0, 'Maximum': 468, 'Whisker Minimum': 106, 'Whisker Maximum': 230}
+ExecutorID: Executor2
+{'Minimum': 113, 'Q1': 132.0, 'Median': 216.0, 'Q3': 270.0, 'Maximum': 572, 'Whisker Minimum': 113, 'Whisker Maximum': 440}
+ExecutorID: Executor3
+{'Minimum': 112, 'Q1': 194.0, 'Median': 241.0, 'Q3': 290.75, 'Maximum': 550, 'Whisker Minimum': 112, 'Whisker Maximum': 426}
+ExecutorID: Executor4
+{'Minimum': 119, 'Q1': 209.0, 'Median': 243.0, 'Q3': 292.0, 'Maximum': 581, 'Whisker Minimum': 119, 'Whisker Maximum': 415}
+ExecutorID: Executor5
+{'Minimum': 117, 'Q1': 208.0, 'Median': 239.0, 'Q3': 269.0, 'Maximum': 571, 'Whisker Minimum': 117, 'Whisker Maximum': 355}
+ExecutorID: Executor6
+{'Minimum': 133, 'Q1': 198.0, 'Median': 224.0, 'Q3': 262.0, 'Maximum': 496, 'Whisker Minimum': 133, 'Whisker Maximum': 357}
+ExecutorID: Executor7
+{'Minimum': 143, 'Q1': 204.0, 'Median': 221.0, 'Q3': 257.0, 'Maximum': 494, 'Whisker Minimum': 143, 'Whisker Maximum': 336}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 53, 'Q1': 79.0, 'Median': 83.0, 'Q3': 87.0, 'Maximum': 140, 'Whisker Minimum': 68, 'Whisker Maximum': 98}
+ExecutorID: Executor2
+{'Minimum': 64, 'Q1': 83.0, 'Median': 88.0, 'Q3': 96.0, 'Maximum': 197, 'Whisker Minimum': 64, 'Whisker Maximum': 115}
+ExecutorID: Executor3
+{'Minimum': 68, 'Q1': 111.0, 'Median': 131.0, 'Q3': 135.0, 'Maximum': 269, 'Whisker Minimum': 76, 'Whisker Maximum': 170}
+ExecutorID: Executor4
+{'Minimum': 65, 'Q1': 85.0, 'Median': 90.0, 'Q3': 100.0, 'Maximum': 234, 'Whisker Minimum': 65, 'Whisker Maximum': 122}
+ExecutorID: Executor5
+{'Minimum': 70, 'Q1': 124.0, 'Median': 131.0, 'Q3': 139.0, 'Maximum': 283, 'Whisker Minimum': 102, 'Whisker Maximum': 161}
+ExecutorID: Executor6
+{'Minimum': 71, 'Q1': 93.0, 'Median': 100.0, 'Q3': 110.0, 'Maximum': 282, 'Whisker Minimum': 71, 'Whisker Maximum': 135}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 83.0, 'Median': 87.0, 'Q3': 116.0, 'Maximum': 266, 'Whisker Minimum': 63, 'Whisker Maximum': 165}
+With data
+ExecutorID: Executor1
+{'Minimum': 95, 'Q1': 120.0, 'Median': 126.0, 'Q3': 131.0, 'Maximum': 407, 'Whisker Minimum': 105, 'Whisker Maximum': 146}
+ExecutorID: Executor2
+{'Minimum': 132, 'Q1': 168.0, 'Median': 272.5, 'Q3': 383.0, 'Maximum': 783, 'Whisker Minimum': 132, 'Whisker Maximum': 624}
+ExecutorID: Executor3
+{'Minimum': 149, 'Q1': 223.0, 'Median': 270.0, 'Q3': 366.0, 'Maximum': 789, 'Whisker Minimum': 149, 'Whisker Maximum': 573}
+ExecutorID: Executor4
+{'Minimum': 144, 'Q1': 186.0, 'Median': 283.0, 'Q3': 350.5, 'Maximum': 781, 'Whisker Minimum': 144, 'Whisker Maximum': 593}
+ExecutorID: Executor5
+{'Minimum': 174, 'Q1': 259.75, 'Median': 305.5, 'Q3': 364.0, 'Maximum': 618, 'Whisker Minimum': 174, 'Whisker Maximum': 511}
+ExecutorID: Executor6
+{'Minimum': 159, 'Q1': 213.0, 'Median': 275.0, 'Q3': 337.0, 'Maximum': 625, 'Whisker Minimum': 159, 'Whisker Maximum': 494}
+ExecutorID: Executor7
+{'Minimum': 162, 'Q1': 200.5, 'Median': 239.0, 'Q3': 284.0, 'Maximum': 531, 'Whisker Minimum': 162, 'Whisker Maximum': 409}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 30, 'Q1': 673.0, 'Median': 754.0, 'Q3': 857.0, 'Maximum': 1174, 'Whisker Minimum': 516, 'Whisker Maximum': 1129}
+ExecutorID: Executor2
+{'Minimum': 9, 'Q1': 722.0, 'Median': 863.0, 'Q3': 936.0, 'Maximum': 1278, 'Whisker Minimum': 587, 'Whisker Maximum': 1245}
+ExecutorID: Executor3
+{'Minimum': 8, 'Q1': 713.0, 'Median': 851.0, 'Q3': 922.0, 'Maximum': 1439, 'Whisker Minimum': 568, 'Whisker Maximum': 1233}
+ExecutorID: Executor4
+{'Minimum': 8, 'Q1': 791.0, 'Median': 884.0, 'Q3': 984.0, 'Maximum': 1387, 'Whisker Minimum': 585, 'Whisker Maximum': 1271}
+ExecutorID: Executor5
+{'Minimum': 7, 'Q1': 788.0, 'Median': 917.0, 'Q3': 1001.0, 'Maximum': 1367, 'Whisker Minimum': 632, 'Whisker Maximum': 1320}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 765.0, 'Median': 910.0, 'Q3': 986.0, 'Maximum': 1339, 'Whisker Minimum': 668, 'Whisker Maximum': 1306}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 31.0, 'Median': 38.0, 'Q3': 43.0, 'Maximum': 87, 'Whisker Minimum': 25, 'Whisker Maximum': 60}
+With data
+ExecutorID: Executor1
+{'Minimum': 944, 'Q1': 1475.0, 'Median': 1710.0, 'Q3': 2013.0, 'Maximum': 3034, 'Whisker Minimum': 944, 'Whisker Maximum': 2613}
+ExecutorID: Executor2
+{'Minimum': 917, 'Q1': 1221.0, 'Median': 1436.0, 'Q3': 1637.5, 'Maximum': 2851, 'Whisker Minimum': 917, 'Whisker Maximum': 2258}
+ExecutorID: Executor3
+{'Minimum': 808, 'Q1': 1065.0, 'Median': 1242.0, 'Q3': 1431.0, 'Maximum': 2137, 'Whisker Minimum': 808, 'Whisker Maximum': 1949}
+ExecutorID: Executor4
+{'Minimum': 714, 'Q1': 1080.75, 'Median': 1232.5, 'Q3': 1445.0, 'Maximum': 2418, 'Whisker Minimum': 714, 'Whisker Maximum': 1991}
+ExecutorID: Executor5
+{'Minimum': 922, 'Q1': 1132.0, 'Median': 1294.0, 'Q3': 1434.0, 'Maximum': 2109, 'Whisker Minimum': 922, 'Whisker Maximum': 1871}
+ExecutorID: Executor6
+{'Minimum': 781, 'Q1': 1024.0, 'Median': 1189.0, 'Q3': 1352.25, 'Maximum': 2120, 'Whisker Minimum': 781, 'Whisker Maximum': 1823}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   200438524
+1  Executor2    86994973
+4  Executor3   119461689
+3  Executor4   217957756
+6  Executor5    89641186
+5  Executor6   127356218
+2  Executor7   155604774
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  1999802858
+3  Executor2  2161093508
+2  Executor3  2144443132
+5  Executor4  2348763533
+6  Executor5  2336274758
+4  Executor6  2304048142
+0  Executor7   140699977
+path: ./result/automated_test_json/varied_timer_num/automated_test3.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 80, 'Q1': 111.0, 'Median': 116.0, 'Q3': 127.0, 'Maximum': 496, 'Whisker Minimum': 88, 'Whisker Maximum': 150}
+ExecutorID: Executor2
+{'Minimum': 95, 'Q1': 137.0, 'Median': 139.0, 'Q3': 144.0, 'Maximum': 291, 'Whisker Minimum': 127, 'Whisker Maximum': 154}
+ExecutorID: Executor3
+{'Minimum': 97, 'Q1': 142.0, 'Median': 146.0, 'Q3': 151.0, 'Maximum': 277, 'Whisker Minimum': 129, 'Whisker Maximum': 164}
+ExecutorID: Executor4
+{'Minimum': 94, 'Q1': 128.0, 'Median': 150.0, 'Q3': 155.0, 'Maximum': 305, 'Whisker Minimum': 94, 'Whisker Maximum': 195}
+ExecutorID: Executor5
+{'Minimum': 105, 'Q1': 124.0, 'Median': 126.0, 'Q3': 155.0, 'Maximum': 304, 'Whisker Minimum': 105, 'Whisker Maximum': 200}
+ExecutorID: Executor6
+{'Minimum': 108, 'Q1': 150.0, 'Median': 162.0, 'Q3': 168.0, 'Maximum': 338, 'Whisker Minimum': 124, 'Whisker Maximum': 194}
+ExecutorID: Executor7
+{'Minimum': 90, 'Q1': 121.0, 'Median': 135.0, 'Q3': 142.0, 'Maximum': 278, 'Whisker Minimum': 90, 'Whisker Maximum': 173}
+With data
+ExecutorID: Executor1
+{'Minimum': 110, 'Q1': 138.0, 'Median': 149.0, 'Q3': 160.5, 'Maximum': 347, 'Whisker Minimum': 110, 'Whisker Maximum': 189}
+ExecutorID: Executor2
+{'Minimum': 135, 'Q1': 171.0, 'Median': 231.0, 'Q3': 267.0, 'Maximum': 398, 'Whisker Minimum': 135, 'Whisker Maximum': 398}
+ExecutorID: Executor3
+{'Minimum': 125, 'Q1': 182.0, 'Median': 200.0, 'Q3': 301.5, 'Maximum': 728, 'Whisker Minimum': 125, 'Whisker Maximum': 475}
+ExecutorID: Executor4
+{'Minimum': 129, 'Q1': 181.0, 'Median': 233.5, 'Q3': 273.0, 'Maximum': 513, 'Whisker Minimum': 129, 'Whisker Maximum': 403}
+ExecutorID: Executor5
+{'Minimum': 140, 'Q1': 183.0, 'Median': 240.0, 'Q3': 282.0, 'Maximum': 543, 'Whisker Minimum': 140, 'Whisker Maximum': 398}
+ExecutorID: Executor6
+{'Minimum': 131, 'Q1': 199.5, 'Median': 258.0, 'Q3': 284.0, 'Maximum': 507, 'Whisker Minimum': 131, 'Whisker Maximum': 408}
+ExecutorID: Executor7
+{'Minimum': 118, 'Q1': 183.25, 'Median': 241.0, 'Q3': 258.0, 'Maximum': 578, 'Whisker Minimum': 118, 'Whisker Maximum': 361}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 60, 'Q1': 87.0, 'Median': 91.0, 'Q3': 98.0, 'Maximum': 548, 'Whisker Minimum': 71, 'Whisker Maximum': 114}
+ExecutorID: Executor2
+{'Minimum': 76, 'Q1': 92.0, 'Median': 95.0, 'Q3': 112.0, 'Maximum': 394, 'Whisker Minimum': 76, 'Whisker Maximum': 141}
+ExecutorID: Executor3
+{'Minimum': 70, 'Q1': 88.0, 'Median': 89.0, 'Q3': 96.0, 'Maximum': 354, 'Whisker Minimum': 77, 'Whisker Maximum': 107}
+ExecutorID: Executor4
+{'Minimum': 75, 'Q1': 90.0, 'Median': 92.0, 'Q3': 98.0, 'Maximum': 273, 'Whisker Minimum': 79, 'Whisker Maximum': 109}
+ExecutorID: Executor5
+{'Minimum': 74, 'Q1': 91.0, 'Median': 93.0, 'Q3': 104.0, 'Maximum': 269, 'Whisker Minimum': 74, 'Whisker Maximum': 123}
+ExecutorID: Executor6
+{'Minimum': 79, 'Q1': 99.0, 'Median': 102.0, 'Q3': 130.75, 'Maximum': 293, 'Whisker Minimum': 79, 'Whisker Maximum': 177}
+ExecutorID: Executor7
+{'Minimum': 62, 'Q1': 82.0, 'Median': 87.0, 'Q3': 108.0, 'Maximum': 233, 'Whisker Minimum': 62, 'Whisker Maximum': 146}
+With data
+ExecutorID: Executor1
+{'Minimum': 110, 'Q1': 147.0, 'Median': 152.0, 'Q3': 166.0, 'Maximum': 271, 'Whisker Minimum': 120, 'Whisker Maximum': 193}
+ExecutorID: Executor2
+{'Minimum': 158, 'Q1': 199.5, 'Median': 329.0, 'Q3': 392.0, 'Maximum': 735, 'Whisker Minimum': 158, 'Whisker Maximum': 560}
+ExecutorID: Executor3
+{'Minimum': 161, 'Q1': 190.0, 'Median': 242.0, 'Q3': 420.0, 'Maximum': 688, 'Whisker Minimum': 161, 'Whisker Maximum': 688}
+ExecutorID: Executor4
+{'Minimum': 171, 'Q1': 218.0, 'Median': 298.0, 'Q3': 387.0, 'Maximum': 901, 'Whisker Minimum': 171, 'Whisker Maximum': 623}
+ExecutorID: Executor5
+{'Minimum': 172, 'Q1': 211.25, 'Median': 330.0, 'Q3': 412.75, 'Maximum': 789, 'Whisker Minimum': 172, 'Whisker Maximum': 694}
+ExecutorID: Executor6
+{'Minimum': 187, 'Q1': 250.0, 'Median': 361.5, 'Q3': 420.75, 'Maximum': 806, 'Whisker Minimum': 187, 'Whisker Maximum': 644}
+ExecutorID: Executor7
+{'Minimum': 146, 'Q1': 220.25, 'Median': 261.0, 'Q3': 297.5, 'Maximum': 670, 'Whisker Minimum': 146, 'Whisker Maximum': 413}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 32, 'Q1': 683.0, 'Median': 748.0, 'Q3': 824.0, 'Maximum': 1163, 'Whisker Minimum': 512, 'Whisker Maximum': 1030}
+ExecutorID: Executor2
+{'Minimum': 8, 'Q1': 725.0, 'Median': 774.0, 'Q3': 858.0, 'Maximum': 1169, 'Whisker Minimum': 618, 'Whisker Maximum': 1055}
+ExecutorID: Executor3
+{'Minimum': 6, 'Q1': 743.75, 'Median': 835.0, 'Q3': 922.0, 'Maximum': 1225, 'Whisker Minimum': 618, 'Whisker Maximum': 1184}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 733.0, 'Median': 848.5, 'Q3': 924.0, 'Maximum': 1265, 'Whisker Minimum': 634, 'Whisker Maximum': 1176}
+ExecutorID: Executor5
+{'Minimum': 6, 'Q1': 754.0, 'Median': 865.5, 'Q3': 949.0, 'Maximum': 1237, 'Whisker Minimum': 676, 'Whisker Maximum': 1237}
+ExecutorID: Executor6
+{'Minimum': 6, 'Q1': 758.0, 'Median': 870.0, 'Q3': 945.0, 'Maximum': 1232, 'Whisker Minimum': 675, 'Whisker Maximum': 1182}
+ExecutorID: Executor7
+{'Minimum': 6, 'Q1': 30.0, 'Median': 32.0, 'Q3': 39.0, 'Maximum': 66, 'Whisker Minimum': 26, 'Whisker Maximum': 52}
+With data
+ExecutorID: Executor1
+{'Minimum': 1285, 'Q1': 1506.0, 'Median': 1635.0, 'Q3': 1837.25, 'Maximum': 2905, 'Whisker Minimum': 1285, 'Whisker Maximum': 2241}
+ExecutorID: Executor2
+{'Minimum': 996, 'Q1': 1228.0, 'Median': 1351.0, 'Q3': 1533.0, 'Maximum': 2266, 'Whisker Minimum': 996, 'Whisker Maximum': 1979}
+ExecutorID: Executor3
+{'Minimum': 726, 'Q1': 1032.0, 'Median': 1232.0, 'Q3': 1444.0, 'Maximum': 2259, 'Whisker Minimum': 726, 'Whisker Maximum': 1873}
+ExecutorID: Executor4
+{'Minimum': 769, 'Q1': 1088.0, 'Median': 1209.0, 'Q3': 1443.0, 'Maximum': 2137, 'Whisker Minimum': 769, 'Whisker Maximum': 1946}
+ExecutorID: Executor5
+{'Minimum': 853, 'Q1': 1123.0, 'Median': 1230.0, 'Q3': 1432.0, 'Maximum': 2273, 'Whisker Minimum': 853, 'Whisker Maximum': 1860}
+ExecutorID: Executor6
+{'Minimum': 800, 'Q1': 1155.0, 'Median': 1259.0, 'Q3': 1445.75, 'Maximum': 2174, 'Whisker Minimum': 800, 'Whisker Maximum': 1880}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   165260543
+2  Executor2   132417664
+3  Executor3   142499460
+4  Executor4   117134834
+5  Executor5    81121754
+6  Executor6   108040141
+1  Executor7   131071356
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  1942179974
+2  Executor2  2047701903
+3  Executor3  2097713341
+4  Executor4  2113459786
+5  Executor5  2149359827
+6  Executor6  2169944160
+0  Executor7   129728997
+path: ./result/automated_test_json/varied_timer_num/automated_test4.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 83, 'Q1': 117.0, 'Median': 121.0, 'Q3': 123.0, 'Maximum': 456, 'Whisker Minimum': 109, 'Whisker Maximum': 131}
+ExecutorID: Executor2
+{'Minimum': 103, 'Q1': 148.0, 'Median': 151.0, 'Q3': 156.0, 'Maximum': 273, 'Whisker Minimum': 137, 'Whisker Maximum': 167}
+ExecutorID: Executor3
+{'Minimum': 98, 'Q1': 137.0, 'Median': 152.0, 'Q3': 159.0, 'Maximum': 273, 'Whisker Minimum': 105, 'Whisker Maximum': 191}
+ExecutorID: Executor4
+{'Minimum': 108, 'Q1': 134.0, 'Median': 162.0, 'Q3': 167.0, 'Maximum': 339, 'Whisker Minimum': 108, 'Whisker Maximum': 216}
+ExecutorID: Executor5
+{'Minimum': 106, 'Q1': 129.0, 'Median': 134.0, 'Q3': 164.0, 'Maximum': 296, 'Whisker Minimum': 106, 'Whisker Maximum': 216}
+ExecutorID: Executor6
+{'Minimum': 110, 'Q1': 132.0, 'Median': 162.0, 'Q3': 173.0, 'Maximum': 318, 'Whisker Minimum': 110, 'Whisker Maximum': 234}
+ExecutorID: Executor7
+{'Minimum': 92, 'Q1': 120.0, 'Median': 134.0, 'Q3': 144.0, 'Maximum': 263, 'Whisker Minimum': 92, 'Whisker Maximum': 179}
+With data
+ExecutorID: Executor1
+{'Minimum': 116, 'Q1': 156.0, 'Median': 159.0, 'Q3': 165.0, 'Maximum': 318, 'Whisker Minimum': 143, 'Whisker Maximum': 173}
+ExecutorID: Executor2
+{'Minimum': 133, 'Q1': 189.0, 'Median': 240.5, 'Q3': 278.0, 'Maximum': 487, 'Whisker Minimum': 133, 'Whisker Maximum': 401}
+ExecutorID: Executor3
+{'Minimum': 148, 'Q1': 186.0, 'Median': 258.0, 'Q3': 332.0, 'Maximum': 507, 'Whisker Minimum': 148, 'Whisker Maximum': 507}
+ExecutorID: Executor4
+{'Minimum': 135, 'Q1': 197.0, 'Median': 222.0, 'Q3': 316.0, 'Maximum': 633, 'Whisker Minimum': 135, 'Whisker Maximum': 494}
+ExecutorID: Executor5
+{'Minimum': 140, 'Q1': 168.25, 'Median': 225.0, 'Q3': 313.5, 'Maximum': 775, 'Whisker Minimum': 140, 'Whisker Maximum': 497}
+ExecutorID: Executor6
+{'Minimum': 150, 'Q1': 198.0, 'Median': 255.0, 'Q3': 311.0, 'Maximum': 689, 'Whisker Minimum': 150, 'Whisker Maximum': 467}
+ExecutorID: Executor7
+{'Minimum': 153, 'Q1': 240.0, 'Median': 283.0, 'Q3': 342.0, 'Maximum': 735, 'Whisker Minimum': 153, 'Whisker Maximum': 464}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 62, 'Q1': 91.0, 'Median': 95.0, 'Q3': 98.0, 'Maximum': 460, 'Whisker Minimum': 81, 'Whisker Maximum': 108}
+ExecutorID: Executor2
+{'Minimum': 79, 'Q1': 96.0, 'Median': 108.0, 'Q3': 119.0, 'Maximum': 427, 'Whisker Minimum': 79, 'Whisker Maximum': 152}
+ExecutorID: Executor3
+{'Minimum': 78, 'Q1': 100.0, 'Median': 102.0, 'Q3': 127.0, 'Maximum': 326, 'Whisker Minimum': 78, 'Whisker Maximum': 166}
+ExecutorID: Executor4
+{'Minimum': 77, 'Q1': 94.0, 'Median': 96.0, 'Q3': 105.0, 'Maximum': 280, 'Whisker Minimum': 78, 'Whisker Maximum': 121}
+ExecutorID: Executor5
+{'Minimum': 79, 'Q1': 102.0, 'Median': 104.0, 'Q3': 110.0, 'Maximum': 426, 'Whisker Minimum': 91, 'Whisker Maximum': 121}
+ExecutorID: Executor6
+{'Minimum': 80, 'Q1': 102.0, 'Median': 110.0, 'Q3': 140.0, 'Maximum': 284, 'Whisker Minimum': 80, 'Whisker Maximum': 195}
+ExecutorID: Executor7
+{'Minimum': 66, 'Q1': 85.0, 'Median': 94.0, 'Q3': 116.0, 'Maximum': 434, 'Whisker Minimum': 66, 'Whisker Maximum': 162}
+With data
+ExecutorID: Executor1
+{'Minimum': 129, 'Q1': 165.0, 'Median': 171.0, 'Q3': 180.0, 'Maximum': 227, 'Whisker Minimum': 143, 'Whisker Maximum': 202}
+ExecutorID: Executor2
+{'Minimum': 179, 'Q1': 223.0, 'Median': 335.0, 'Q3': 369.0, 'Maximum': 620, 'Whisker Minimum': 179, 'Whisker Maximum': 560}
+ExecutorID: Executor3
+{'Minimum': 183, 'Q1': 236.75, 'Median': 381.5, 'Q3': 431.0, 'Maximum': 995, 'Whisker Minimum': 183, 'Whisker Maximum': 701}
+ExecutorID: Executor4
+{'Minimum': 189, 'Q1': 228.0, 'Median': 281.0, 'Q3': 437.75, 'Maximum': 1008, 'Whisker Minimum': 189, 'Whisker Maximum': 716}
+ExecutorID: Executor5
+{'Minimum': 189, 'Q1': 250.0, 'Median': 316.0, 'Q3': 487.0, 'Maximum': 1134, 'Whisker Minimum': 189, 'Whisker Maximum': 835}
+ExecutorID: Executor6
+{'Minimum': 193, 'Q1': 274.0, 'Median': 309.5, 'Q3': 465.0, 'Maximum': 1208, 'Whisker Minimum': 193, 'Whisker Maximum': 720}
+ExecutorID: Executor7
+{'Minimum': 180, 'Q1': 210.0, 'Median': 296.5, 'Q3': 324.75, 'Maximum': 766, 'Whisker Minimum': 180, 'Whisker Maximum': 496}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 21, 'Q1': 681.0, 'Median': 760.0, 'Q3': 839.0, 'Maximum': 1109, 'Whisker Minimum': 520, 'Whisker Maximum': 1075}
+ExecutorID: Executor2
+{'Minimum': 8, 'Q1': 725.0, 'Median': 814.0, 'Q3': 900.0, 'Maximum': 1149, 'Whisker Minimum': 570, 'Whisker Maximum': 1149}
+ExecutorID: Executor3
+{'Minimum': 6, 'Q1': 723.0, 'Median': 846.5, 'Q3': 923.75, 'Maximum': 1158, 'Whisker Minimum': 619, 'Whisker Maximum': 1158}
+ExecutorID: Executor4
+{'Minimum': 5, 'Q1': 765.0, 'Median': 870.0, 'Q3': 935.0, 'Maximum': 1193, 'Whisker Minimum': 634, 'Whisker Maximum': 1178}
+ExecutorID: Executor5
+{'Minimum': 5, 'Q1': 751.0, 'Median': 891.5, 'Q3': 946.0, 'Maximum': 1210, 'Whisker Minimum': 646, 'Whisker Maximum': 1210}
+ExecutorID: Executor6
+{'Minimum': 198, 'Q1': 777.0, 'Median': 896.0, 'Q3': 952.75, 'Maximum': 1226, 'Whisker Minimum': 622, 'Whisker Maximum': 1195}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 31.0, 'Median': 36.0, 'Q3': 40.0, 'Maximum': 67, 'Whisker Minimum': 26, 'Whisker Maximum': 53}
+With data
+ExecutorID: Executor1
+{'Minimum': 948, 'Q1': 1521.0, 'Median': 1675.0, 'Q3': 1837.0, 'Maximum': 2945, 'Whisker Minimum': 1067, 'Whisker Maximum': 2290}
+ExecutorID: Executor2
+{'Minimum': 756, 'Q1': 1093.0, 'Median': 1306.0, 'Q3': 1600.0, 'Maximum': 2847, 'Whisker Minimum': 756, 'Whisker Maximum': 2246}
+ExecutorID: Executor3
+{'Minimum': 902, 'Q1': 1221.0, 'Median': 1364.0, 'Q3': 1577.0, 'Maximum': 2093, 'Whisker Minimum': 902, 'Whisker Maximum': 2093}
+ExecutorID: Executor4
+{'Minimum': 693, 'Q1': 1016.25, 'Median': 1278.5, 'Q3': 1469.75, 'Maximum': 2147, 'Whisker Minimum': 693, 'Whisker Maximum': 2147}
+ExecutorID: Executor5
+{'Minimum': 762, 'Q1': 1048.0, 'Median': 1274.0, 'Q3': 1461.0, 'Maximum': 2548, 'Whisker Minimum': 762, 'Whisker Maximum': 1978}
+ExecutorID: Executor6
+{'Minimum': 788, 'Q1': 1077.0, 'Median': 1295.0, 'Q3': 1500.0, 'Maximum': 2495, 'Whisker Minimum': 788, 'Whisker Maximum': 2072}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   163916669
+2  Executor2   142470255
+3  Executor3   118113669
+4  Executor4   126910286
+5  Executor5    57951207
+6  Executor6    81024179
+1  Executor7   137525979
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  1961430084
+2  Executor2  2070332084
+3  Executor3  2092792081
+4  Executor4  2150316253
+5  Executor5  2158479793
+6  Executor6  2189314145
+0  Executor7   131840353
+path: ./result/automated_test_json/varied_timer_num/automated_test5.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 101, 'Q1': 140.0, 'Median': 145.0, 'Q3': 158.0, 'Maximum': 271, 'Whisker Minimum': 115, 'Whisker Maximum': 184}
+ExecutorID: Executor2
+{'Minimum': 116, 'Q1': 140.0, 'Median': 145.0, 'Q3': 151.0, 'Maximum': 338, 'Whisker Minimum': 124, 'Whisker Maximum': 167}
+ExecutorID: Executor3
+{'Minimum': 117, 'Q1': 182.0, 'Median': 204.0, 'Q3': 207.0, 'Maximum': 382, 'Whisker Minimum': 145, 'Whisker Maximum': 244}
+ExecutorID: Executor4
+{'Minimum': 122, 'Q1': 185.0, 'Median': 209.0, 'Q3': 212.0, 'Maximum': 390, 'Whisker Minimum': 145, 'Whisker Maximum': 252}
+ExecutorID: Executor5
+{'Minimum': 128, 'Q1': 155.0, 'Median': 166.0, 'Q3': 190.0, 'Maximum': 402, 'Whisker Minimum': 128, 'Whisker Maximum': 242}
+ExecutorID: Executor6
+{'Minimum': 133, 'Q1': 158.0, 'Median': 163.0, 'Q3': 198.0, 'Maximum': 417, 'Whisker Minimum': 133, 'Whisker Maximum': 257}
+ExecutorID: Executor7
+{'Minimum': 89, 'Q1': 111.0, 'Median': 128.0, 'Q3': 142.0, 'Maximum': 265, 'Whisker Minimum': 89, 'Whisker Maximum': 188}
+With data
+ExecutorID: Executor1
+{'Minimum': 167, 'Q1': 195.0, 'Median': 201.0, 'Q3': 214.0, 'Maximum': 541, 'Whisker Minimum': 167, 'Whisker Maximum': 233}
+ExecutorID: Executor2
+{'Minimum': 182, 'Q1': 197.0, 'Median': 275.0, 'Q3': 306.0, 'Maximum': 535, 'Whisker Minimum': 182, 'Whisker Maximum': 447}
+ExecutorID: Executor3
+{'Minimum': 180, 'Q1': 259.0, 'Median': 314.0, 'Q3': 382.5, 'Maximum': 556, 'Whisker Minimum': 180, 'Whisker Maximum': 556}
+ExecutorID: Executor4
+{'Minimum': 166, 'Q1': 265.0, 'Median': 330.0, 'Q3': 404.0, 'Maximum': 855, 'Whisker Minimum': 166, 'Whisker Maximum': 607}
+ExecutorID: Executor5
+{'Minimum': 191, 'Q1': 213.0, 'Median': 329.0, 'Q3': 381.5, 'Maximum': 939, 'Whisker Minimum': 191, 'Whisker Maximum': 630}
+ExecutorID: Executor6
+{'Minimum': 176, 'Q1': 212.0, 'Median': 359.0, 'Q3': 427.0, 'Maximum': 722, 'Whisker Minimum': 176, 'Whisker Maximum': 722}
+ExecutorID: Executor7
+{'Minimum': 319, 'Q1': 337.0, 'Median': 345.0, 'Q3': 381.0, 'Maximum': 933, 'Whisker Minimum': 319, 'Whisker Maximum': 430}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 76, 'Q1': 111.0, 'Median': 115.0, 'Q3': 123.0, 'Maximum': 427, 'Whisker Minimum': 94, 'Whisker Maximum': 140}
+ExecutorID: Executor2
+{'Minimum': 89, 'Q1': 120.0, 'Median': 132.0, 'Q3': 161.0, 'Maximum': 449, 'Whisker Minimum': 89, 'Whisker Maximum': 222}
+ExecutorID: Executor3
+{'Minimum': 95, 'Q1': 122.0, 'Median': 144.0, 'Q3': 156.0, 'Maximum': 468, 'Whisker Minimum': 95, 'Whisker Maximum': 206}
+ExecutorID: Executor4
+{'Minimum': 91, 'Q1': 120.0, 'Median': 124.0, 'Q3': 133.0, 'Maximum': 449, 'Whisker Minimum': 101, 'Whisker Maximum': 152}
+ExecutorID: Executor5
+{'Minimum': 93, 'Q1': 124.0, 'Median': 131.0, 'Q3': 148.0, 'Maximum': 457, 'Whisker Minimum': 93, 'Whisker Maximum': 183}
+ExecutorID: Executor6
+{'Minimum': 93, 'Q1': 122.0, 'Median': 126.0, 'Q3': 150.0, 'Maximum': 375, 'Whisker Minimum': 93, 'Whisker Maximum': 191}
+ExecutorID: Executor7
+{'Minimum': 61, 'Q1': 82.0, 'Median': 86.0, 'Q3': 110.0, 'Maximum': 244, 'Whisker Minimum': 61, 'Whisker Maximum': 151}
+With data
+ExecutorID: Executor1
+{'Minimum': 188, 'Q1': 236.0, 'Median': 248.5, 'Q3': 267.0, 'Maximum': 372, 'Whisker Minimum': 191, 'Whisker Maximum': 311}
+ExecutorID: Executor2
+{'Minimum': 245, 'Q1': 296.0, 'Median': 390.0, 'Q3': 464.5, 'Maximum': 788, 'Whisker Minimum': 245, 'Whisker Maximum': 680}
+ExecutorID: Executor3
+{'Minimum': 245, 'Q1': 316.0, 'Median': 428.0, 'Q3': 517.5, 'Maximum': 862, 'Whisker Minimum': 245, 'Whisker Maximum': 802}
+ExecutorID: Executor4
+{'Minimum': 247, 'Q1': 300.0, 'Median': 457.5, 'Q3': 589.25, 'Maximum': 1220, 'Whisker Minimum': 247, 'Whisker Maximum': 912}
+ExecutorID: Executor5
+{'Minimum': 255, 'Q1': 305.0, 'Median': 465.5, 'Q3': 571.5, 'Maximum': 1492, 'Whisker Minimum': 255, 'Whisker Maximum': 919}
+ExecutorID: Executor6
+{'Minimum': 252, 'Q1': 305.0, 'Median': 411.0, 'Q3': 673.5, 'Maximum': 1260, 'Whisker Minimum': 252, 'Whisker Maximum': 985}
+ExecutorID: Executor7
+{'Minimum': 207, 'Q1': 354.0, 'Median': 387.0, 'Q3': 475.0, 'Maximum': 880, 'Whisker Minimum': 207, 'Whisker Maximum': 628}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 20, 'Q1': 710.0, 'Median': 768.0, 'Q3': 856.25, 'Maximum': 1206, 'Whisker Minimum': 542, 'Whisker Maximum': 1073}
+ExecutorID: Executor2
+{'Minimum': 10, 'Q1': 756.5, 'Median': 858.0, 'Q3': 941.0, 'Maximum': 1271, 'Whisker Minimum': 589, 'Whisker Maximum': 1181}
+ExecutorID: Executor3
+{'Minimum': 6, 'Q1': 780.25, 'Median': 834.0, 'Q3': 939.0, 'Maximum': 1191, 'Whisker Minimum': 618, 'Whisker Maximum': 1176}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 814.0, 'Median': 869.0, 'Q3': 975.0, 'Maximum': 1355, 'Whisker Minimum': 640, 'Whisker Maximum': 1216}
+ExecutorID: Executor5
+{'Minimum': 5, 'Q1': 816.5, 'Median': 936.0, 'Q3': 1016.0, 'Maximum': 1324, 'Whisker Minimum': 647, 'Whisker Maximum': 1266}
+ExecutorID: Executor6
+{'Minimum': 5, 'Q1': 796.5, 'Median': 925.0, 'Q3': 991.0, 'Maximum': 1252, 'Whisker Minimum': 684, 'Whisker Maximum': 1252}
+ExecutorID: Executor7
+{'Minimum': 5, 'Q1': 30.0, 'Median': 32.0, 'Q3': 39.0, 'Maximum': 69, 'Whisker Minimum': 25, 'Whisker Maximum': 51}
+With data
+ExecutorID: Executor1
+{'Minimum': 1218, 'Q1': 1539.25, 'Median': 1721.0, 'Q3': 1876.25, 'Maximum': 2771, 'Whisker Minimum': 1218, 'Whisker Maximum': 2310}
+ExecutorID: Executor2
+{'Minimum': 771, 'Q1': 1030.0, 'Median': 1395.0, 'Q3': 1795.0, 'Maximum': 3090, 'Whisker Minimum': 771, 'Whisker Maximum': 2632}
+ExecutorID: Executor3
+{'Minimum': 828, 'Q1': 1096.0, 'Median': 1425.0, 'Q3': 1678.0, 'Maximum': 2976, 'Whisker Minimum': 828, 'Whisker Maximum': 2511}
+ExecutorID: Executor4
+{'Minimum': 934, 'Q1': 1109.0, 'Median': 1515.0, 'Q3': 1841.0, 'Maximum': 2670, 'Whisker Minimum': 934, 'Whisker Maximum': 2670}
+ExecutorID: Executor5
+{'Minimum': 962, 'Q1': 1216.75, 'Median': 1489.5, 'Q3': 1815.0, 'Maximum': 3148, 'Whisker Minimum': 962, 'Whisker Maximum': 2564}
+ExecutorID: Executor6
+{'Minimum': 966, 'Q1': 1227.5, 'Median': 1515.0, 'Q3': 1846.75, 'Maximum': 3539, 'Whisker Minimum': 966, 'Whisker Maximum': 2622}
+input overhead increase total
+  ExecutorID  Difference
+1  Executor1   179080218
+2  Executor2    27033298
+4  Executor3   166828381
+3  Executor4   183191845
+5  Executor5    92256877
+6  Executor6    87638338
+0  Executor7   134168286
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  1997325465
+2  Executor2  2144009858
+3  Executor3  2157601366
+5  Executor4  2281265970
+6  Executor5  2307662977
+4  Executor6  2270632794
+0  Executor7   130323929
+path: ./result/automated_test_json/varied_timer_num/automated_test6.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 89, 'Q1': 131.0, 'Median': 136.0, 'Q3': 139.0, 'Maximum': 252, 'Whisker Minimum': 120, 'Whisker Maximum': 150}
+ExecutorID: Executor2
+{'Minimum': 114, 'Q1': 165.0, 'Median': 185.0, 'Q3': 189.0, 'Maximum': 334, 'Whisker Minimum': 134, 'Whisker Maximum': 224}
+ExecutorID: Executor3
+{'Minimum': 122, 'Q1': 172.0, 'Median': 195.0, 'Q3': 199.0, 'Maximum': 358, 'Whisker Minimum': 132, 'Whisker Maximum': 239}
+ExecutorID: Executor4
+{'Minimum': 125, 'Q1': 176.0, 'Median': 185.0, 'Q3': 204.0, 'Maximum': 377, 'Whisker Minimum': 135, 'Whisker Maximum': 245}
+ExecutorID: Executor5
+{'Minimum': 123, 'Q1': 175.0, 'Median': 179.0, 'Q3': 197.0, 'Maximum': 386, 'Whisker Minimum': 143, 'Whisker Maximum': 229}
+ExecutorID: Executor6
+{'Minimum': 109, 'Q1': 177.0, 'Median': 195.0, 'Q3': 214.0, 'Maximum': 394, 'Whisker Minimum': 124, 'Whisker Maximum': 269}
+ExecutorID: Executor7
+{'Minimum': 77, 'Q1': 114.0, 'Median': 140.0, 'Q3': 150.0, 'Maximum': 276, 'Whisker Minimum': 77, 'Whisker Maximum': 203}
+With data
+ExecutorID: Executor1
+{'Minimum': 138, 'Q1': 180.0, 'Median': 186.0, 'Q3': 190.0, 'Maximum': 536, 'Whisker Minimum': 166, 'Whisker Maximum': 204}
+ExecutorID: Executor2
+{'Minimum': 163, 'Q1': 236.0, 'Median': 277.0, 'Q3': 319.0, 'Maximum': 520, 'Whisker Minimum': 163, 'Whisker Maximum': 420}
+ExecutorID: Executor3
+{'Minimum': 169, 'Q1': 245.0, 'Median': 324.0, 'Q3': 376.0, 'Maximum': 779, 'Whisker Minimum': 169, 'Whisker Maximum': 568}
+ExecutorID: Executor4
+{'Minimum': 172, 'Q1': 237.0, 'Median': 307.5, 'Q3': 392.75, 'Maximum': 633, 'Whisker Minimum': 172, 'Whisker Maximum': 590}
+ExecutorID: Executor5
+{'Minimum': 165, 'Q1': 224.0, 'Median': 299.0, 'Q3': 387.0, 'Maximum': 947, 'Whisker Minimum': 165, 'Whisker Maximum': 589}
+ExecutorID: Executor6
+{'Minimum': 173, 'Q1': 268.0, 'Median': 355.5, 'Q3': 410.0, 'Maximum': 905, 'Whisker Minimum': 173, 'Whisker Maximum': 597}
+ExecutorID: Executor7
+{'Minimum': 298, 'Q1': 334.5, 'Median': 369.0, 'Q3': 453.0, 'Maximum': 576, 'Whisker Minimum': 298, 'Whisker Maximum': 576}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 72, 'Q1': 104.0, 'Median': 109.0, 'Q3': 113.0, 'Maximum': 410, 'Whisker Minimum': 91, 'Whisker Maximum': 126}
+ExecutorID: Executor2
+{'Minimum': 88, 'Q1': 108.0, 'Median': 109.0, 'Q3': 114.0, 'Maximum': 397, 'Whisker Minimum': 100, 'Whisker Maximum': 122}
+ExecutorID: Executor3
+{'Minimum': 88, 'Q1': 108.0, 'Median': 138.0, 'Q3': 157.0, 'Maximum': 429, 'Whisker Minimum': 88, 'Whisker Maximum': 230}
+ExecutorID: Executor4
+{'Minimum': 90, 'Q1': 107.0, 'Median': 111.0, 'Q3': 128.0, 'Maximum': 337, 'Whisker Minimum': 90, 'Whisker Maximum': 159}
+ExecutorID: Executor5
+{'Minimum': 89, 'Q1': 109.0, 'Median': 113.0, 'Q3': 130.0, 'Maximum': 337, 'Whisker Minimum': 89, 'Whisker Maximum': 161}
+ExecutorID: Executor6
+{'Minimum': 92, 'Q1': 115.0, 'Median': 117.0, 'Q3': 141.0, 'Maximum': 315, 'Whisker Minimum': 92, 'Whisker Maximum': 179}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 80.0, 'Median': 85.0, 'Q3': 102.0, 'Maximum': 219, 'Whisker Minimum': 63, 'Whisker Maximum': 134}
+With data
+ExecutorID: Executor1
+{'Minimum': 172, 'Q1': 211.0, 'Median': 221.5, 'Q3': 239.0, 'Maximum': 316, 'Whisker Minimum': 172, 'Whisker Maximum': 278}
+ExecutorID: Executor2
+{'Minimum': 214, 'Q1': 256.0, 'Median': 358.0, 'Q3': 436.0, 'Maximum': 659, 'Whisker Minimum': 214, 'Whisker Maximum': 659}
+ExecutorID: Executor3
+{'Minimum': 218, 'Q1': 285.0, 'Median': 403.5, 'Q3': 498.25, 'Maximum': 1052, 'Whisker Minimum': 218, 'Whisker Maximum': 783}
+ExecutorID: Executor4
+{'Minimum': 232, 'Q1': 267.0, 'Median': 389.5, 'Q3': 558.5, 'Maximum': 1267, 'Whisker Minimum': 232, 'Whisker Maximum': 945}
+ExecutorID: Executor5
+{'Minimum': 229, 'Q1': 272.0, 'Median': 416.5, 'Q3': 543.75, 'Maximum': 1169, 'Whisker Minimum': 229, 'Whisker Maximum': 873}
+ExecutorID: Executor6
+{'Minimum': 235, 'Q1': 280.0, 'Median': 459.5, 'Q3': 562.75, 'Maximum': 1255, 'Whisker Minimum': 235, 'Whisker Maximum': 944}
+ExecutorID: Executor7
+{'Minimum': 312, 'Q1': 348.0, 'Median': 366.0, 'Q3': 496.5, 'Maximum': 1098, 'Whisker Minimum': 312, 'Whisker Maximum': 681}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 27, 'Q1': 691.75, 'Median': 742.0, 'Q3': 845.0, 'Maximum': 1188, 'Whisker Minimum': 480, 'Whisker Maximum': 1064}
+ExecutorID: Executor2
+{'Minimum': 10, 'Q1': 759.0, 'Median': 816.0, 'Q3': 919.0, 'Maximum': 1242, 'Whisker Minimum': 551, 'Whisker Maximum': 1146}
+ExecutorID: Executor3
+{'Minimum': 9, 'Q1': 772.5, 'Median': 826.0, 'Q3': 938.0, 'Maximum': 1230, 'Whisker Minimum': 555, 'Whisker Maximum': 1181}
+ExecutorID: Executor4
+{'Minimum': 8, 'Q1': 797.0, 'Median': 873.5, 'Q3': 982.25, 'Maximum': 1295, 'Whisker Minimum': 633, 'Whisker Maximum': 1241}
+ExecutorID: Executor5
+{'Minimum': 7, 'Q1': 775.0, 'Median': 884.0, 'Q3': 980.0, 'Maximum': 1440, 'Whisker Minimum': 574, 'Whisker Maximum': 1281}
+ExecutorID: Executor6
+{'Minimum': 6, 'Q1': 775.0, 'Median': 899.5, 'Q3': 992.0, 'Maximum': 1326, 'Whisker Minimum': 620, 'Whisker Maximum': 1290}
+ExecutorID: Executor7
+{'Minimum': 6, 'Q1': 30.0, 'Median': 33.0, 'Q3': 40.0, 'Maximum': 68, 'Whisker Minimum': 24, 'Whisker Maximum': 54}
+With data
+ExecutorID: Executor1
+{'Minimum': 1220, 'Q1': 1533.75, 'Median': 1696.0, 'Q3': 1855.75, 'Maximum': 2369, 'Whisker Minimum': 1220, 'Whisker Maximum': 2242}
+ExecutorID: Executor2
+{'Minimum': 800, 'Q1': 1051.0, 'Median': 1386.0, 'Q3': 1611.0, 'Maximum': 3000, 'Whisker Minimum': 800, 'Whisker Maximum': 2237}
+ExecutorID: Executor3
+{'Minimum': 947, 'Q1': 1188.0, 'Median': 1433.0, 'Q3': 1671.0, 'Maximum': 2794, 'Whisker Minimum': 947, 'Whisker Maximum': 2296}
+ExecutorID: Executor4
+{'Minimum': 945, 'Q1': 1200.25, 'Median': 1460.0, 'Q3': 1666.5, 'Maximum': 3179, 'Whisker Minimum': 945, 'Whisker Maximum': 2290}
+ExecutorID: Executor5
+{'Minimum': 900, 'Q1': 1230.5, 'Median': 1455.0, 'Q3': 1715.5, 'Maximum': 3147, 'Whisker Minimum': 900, 'Whisker Maximum': 2296}
+ExecutorID: Executor6
+{'Minimum': 1045, 'Q1': 1318.5, 'Median': 1516.5, 'Q3': 1782.25, 'Maximum': 3002, 'Whisker Minimum': 1045, 'Whisker Maximum': 2464}
+input overhead increase total
+  ExecutorID  Difference
+1  Executor1   159658125
+2  Executor2   202593931
+5  Executor3   168525947
+3  Executor4   188948386
+4  Executor5   160627998
+6  Executor6   173460307
+0  Executor7   134704137
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  1915102731
+2  Executor2  2141256985
+3  Executor3  2184179663
+5  Executor4  2268281885
+4  Executor5  2235863902
+6  Executor6  2262057881
+0  Executor7   134173315
+path: ./result/automated_test_json/varied_timer_num/automated_test7.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 108, 'Q1': 161.0, 'Median': 169.0, 'Q3': 176.0, 'Maximum': 317, 'Whisker Minimum': 139, 'Whisker Maximum': 198}
+ExecutorID: Executor2
+{'Minimum': 134, 'Q1': 159.0, 'Median': 165.0, 'Q3': 178.0, 'Maximum': 358, 'Whisker Minimum': 134, 'Whisker Maximum': 206}
+ExecutorID: Executor3
+{'Minimum': 127, 'Q1': 151.0, 'Median': 156.0, 'Q3': 167.0, 'Maximum': 373, 'Whisker Minimum': 130, 'Whisker Maximum': 190}
+ExecutorID: Executor4
+{'Minimum': 140, 'Q1': 205.5, 'Median': 227.0, 'Q3': 230.0, 'Maximum': 418, 'Whisker Minimum': 169, 'Whisker Maximum': 266}
+ExecutorID: Executor5
+{'Minimum': 145, 'Q1': 182.0, 'Median': 205.0, 'Q3': 217.0, 'Maximum': 407, 'Whisker Minimum': 145, 'Whisker Maximum': 269}
+ExecutorID: Executor6
+{'Minimum': 142, 'Q1': 187.0, 'Median': 207.0, 'Q3': 225.0, 'Maximum': 406, 'Whisker Minimum': 142, 'Whisker Maximum': 281}
+ExecutorID: Executor7
+{'Minimum': 102, 'Q1': 131.0, 'Median': 141.0, 'Q3': 164.0, 'Maximum': 308, 'Whisker Minimum': 102, 'Whisker Maximum': 213}
+With data
+ExecutorID: Executor1
+{'Minimum': 190, 'Q1': 221.5, 'Median': 235.0, 'Q3': 243.25, 'Maximum': 578, 'Whisker Minimum': 190, 'Whisker Maximum': 267}
+ExecutorID: Executor2
+{'Minimum': 173, 'Q1': 230.0, 'Median': 303.5, 'Q3': 323.0, 'Maximum': 646, 'Whisker Minimum': 173, 'Whisker Maximum': 462}
+ExecutorID: Executor3
+{'Minimum': 163, 'Q1': 216.0, 'Median': 317.0, 'Q3': 351.0, 'Maximum': 652, 'Whisker Minimum': 163, 'Whisker Maximum': 539}
+ExecutorID: Executor4
+{'Minimum': 214, 'Q1': 294.0, 'Median': 371.0, 'Q3': 420.0, 'Maximum': 835, 'Whisker Minimum': 214, 'Whisker Maximum': 598}
+ExecutorID: Executor5
+{'Minimum': 191, 'Q1': 271.0, 'Median': 372.5, 'Q3': 408.0, 'Maximum': 936, 'Whisker Minimum': 191, 'Whisker Maximum': 571}
+ExecutorID: Executor6
+{'Minimum': 212, 'Q1': 272.0, 'Median': 389.0, 'Q3': 426.5, 'Maximum': 901, 'Whisker Minimum': 212, 'Whisker Maximum': 647}
+ExecutorID: Executor7
+{'Minimum': 294, 'Q1': 347.0, 'Median': 377.0, 'Q3': 492.0, 'Maximum': 946, 'Whisker Minimum': 294, 'Whisker Maximum': 672}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 88, 'Q1': 123.0, 'Median': 127.0, 'Q3': 132.0, 'Maximum': 544, 'Whisker Minimum': 110, 'Whisker Maximum': 145}
+ExecutorID: Executor2
+{'Minimum': 104, 'Q1': 136.0, 'Median': 138.0, 'Q3': 159.0, 'Maximum': 609, 'Whisker Minimum': 104, 'Whisker Maximum': 193}
+ExecutorID: Executor3
+{'Minimum': 102, 'Q1': 132.0, 'Median': 135.0, 'Q3': 141.75, 'Maximum': 533, 'Whisker Minimum': 118, 'Whisker Maximum': 156}
+ExecutorID: Executor4
+{'Minimum': 103, 'Q1': 133.0, 'Median': 137.0, 'Q3': 152.0, 'Maximum': 505, 'Whisker Minimum': 105, 'Whisker Maximum': 180}
+ExecutorID: Executor5
+{'Minimum': 104, 'Q1': 131.0, 'Median': 136.0, 'Q3': 155.0, 'Maximum': 591, 'Whisker Minimum': 104, 'Whisker Maximum': 190}
+ExecutorID: Executor6
+{'Minimum': 109, 'Q1': 132.0, 'Median': 137.0, 'Q3': 150.0, 'Maximum': 432, 'Whisker Minimum': 109, 'Whisker Maximum': 176}
+ExecutorID: Executor7
+{'Minimum': 67, 'Q1': 93.0, 'Median': 112.0, 'Q3': 134.0, 'Maximum': 287, 'Whisker Minimum': 67, 'Whisker Maximum': 195}
+With data
+ExecutorID: Executor1
+{'Minimum': 227, 'Q1': 279.0, 'Median': 290.0, 'Q3': 306.0, 'Maximum': 421, 'Whisker Minimum': 240, 'Whisker Maximum': 346}
+ExecutorID: Executor2
+{'Minimum': 285, 'Q1': 347.0, 'Median': 428.0, 'Q3': 463.0, 'Maximum': 916, 'Whisker Minimum': 285, 'Whisker Maximum': 631}
+ExecutorID: Executor3
+{'Minimum': 278, 'Q1': 332.5, 'Median': 456.0, 'Q3': 569.0, 'Maximum': 1248, 'Whisker Minimum': 278, 'Whisker Maximum': 904}
+ExecutorID: Executor4
+{'Minimum': 291, 'Q1': 344.0, 'Median': 515.0, 'Q3': 620.0, 'Maximum': 1298, 'Whisker Minimum': 291, 'Whisker Maximum': 1022}
+ExecutorID: Executor5
+{'Minimum': 289, 'Q1': 346.0, 'Median': 538.0, 'Q3': 655.0, 'Maximum': 1738, 'Whisker Minimum': 289, 'Whisker Maximum': 1011}
+ExecutorID: Executor6
+{'Minimum': 297, 'Q1': 350.0, 'Median': 535.0, 'Q3': 663.0, 'Maximum': 1495, 'Whisker Minimum': 297, 'Whisker Maximum': 1125}
+ExecutorID: Executor7
+{'Minimum': 337, 'Q1': 376.25, 'Median': 423.5, 'Q3': 545.5, 'Maximum': 1008, 'Whisker Minimum': 337, 'Whisker Maximum': 772}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 22, 'Q1': 747.5, 'Median': 807.0, 'Q3': 906.5, 'Maximum': 1225, 'Whisker Minimum': 543, 'Whisker Maximum': 1142}
+ExecutorID: Executor2
+{'Minimum': 8, 'Q1': 792.25, 'Median': 878.0, 'Q3': 972.0, 'Maximum': 1305, 'Whisker Minimum': 642, 'Whisker Maximum': 1238}
+ExecutorID: Executor3
+{'Minimum': 7, 'Q1': 790.25, 'Median': 891.0, 'Q3': 973.75, 'Maximum': 1341, 'Whisker Minimum': 685, 'Whisker Maximum': 1242}
+ExecutorID: Executor4
+{'Minimum': 8, 'Q1': 884.0, 'Median': 953.0, 'Q3': 1074.0, 'Maximum': 1335, 'Whisker Minimum': 680, 'Whisker Maximum': 1335}
+ExecutorID: Executor5
+{'Minimum': 9, 'Q1': 834.0, 'Median': 944.0, 'Q3': 1033.75, 'Maximum': 1328, 'Whisker Minimum': 699, 'Whisker Maximum': 1328}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 837.0, 'Median': 959.5, 'Q3': 1044.0, 'Maximum': 1329, 'Whisker Minimum': 668, 'Whisker Maximum': 1329}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 37.0, 'Median': 38.0, 'Q3': 40.0, 'Maximum': 61, 'Whisker Minimum': 33, 'Whisker Maximum': 44}
+With data
+ExecutorID: Executor1
+{'Minimum': 1128, 'Q1': 1544.0, 'Median': 1678.0, 'Q3': 1880.0, 'Maximum': 2252, 'Whisker Minimum': 1128, 'Whisker Maximum': 2252}
+ExecutorID: Executor2
+{'Minimum': 816, 'Q1': 1064.0, 'Median': 1376.5, 'Q3': 1781.0, 'Maximum': 2439, 'Whisker Minimum': 816, 'Whisker Maximum': 2439}
+ExecutorID: Executor3
+{'Minimum': 805, 'Q1': 1035.25, 'Median': 1382.0, 'Q3': 1693.5, 'Maximum': 3055, 'Whisker Minimum': 805, 'Whisker Maximum': 2627}
+ExecutorID: Executor4
+{'Minimum': 946, 'Q1': 1190.75, 'Median': 1630.0, 'Q3': 1950.25, 'Maximum': 2992, 'Whisker Minimum': 946, 'Whisker Maximum': 2992}
+ExecutorID: Executor5
+{'Minimum': 910, 'Q1': 1233.0, 'Median': 1564.0, 'Q3': 1889.0, 'Maximum': 3260, 'Whisker Minimum': 910, 'Whisker Maximum': 2604}
+ExecutorID: Executor6
+{'Minimum': 929, 'Q1': 1209.0, 'Median': 1564.0, 'Q3': 1907.0, 'Maximum': 3442, 'Whisker Minimum': 929, 'Whisker Maximum': 2675}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   191179634
+2  Executor2    49034730
+3  Executor3    24540704
+4  Executor4   202077994
+6  Executor5   130201775
+5  Executor6   135596908
+1  Executor7   109781226
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  2088114788
+2  Executor2  2216028919
+3  Executor3  2215874695
+6  Executor4  2488919710
+4  Executor5  2378747095
+5  Executor6  2378953481
+0  Executor7   177596513
+path: ./result/automated_test_json/varied_timer_num/automated_test8.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 107, 'Q1': 145.0, 'Median': 150.0, 'Q3': 163.0, 'Maximum': 291, 'Whisker Minimum': 119, 'Whisker Maximum': 189}
+ExecutorID: Executor2
+{'Minimum': 123, 'Q1': 150.0, 'Median': 154.0, 'Q3': 159.0, 'Maximum': 359, 'Whisker Minimum': 137, 'Whisker Maximum': 172}
+ExecutorID: Executor3
+{'Minimum': 119, 'Q1': 149.0, 'Median': 152.0, 'Q3': 158.0, 'Maximum': 344, 'Whisker Minimum': 137, 'Whisker Maximum': 171}
+ExecutorID: Executor4
+{'Minimum': 129, 'Q1': 191.0, 'Median': 218.0, 'Q3': 245.0, 'Maximum': 409, 'Whisker Minimum': 129, 'Whisker Maximum': 323}
+ExecutorID: Executor5
+{'Minimum': 134, 'Q1': 196.0, 'Median': 204.0, 'Q3': 218.0, 'Maximum': 526, 'Whisker Minimum': 164, 'Whisker Maximum': 250}
+ExecutorID: Executor6
+{'Minimum': 124, 'Q1': 160.0, 'Median': 163.0, 'Q3': 168.0, 'Maximum': 430, 'Whisker Minimum': 149, 'Whisker Maximum': 179}
+ExecutorID: Executor7
+{'Minimum': 91, 'Q1': 124.0, 'Median': 136.0, 'Q3': 143.0, 'Maximum': 302, 'Whisker Minimum': 96, 'Whisker Maximum': 171}
+With data
+ExecutorID: Executor1
+{'Minimum': 155, 'Q1': 207.5, 'Median': 220.0, 'Q3': 230.0, 'Maximum': 664, 'Whisker Minimum': 181, 'Whisker Maximum': 263}
+ExecutorID: Executor2
+{'Minimum': 158, 'Q1': 214.75, 'Median': 285.0, 'Q3': 298.5, 'Maximum': 721, 'Whisker Minimum': 158, 'Whisker Maximum': 424}
+ExecutorID: Executor3
+{'Minimum': 149, 'Q1': 208.0, 'Median': 294.0, 'Q3': 344.25, 'Maximum': 805, 'Whisker Minimum': 149, 'Whisker Maximum': 532}
+ExecutorID: Executor4
+{'Minimum': 207, 'Q1': 279.0, 'Median': 360.0, 'Q3': 430.5, 'Maximum': 895, 'Whisker Minimum': 207, 'Whisker Maximum': 624}
+ExecutorID: Executor5
+{'Minimum': 203, 'Q1': 261.0, 'Median': 376.0, 'Q3': 415.0, 'Maximum': 927, 'Whisker Minimum': 203, 'Whisker Maximum': 623}
+ExecutorID: Executor6
+{'Minimum': 173, 'Q1': 218.0, 'Median': 354.0, 'Q3': 407.0, 'Maximum': 1020, 'Whisker Minimum': 173, 'Whisker Maximum': 655}
+ExecutorID: Executor7
+{'Minimum': 189, 'Q1': 340.75, 'Median': 354.0, 'Q3': 368.0, 'Maximum': 878, 'Whisker Minimum': 311, 'Whisker Maximum': 405}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 84, 'Q1': 114.0, 'Median': 116.0, 'Q3': 125.0, 'Maximum': 239, 'Whisker Minimum': 98, 'Whisker Maximum': 141}
+ExecutorID: Executor2
+{'Minimum': 96, 'Q1': 120.0, 'Median': 128.0, 'Q3': 133.0, 'Maximum': 292, 'Whisker Minimum': 101, 'Whisker Maximum': 152}
+ExecutorID: Executor3
+{'Minimum': 110, 'Q1': 154.0, 'Median': 174.0, 'Q3': 177.0, 'Maximum': 353, 'Whisker Minimum': 121, 'Whisker Maximum': 211}
+ExecutorID: Executor4
+{'Minimum': 109, 'Q1': 153.0, 'Median': 157.0, 'Q3': 190.0, 'Maximum': 403, 'Whisker Minimum': 109, 'Whisker Maximum': 243}
+ExecutorID: Executor5
+{'Minimum': 103, 'Q1': 128.0, 'Median': 131.0, 'Q3': 151.75, 'Maximum': 364, 'Whisker Minimum': 103, 'Whisker Maximum': 187}
+ExecutorID: Executor6
+{'Minimum': 104, 'Q1': 128.0, 'Median': 130.0, 'Q3': 152.75, 'Maximum': 357, 'Whisker Minimum': 104, 'Whisker Maximum': 189}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 84.0, 'Median': 112.0, 'Q3': 128.0, 'Maximum': 213, 'Whisker Minimum': 63, 'Whisker Maximum': 193}
+With data
+ExecutorID: Executor1
+{'Minimum': 205, 'Q1': 249.0, 'Median': 264.5, 'Q3': 282.0, 'Maximum': 675, 'Whisker Minimum': 205, 'Whisker Maximum': 331}
+ExecutorID: Executor2
+{'Minimum': 252, 'Q1': 304.0, 'Median': 390.5, 'Q3': 492.5, 'Maximum': 1037, 'Whisker Minimum': 252, 'Whisker Maximum': 759}
+ExecutorID: Executor3
+{'Minimum': 283, 'Q1': 359.5, 'Median': 453.0, 'Q3': 605.5, 'Maximum': 998, 'Whisker Minimum': 283, 'Whisker Maximum': 959}
+ExecutorID: Executor4
+{'Minimum': 275, 'Q1': 372.5, 'Median': 506.0, 'Q3': 648.5, 'Maximum': 1079, 'Whisker Minimum': 275, 'Whisker Maximum': 964}
+ExecutorID: Executor5
+{'Minimum': 276, 'Q1': 328.0, 'Median': 477.5, 'Q3': 707.5, 'Maximum': 1369, 'Whisker Minimum': 276, 'Whisker Maximum': 1236}
+ExecutorID: Executor6
+{'Minimum': 278, 'Q1': 338.5, 'Median': 516.0, 'Q3': 683.0, 'Maximum': 1312, 'Whisker Minimum': 278, 'Whisker Maximum': 975}
+ExecutorID: Executor7
+{'Minimum': 256, 'Q1': 388.5, 'Median': 456.0, 'Q3': 524.0, 'Maximum': 979, 'Whisker Minimum': 256, 'Whisker Maximum': 676}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 25, 'Q1': 728.0, 'Median': 780.0, 'Q3': 863.0, 'Maximum': 1231, 'Whisker Minimum': 606, 'Whisker Maximum': 1059}
+ExecutorID: Executor2
+{'Minimum': 13, 'Q1': 774.0, 'Median': 877.0, 'Q3': 955.75, 'Maximum': 1287, 'Whisker Minimum': 639, 'Whisker Maximum': 1227}
+ExecutorID: Executor3
+{'Minimum': 13, 'Q1': 760.0, 'Median': 869.5, 'Q3': 940.0, 'Maximum': 1294, 'Whisker Minimum': 662, 'Whisker Maximum': 1199}
+ExecutorID: Executor4
+{'Minimum': 9, 'Q1': 858.0, 'Median': 922.0, 'Q3': 1019.0, 'Maximum': 1375, 'Whisker Minimum': 697, 'Whisker Maximum': 1257}
+ExecutorID: Executor5
+{'Minimum': 8, 'Q1': 855.0, 'Median': 919.0, 'Q3': 1029.0, 'Maximum': 1441, 'Whisker Minimum': 663, 'Whisker Maximum': 1284}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 817.0, 'Median': 947.0, 'Q3': 1008.0, 'Maximum': 1409, 'Whisker Minimum': 732, 'Whisker Maximum': 1285}
+ExecutorID: Executor7
+{'Minimum': 8, 'Q1': 30.0, 'Median': 32.0, 'Q3': 39.0, 'Maximum': 74, 'Whisker Minimum': 25, 'Whisker Maximum': 52}
+With data
+ExecutorID: Executor1
+{'Minimum': 1362, 'Q1': 1541.5, 'Median': 1679.5, 'Q3': 1868.0, 'Maximum': 2307, 'Whisker Minimum': 1362, 'Whisker Maximum': 2307}
+ExecutorID: Executor2
+{'Minimum': 830, 'Q1': 1006.25, 'Median': 1338.5, 'Q3': 1708.0, 'Maximum': 3135, 'Whisker Minimum': 830, 'Whisker Maximum': 2386}
+ExecutorID: Executor3
+{'Minimum': 772, 'Q1': 1101.5, 'Median': 1402.0, 'Q3': 1639.0, 'Maximum': 3183, 'Whisker Minimum': 772, 'Whisker Maximum': 2440}
+ExecutorID: Executor4
+{'Minimum': 872, 'Q1': 1143.0, 'Median': 1547.0, 'Q3': 1791.0, 'Maximum': 3190, 'Whisker Minimum': 872, 'Whisker Maximum': 2609}
+ExecutorID: Executor5
+{'Minimum': 983, 'Q1': 1130.5, 'Median': 1563.0, 'Q3': 1855.0, 'Maximum': 2649, 'Whisker Minimum': 983, 'Whisker Maximum': 2649}
+ExecutorID: Executor6
+{'Minimum': 944, 'Q1': 1174.0, 'Median': 1539.0, 'Q3': 1884.5, 'Maximum': 3370, 'Whisker Minimum': 944, 'Whisker Maximum': 2843}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   177522434
+2  Executor2    64470151
+5  Executor3   -28951856
+6  Executor4   153203406
+3  Executor5   156657714
+4  Executor6    46953061
+1  Executor7   108401629
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  2039531326
+3  Executor2  2166153200
+2  Executor3  2144409991
+5  Executor4  2360096804
+6  Executor5  2373315458
+4  Executor6  2313518008
+0  Executor7   131751748
+path: ./result/automated_test_json/varied_timer_num/automated_test9.json
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 128, 'Q1': 174.0, 'Median': 178.0, 'Q3': 205.0, 'Maximum': 342, 'Whisker Minimum': 128, 'Whisker Maximum': 251}
+ExecutorID: Executor2
+{'Minimum': 148, 'Q1': 205.0, 'Median': 207.0, 'Q3': 232.0, 'Maximum': 373, 'Whisker Minimum': 166, 'Whisker Maximum': 272}
+ExecutorID: Executor3
+{'Minimum': 157, 'Q1': 215.0, 'Median': 237.0, 'Q3': 247.0, 'Maximum': 422, 'Whisker Minimum': 168, 'Whisker Maximum': 294}
+ExecutorID: Executor4
+{'Minimum': 155, 'Q1': 216.0, 'Median': 219.0, 'Q3': 246.0, 'Maximum': 441, 'Whisker Minimum': 172, 'Whisker Maximum': 290}
+ExecutorID: Executor5
+{'Minimum': 160, 'Q1': 216.0, 'Median': 222.0, 'Q3': 254.0, 'Maximum': 457, 'Whisker Minimum': 160, 'Whisker Maximum': 310}
+ExecutorID: Executor6
+{'Minimum': 164, 'Q1': 223.0, 'Median': 226.0, 'Q3': 257.0, 'Maximum': 472, 'Whisker Minimum': 177, 'Whisker Maximum': 307}
+ExecutorID: Executor7
+{'Minimum': 90, 'Q1': 134.0, 'Median': 137.0, 'Q3': 147.0, 'Maximum': 270, 'Whisker Minimum': 115, 'Whisker Maximum': 166}
+With data
+ExecutorID: Executor1
+{'Minimum': 198, 'Q1': 256.0, 'Median': 261.0, 'Q3': 319.0, 'Maximum': 720, 'Whisker Minimum': 198, 'Whisker Maximum': 408}
+ExecutorID: Executor2
+{'Minimum': 246, 'Q1': 285.0, 'Median': 335.0, 'Q3': 359.0, 'Maximum': 810, 'Whisker Minimum': 246, 'Whisker Maximum': 466}
+ExecutorID: Executor3
+{'Minimum': 221, 'Q1': 316.0, 'Median': 375.5, 'Q3': 423.0, 'Maximum': 741, 'Whisker Minimum': 221, 'Whisker Maximum': 560}
+ExecutorID: Executor4
+{'Minimum': 247, 'Q1': 294.0, 'Median': 381.0, 'Q3': 411.0, 'Maximum': 910, 'Whisker Minimum': 247, 'Whisker Maximum': 566}
+ExecutorID: Executor5
+{'Minimum': 248, 'Q1': 297.0, 'Median': 396.0, 'Q3': 430.0, 'Maximum': 1064, 'Whisker Minimum': 248, 'Whisker Maximum': 627}
+ExecutorID: Executor6
+{'Minimum': 259, 'Q1': 301.25, 'Median': 406.0, 'Q3': 446.0, 'Maximum': 1049, 'Whisker Minimum': 259, 'Whisker Maximum': 618}
+ExecutorID: Executor7
+{'Minimum': 325, 'Q1': 346.0, 'Median': 354.0, 'Q3': 368.5, 'Maximum': 900, 'Whisker Minimum': 325, 'Whisker Maximum': 391}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 101, 'Q1': 141.0, 'Median': 144.0, 'Q3': 147.0, 'Maximum': 435, 'Whisker Minimum': 133, 'Whisker Maximum': 155}
+ExecutorID: Executor2
+{'Minimum': 117, 'Q1': 167.0, 'Median': 171.0, 'Q3': 196.0, 'Maximum': 459, 'Whisker Minimum': 124, 'Whisker Maximum': 239}
+ExecutorID: Executor3
+{'Minimum': 120, 'Q1': 166.0, 'Median': 170.0, 'Q3': 175.0, 'Maximum': 477, 'Whisker Minimum': 153, 'Whisker Maximum': 188}
+ExecutorID: Executor4
+{'Minimum': 121, 'Q1': 155.25, 'Median': 175.0, 'Q3': 180.0, 'Maximum': 482, 'Whisker Minimum': 121, 'Whisker Maximum': 217}
+ExecutorID: Executor5
+{'Minimum': 118, 'Q1': 159.0, 'Median': 182.0, 'Q3': 190.0, 'Maximum': 426, 'Whisker Minimum': 118, 'Whisker Maximum': 236}
+ExecutorID: Executor6
+{'Minimum': 122, 'Q1': 155.0, 'Median': 183.0, 'Q3': 190.0, 'Maximum': 424, 'Whisker Minimum': 122, 'Whisker Maximum': 242}
+ExecutorID: Executor7
+{'Minimum': 68, 'Q1': 87.0, 'Median': 90.0, 'Q3': 112.0, 'Maximum': 228, 'Whisker Minimum': 68, 'Whisker Maximum': 149}
+With data
+ExecutorID: Executor1
+{'Minimum': 271, 'Q1': 326.0, 'Median': 340.0, 'Q3': 366.0, 'Maximum': 533, 'Whisker Minimum': 271, 'Whisker Maximum': 425}
+ExecutorID: Executor2
+{'Minimum': 316, 'Q1': 404.0, 'Median': 493.0, 'Q3': 561.0, 'Maximum': 962, 'Whisker Minimum': 316, 'Whisker Maximum': 795}
+ExecutorID: Executor3
+{'Minimum': 349, 'Q1': 416.75, 'Median': 541.0, 'Q3': 640.0, 'Maximum': 1229, 'Whisker Minimum': 349, 'Whisker Maximum': 968}
+ExecutorID: Executor4
+{'Minimum': 356, 'Q1': 420.0, 'Median': 511.0, 'Q3': 709.5, 'Maximum': 1320, 'Whisker Minimum': 356, 'Whisker Maximum': 953}
+ExecutorID: Executor5
+{'Minimum': 342, 'Q1': 430.0, 'Median': 573.0, 'Q3': 724.5, 'Maximum': 1422, 'Whisker Minimum': 342, 'Whisker Maximum': 1051}
+ExecutorID: Executor6
+{'Minimum': 340, 'Q1': 431.0, 'Median': 601.5, 'Q3': 760.0, 'Maximum': 1440, 'Whisker Minimum': 340, 'Whisker Maximum': 1025}
+ExecutorID: Executor7
+{'Minimum': 316, 'Q1': 360.0, 'Median': 440.5, 'Q3': 531.75, 'Maximum': 956, 'Whisker Minimum': 316, 'Whisker Maximum': 729}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 25, 'Q1': 765.0, 'Median': 821.0, 'Q3': 931.0, 'Maximum': 1259, 'Whisker Minimum': 641, 'Whisker Maximum': 1178}
+ExecutorID: Executor2
+{'Minimum': 12, 'Q1': 836.0, 'Median': 902.5, 'Q3': 1017.0, 'Maximum': 1394, 'Whisker Minimum': 652, 'Whisker Maximum': 1288}
+ExecutorID: Executor3
+{'Minimum': 8, 'Q1': 853.0, 'Median': 924.0, 'Q3': 1048.0, 'Maximum': 1451, 'Whisker Minimum': 707, 'Whisker Maximum': 1321}
+ExecutorID: Executor4
+{'Minimum': 7, 'Q1': 867.0, 'Median': 962.0, 'Q3': 1066.0, 'Maximum': 1456, 'Whisker Minimum': 689, 'Whisker Maximum': 1338}
+ExecutorID: Executor5
+{'Minimum': 8, 'Q1': 843.0, 'Median': 980.0, 'Q3': 1056.0, 'Maximum': 1511, 'Whisker Minimum': 701, 'Whisker Maximum': 1347}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 881.0, 'Median': 992.0, 'Q3': 1076.0, 'Maximum': 1513, 'Whisker Minimum': 746, 'Whisker Maximum': 1362}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 31.0, 'Median': 33.0, 'Q3': 40.0, 'Maximum': 66, 'Whisker Minimum': 27, 'Whisker Maximum': 51}
+With data
+ExecutorID: Executor1
+{'Minimum': 1323, 'Q1': 1537.75, 'Median': 1708.0, 'Q3': 1911.5, 'Maximum': 2818, 'Whisker Minimum': 1323, 'Whisker Maximum': 2444}
+ExecutorID: Executor2
+{'Minimum': 859, 'Q1': 1053.0, 'Median': 1481.0, 'Q3': 1763.5, 'Maximum': 2472, 'Whisker Minimum': 859, 'Whisker Maximum': 2472}
+ExecutorID: Executor3
+{'Minimum': 943, 'Q1': 1127.5, 'Median': 1534.5, 'Q3': 1872.5, 'Maximum': 3210, 'Whisker Minimum': 943, 'Whisker Maximum': 2746}
+ExecutorID: Executor4
+{'Minimum': 973, 'Q1': 1193.0, 'Median': 1588.0, 'Q3': 1873.0, 'Maximum': 3261, 'Whisker Minimum': 973, 'Whisker Maximum': 2843}
+ExecutorID: Executor5
+{'Minimum': 980, 'Q1': 1249.5, 'Median': 1571.5, 'Q3': 1900.0, 'Maximum': 3512, 'Whisker Minimum': 980, 'Whisker Maximum': 2863}
+ExecutorID: Executor6
+{'Minimum': 1013, 'Q1': 1259.25, 'Median': 1605.0, 'Q3': 1960.0, 'Maximum': 3488, 'Whisker Minimum': 1013, 'Whisker Maximum': 2943}
+input overhead increase total
+  ExecutorID  Difference
+1  Executor1   187453396
+3  Executor2    98213915
+2  Executor3   171888057
+4  Executor4   114103701
+5  Executor5   107781855
+6  Executor6   115180585
+0  Executor7   147960854
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1  2139774252
+2  Executor2  2331307553
+3  Executor3  2405407499
+5  Executor4  2425928753
+4  Executor5  2410818072
+6  Executor6  2467628814
+0  Executor7   136006032
+./result/automated_test_json/varied_let/automated_test10.json
+7
+CallbackLET: 1305.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 72, 'Q1': 102.0, 'Median': 112.0, 'Q3': 128.0, 'Maximum': 380, 'Whisker Minimum': 72, 'Whisker Maximum': 166}
+ExecutorID: Executor2
+{'Minimum': 82, 'Q1': 117.0, 'Median': 132.0, 'Q3': 166.0, 'Maximum': 266, 'Whisker Minimum': 82, 'Whisker Maximum': 238}
+ExecutorID: Executor3
+{'Minimum': 80, 'Q1': 112.0, 'Median': 127.0, 'Q3': 147.0, 'Maximum': 227, 'Whisker Minimum': 80, 'Whisker Maximum': 199}
+ExecutorID: Executor4
+{'Minimum': 80, 'Q1': 116.0, 'Median': 131.0, 'Q3': 151.0, 'Maximum': 251, 'Whisker Minimum': 80, 'Whisker Maximum': 202}
+ExecutorID: Executor5
+{'Minimum': 81, 'Q1': 101.0, 'Median': 122.0, 'Q3': 153.0, 'Maximum': 254, 'Whisker Minimum': 81, 'Whisker Maximum': 229}
+ExecutorID: Executor6
+{'Minimum': 88, 'Q1': 119.75, 'Median': 140.0, 'Q3': 163.0, 'Maximum': 263, 'Whisker Minimum': 88, 'Whisker Maximum': 227}
+ExecutorID: Executor7
+{'Minimum': 86, 'Q1': 119.5, 'Median': 136.0, 'Q3': 161.0, 'Maximum': 261, 'Whisker Minimum': 86, 'Whisker Maximum': 223}
+With data
+ExecutorID: Executor1
+{'Minimum': 100, 'Q1': 126.25, 'Median': 137.5, 'Q3': 156.25, 'Maximum': 219, 'Whisker Minimum': 100, 'Whisker Maximum': 200}
+ExecutorID: Executor2
+{'Minimum': 105, 'Q1': 167.0, 'Median': 213.0, 'Q3': 273.75, 'Maximum': 473, 'Whisker Minimum': 105, 'Whisker Maximum': 420}
+ExecutorID: Executor3
+{'Minimum': 95, 'Q1': 148.0, 'Median': 201.0, 'Q3': 242.0, 'Maximum': 475, 'Whisker Minimum': 95, 'Whisker Maximum': 375}
+ExecutorID: Executor4
+{'Minimum': 96, 'Q1': 151.0, 'Median': 199.0, 'Q3': 234.0, 'Maximum': 527, 'Whisker Minimum': 96, 'Whisker Maximum': 357}
+ExecutorID: Executor5
+{'Minimum': 93, 'Q1': 147.0, 'Median': 182.0, 'Q3': 226.25, 'Maximum': 529, 'Whisker Minimum': 93, 'Whisker Maximum': 343}
+ExecutorID: Executor6
+{'Minimum': 102, 'Q1': 162.0, 'Median': 199.0, 'Q3': 243.0, 'Maximum': 505, 'Whisker Minimum': 102, 'Whisker Maximum': 363}
+ExecutorID: Executor7
+{'Minimum': 95, 'Q1': 159.0, 'Median': 190.0, 'Q3': 227.0, 'Maximum': 452, 'Whisker Minimum': 95, 'Whisker Maximum': 328}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 54, 'Q1': 83.0, 'Median': 88.0, 'Q3': 103.0, 'Maximum': 274, 'Whisker Minimum': 54, 'Whisker Maximum': 132}
+ExecutorID: Executor2
+{'Minimum': 60, 'Q1': 97.0, 'Median': 110.0, 'Q3': 137.0, 'Maximum': 307, 'Whisker Minimum': 60, 'Whisker Maximum': 196}
+ExecutorID: Executor3
+{'Minimum': 57, 'Q1': 72.0, 'Median': 87.0, 'Q3': 114.0, 'Maximum': 415, 'Whisker Minimum': 57, 'Whisker Maximum': 176}
+ExecutorID: Executor4
+{'Minimum': 60, 'Q1': 76.0, 'Median': 94.0, 'Q3': 121.0, 'Maximum': 420, 'Whisker Minimum': 60, 'Whisker Maximum': 188}
+ExecutorID: Executor5
+{'Minimum': 60, 'Q1': 79.0, 'Median': 96.0, 'Q3': 127.0, 'Maximum': 248, 'Whisker Minimum': 60, 'Whisker Maximum': 198}
+ExecutorID: Executor6
+{'Minimum': 61, 'Q1': 77.0, 'Median': 95.5, 'Q3': 124.75, 'Maximum': 240, 'Whisker Minimum': 61, 'Whisker Maximum': 196}
+ExecutorID: Executor7
+{'Minimum': 61, 'Q1': 76.0, 'Median': 94.0, 'Q3': 127.75, 'Maximum': 236, 'Whisker Minimum': 61, 'Whisker Maximum': 205}
+With data
+ExecutorID: Executor1
+{'Minimum': 79, 'Q1': 112.0, 'Median': 118.0, 'Q3': 133.75, 'Maximum': 184, 'Whisker Minimum': 83, 'Whisker Maximum': 164}
+ExecutorID: Executor2
+{'Minimum': 110, 'Q1': 248.5, 'Median': 313.0, 'Q3': 370.0, 'Maximum': 697, 'Whisker Minimum': 110, 'Whisker Maximum': 540}
+ExecutorID: Executor3
+{'Minimum': 110, 'Q1': 204.0, 'Median': 320.0, 'Q3': 422.0, 'Maximum': 872, 'Whisker Minimum': 110, 'Whisker Maximum': 723}
+ExecutorID: Executor4
+{'Minimum': 114, 'Q1': 189.25, 'Median': 257.5, 'Q3': 385.0, 'Maximum': 917, 'Whisker Minimum': 114, 'Whisker Maximum': 678}
+ExecutorID: Executor5
+{'Minimum': 121, 'Q1': 195.0, 'Median': 255.0, 'Q3': 343.0, 'Maximum': 921, 'Whisker Minimum': 121, 'Whisker Maximum': 559}
+ExecutorID: Executor6
+{'Minimum': 117, 'Q1': 195.25, 'Median': 242.5, 'Q3': 315.75, 'Maximum': 908, 'Whisker Minimum': 117, 'Whisker Maximum': 493}
+ExecutorID: Executor7
+{'Minimum': 130, 'Q1': 184.0, 'Median': 235.0, 'Q3': 275.0, 'Maximum': 743, 'Whisker Minimum': 130, 'Whisker Maximum': 408}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 32, 'Q1': 156.0, 'Median': 179.0, 'Q3': 216.0, 'Maximum': 452, 'Whisker Minimum': 128, 'Whisker Maximum': 305}
+ExecutorID: Executor2
+{'Minimum': 9, 'Q1': 214.0, 'Median': 248.5, 'Q3': 295.0, 'Maximum': 512, 'Whisker Minimum': 179, 'Whisker Maximum': 416}
+ExecutorID: Executor3
+{'Minimum': 7, 'Q1': 234.0, 'Median': 288.0, 'Q3': 328.0, 'Maximum': 630, 'Whisker Minimum': 193, 'Whisker Maximum': 468}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 257.0, 'Median': 314.0, 'Q3': 350.0, 'Maximum': 589, 'Whisker Minimum': 208, 'Whisker Maximum': 489}
+ExecutorID: Executor5
+{'Minimum': 6, 'Q1': 265.75, 'Median': 322.0, 'Q3': 355.0, 'Maximum': 583, 'Whisker Minimum': 218, 'Whisker Maximum': 488}
+ExecutorID: Executor6
+{'Minimum': 6, 'Q1': 274.0, 'Median': 337.0, 'Q3': 374.75, 'Maximum': 576, 'Whisker Minimum': 225, 'Whisker Maximum': 524}
+ExecutorID: Executor7
+{'Minimum': 6, 'Q1': 26.0, 'Median': 31.0, 'Q3': 36.0, 'Maximum': 82, 'Whisker Minimum': 19, 'Whisker Maximum': 50}
+With data
+ExecutorID: Executor1
+{'Minimum': 369, 'Q1': 480.0, 'Median': 570.0, 'Q3': 692.5, 'Maximum': 1046, 'Whisker Minimum': 369, 'Whisker Maximum': 990}
+ExecutorID: Executor2
+{'Minimum': 316, 'Q1': 438.5, 'Median': 553.5, 'Q3': 645.0, 'Maximum': 1002, 'Whisker Minimum': 316, 'Whisker Maximum': 930}
+ExecutorID: Executor3
+{'Minimum': 252, 'Q1': 407.0, 'Median': 529.0, 'Q3': 660.5, 'Maximum': 1083, 'Whisker Minimum': 252, 'Whisker Maximum': 961}
+ExecutorID: Executor4
+{'Minimum': 263, 'Q1': 421.0, 'Median': 514.0, 'Q3': 624.75, 'Maximum': 1105, 'Whisker Minimum': 263, 'Whisker Maximum': 918}
+ExecutorID: Executor5
+{'Minimum': 248, 'Q1': 413.5, 'Median': 495.0, 'Q3': 598.0, 'Maximum': 1036, 'Whisker Minimum': 248, 'Whisker Maximum': 874}
+ExecutorID: Executor6
+{'Minimum': 265, 'Q1': 399.0, 'Median': 479.0, 'Q3': 573.0, 'Maximum': 1061, 'Whisker Minimum': 265, 'Whisker Maximum': 826}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   180967789
+2  Executor2   146086148
+1  Executor3   147821209
+3  Executor4   129578472
+4  Executor5    91640911
+6  Executor6   127887611
+5  Executor7   127249721
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   579079237
+2  Executor2   764406481
+3  Executor3   837652798
+4  Executor4   888338954
+5  Executor5   899420097
+6  Executor6   937841103
+0  Executor7   155668766
+./result/automated_test_json/varied_let/automated_test1.json
+7
+CallbackLET: 2105.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 67, 'Q1': 103.0, 'Median': 118.0, 'Q3': 132.0, 'Maximum': 250, 'Whisker Minimum': 67, 'Whisker Maximum': 175}
+ExecutorID: Executor2
+{'Minimum': 68, 'Q1': 93.0, 'Median': 101.0, 'Q3': 121.0, 'Maximum': 220, 'Whisker Minimum': 68, 'Whisker Maximum': 162}
+ExecutorID: Executor3
+{'Minimum': 63, 'Q1': 88.0, 'Median': 96.0, 'Q3': 127.0, 'Maximum': 220, 'Whisker Minimum': 63, 'Whisker Maximum': 185}
+ExecutorID: Executor4
+{'Minimum': 70, 'Q1': 132.0, 'Median': 140.0, 'Q3': 164.0, 'Maximum': 284, 'Whisker Minimum': 87, 'Whisker Maximum': 211}
+ExecutorID: Executor5
+{'Minimum': 71, 'Q1': 114.0, 'Median': 137.0, 'Q3': 156.0, 'Maximum': 269, 'Whisker Minimum': 71, 'Whisker Maximum': 218}
+ExecutorID: Executor6
+{'Minimum': 77, 'Q1': 108.0, 'Median': 124.0, 'Q3': 157.0, 'Maximum': 252, 'Whisker Minimum': 77, 'Whisker Maximum': 230}
+ExecutorID: Executor7
+{'Minimum': 90, 'Q1': 127.0, 'Median': 144.0, 'Q3': 163.0, 'Maximum': 268, 'Whisker Minimum': 90, 'Whisker Maximum': 216}
+With data
+ExecutorID: Executor1
+{'Minimum': 107, 'Q1': 126.25, 'Median': 147.0, 'Q3': 171.75, 'Maximum': 226, 'Whisker Minimum': 107, 'Whisker Maximum': 226}
+ExecutorID: Executor2
+{'Minimum': 83, 'Q1': 120.0, 'Median': 179.0, 'Q3': 226.0, 'Maximum': 404, 'Whisker Minimum': 83, 'Whisker Maximum': 379}
+ExecutorID: Executor3
+{'Minimum': 77, 'Q1': 125.0, 'Median': 176.0, 'Q3': 204.0, 'Maximum': 397, 'Whisker Minimum': 77, 'Whisker Maximum': 322}
+ExecutorID: Executor4
+{'Minimum': 102, 'Q1': 169.0, 'Median': 205.0, 'Q3': 246.75, 'Maximum': 391, 'Whisker Minimum': 102, 'Whisker Maximum': 351}
+ExecutorID: Executor5
+{'Minimum': 91, 'Q1': 148.0, 'Median': 185.0, 'Q3': 235.0, 'Maximum': 456, 'Whisker Minimum': 91, 'Whisker Maximum': 362}
+ExecutorID: Executor6
+{'Minimum': 89, 'Q1': 145.5, 'Median': 180.0, 'Q3': 221.0, 'Maximum': 464, 'Whisker Minimum': 89, 'Whisker Maximum': 333}
+ExecutorID: Executor7
+{'Minimum': 95, 'Q1': 158.25, 'Median': 183.5, 'Q3': 223.0, 'Maximum': 416, 'Whisker Minimum': 95, 'Whisker Maximum': 319}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 39, 'Q1': 80.0, 'Median': 89.0, 'Q3': 104.0, 'Maximum': 397, 'Whisker Minimum': 50, 'Whisker Maximum': 138}
+ExecutorID: Executor2
+{'Minimum': 44, 'Q1': 76.0, 'Median': 90.0, 'Q3': 116.0, 'Maximum': 277, 'Whisker Minimum': 44, 'Whisker Maximum': 175}
+ExecutorID: Executor3
+{'Minimum': 49, 'Q1': 67.0, 'Median': 85.0, 'Q3': 115.0, 'Maximum': 256, 'Whisker Minimum': 49, 'Whisker Maximum': 186}
+ExecutorID: Executor4
+{'Minimum': 52, 'Q1': 72.0, 'Median': 96.0, 'Q3': 129.0, 'Maximum': 240, 'Whisker Minimum': 52, 'Whisker Maximum': 213}
+ExecutorID: Executor5
+{'Minimum': 47, 'Q1': 77.0, 'Median': 106.0, 'Q3': 134.0, 'Maximum': 265, 'Whisker Minimum': 47, 'Whisker Maximum': 219}
+ExecutorID: Executor6
+{'Minimum': 49, 'Q1': 76.0, 'Median': 102.0, 'Q3': 131.0, 'Maximum': 253, 'Whisker Minimum': 49, 'Whisker Maximum': 210}
+ExecutorID: Executor7
+{'Minimum': 53, 'Q1': 78.0, 'Median': 104.0, 'Q3': 129.0, 'Maximum': 228, 'Whisker Minimum': 53, 'Whisker Maximum': 205}
+With data
+ExecutorID: Executor1
+{'Minimum': 79, 'Q1': 109.0, 'Median': 119.0, 'Q3': 137.75, 'Maximum': 234, 'Whisker Minimum': 79, 'Whisker Maximum': 166}
+ExecutorID: Executor2
+{'Minimum': 106, 'Q1': 247.5, 'Median': 325.0, 'Q3': 400.0, 'Maximum': 566, 'Whisker Minimum': 106, 'Whisker Maximum': 566}
+ExecutorID: Executor3
+{'Minimum': 106, 'Q1': 234.5, 'Median': 325.5, 'Q3': 426.25, 'Maximum': 785, 'Whisker Minimum': 106, 'Whisker Maximum': 665}
+ExecutorID: Executor4
+{'Minimum': 116, 'Q1': 212.0, 'Median': 295.0, 'Q3': 402.0, 'Maximum': 906, 'Whisker Minimum': 116, 'Whisker Maximum': 669}
+ExecutorID: Executor5
+{'Minimum': 121, 'Q1': 205.0, 'Median': 282.0, 'Q3': 370.0, 'Maximum': 947, 'Whisker Minimum': 121, 'Whisker Maximum': 617}
+ExecutorID: Executor6
+{'Minimum': 125, 'Q1': 194.0, 'Median': 246.0, 'Q3': 343.5, 'Maximum': 930, 'Whisker Minimum': 125, 'Whisker Maximum': 565}
+ExecutorID: Executor7
+{'Minimum': 126, 'Q1': 176.75, 'Median': 231.0, 'Q3': 287.25, 'Maximum': 747, 'Whisker Minimum': 126, 'Whisker Maximum': 449}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 24, 'Q1': 165.0, 'Median': 198.0, 'Q3': 234.0, 'Maximum': 441, 'Whisker Minimum': 126, 'Whisker Maximum': 337}
+ExecutorID: Executor2
+{'Minimum': 7, 'Q1': 206.0, 'Median': 252.0, 'Q3': 302.0, 'Maximum': 627, 'Whisker Minimum': 160, 'Whisker Maximum': 445}
+ExecutorID: Executor3
+{'Minimum': 5, 'Q1': 223.0, 'Median': 275.0, 'Q3': 312.0, 'Maximum': 582, 'Whisker Minimum': 174, 'Whisker Maximum': 445}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 254.0, 'Median': 294.5, 'Q3': 359.0, 'Maximum': 717, 'Whisker Minimum': 200, 'Whisker Maximum': 516}
+ExecutorID: Executor5
+{'Minimum': 6, 'Q1': 256.0, 'Median': 311.5, 'Q3': 355.0, 'Maximum': 626, 'Whisker Minimum': 206, 'Whisker Maximum': 503}
+ExecutorID: Executor6
+{'Minimum': 5, 'Q1': 264.0, 'Median': 331.0, 'Q3': 362.0, 'Maximum': 559, 'Whisker Minimum': 217, 'Whisker Maximum': 507}
+ExecutorID: Executor7
+{'Minimum': 5, 'Q1': 28.0, 'Median': 32.0, 'Q3': 36.0, 'Maximum': 90, 'Whisker Minimum': 21, 'Whisker Maximum': 47}
+With data
+ExecutorID: Executor1
+{'Minimum': 381, 'Q1': 506.5, 'Median': 602.0, 'Q3': 684.5, 'Maximum': 907, 'Whisker Minimum': 381, 'Whisker Maximum': 907}
+ExecutorID: Executor2
+{'Minimum': 301, 'Q1': 440.5, 'Median': 524.0, 'Q3': 622.0, 'Maximum': 920, 'Whisker Minimum': 301, 'Whisker Maximum': 892}
+ExecutorID: Executor3
+{'Minimum': 240, 'Q1': 392.75, 'Median': 498.0, 'Q3': 591.5, 'Maximum': 949, 'Whisker Minimum': 240, 'Whisker Maximum': 843}
+ExecutorID: Executor4
+{'Minimum': 290, 'Q1': 414.0, 'Median': 484.5, 'Q3': 615.75, 'Maximum': 1069, 'Whisker Minimum': 290, 'Whisker Maximum': 899}
+ExecutorID: Executor5
+{'Minimum': 258, 'Q1': 393.0, 'Median': 467.0, 'Q3': 573.0, 'Maximum': 963, 'Whisker Minimum': 258, 'Whisker Maximum': 838}
+ExecutorID: Executor6
+{'Minimum': 259, 'Q1': 389.0, 'Median': 459.5, 'Q3': 558.0, 'Maximum': 978, 'Whisker Minimum': 259, 'Whisker Maximum': 809}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   190173338
+1  Executor2    59427678
+2  Executor3    66194655
+3  Executor4   171425425
+5  Executor5   110719608
+6  Executor6    87141490
+4  Executor7   140557731
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   611365779
+2  Executor2   716943953
+3  Executor3   757133993
+5  Executor4   886726926
+4  Executor5   878897024
+6  Executor6   884821541
+0  Executor7   164936582
+./result/automated_test_json/varied_let/automated_test2.json
+7
+CallbackLET: 2005.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 66, 'Q1': 98.0, 'Median': 114.0, 'Q3': 127.0, 'Maximum': 382, 'Whisker Minimum': 66, 'Whisker Maximum': 170}
+ExecutorID: Executor2
+{'Minimum': 66, 'Q1': 90.0, 'Median': 98.0, 'Q3': 123.0, 'Maximum': 232, 'Whisker Minimum': 66, 'Whisker Maximum': 172}
+ExecutorID: Executor3
+{'Minimum': 76, 'Q1': 122.0, 'Median': 136.0, 'Q3': 159.0, 'Maximum': 342, 'Whisker Minimum': 76, 'Whisker Maximum': 214}
+ExecutorID: Executor4
+{'Minimum': 78, 'Q1': 119.0, 'Median': 135.0, 'Q3': 157.0, 'Maximum': 276, 'Whisker Minimum': 78, 'Whisker Maximum': 213}
+ExecutorID: Executor5
+{'Minimum': 85, 'Q1': 125.0, 'Median': 140.0, 'Q3': 166.0, 'Maximum': 289, 'Whisker Minimum': 85, 'Whisker Maximum': 227}
+ExecutorID: Executor6
+{'Minimum': 83, 'Q1': 114.0, 'Median': 131.0, 'Q3': 157.0, 'Maximum': 296, 'Whisker Minimum': 83, 'Whisker Maximum': 218}
+ExecutorID: Executor7
+{'Minimum': 84, 'Q1': 121.0, 'Median': 138.0, 'Q3': 161.0, 'Maximum': 287, 'Whisker Minimum': 84, 'Whisker Maximum': 220}
+With data
+ExecutorID: Executor1
+{'Minimum': 97, 'Q1': 130.0, 'Median': 145.5, 'Q3': 174.75, 'Maximum': 276, 'Whisker Minimum': 97, 'Whisker Maximum': 222}
+ExecutorID: Executor2
+{'Minimum': 82, 'Q1': 117.0, 'Median': 180.0, 'Q3': 229.0, 'Maximum': 428, 'Whisker Minimum': 82, 'Whisker Maximum': 373}
+ExecutorID: Executor3
+{'Minimum': 92, 'Q1': 168.0, 'Median': 207.0, 'Q3': 253.75, 'Maximum': 509, 'Whisker Minimum': 92, 'Whisker Maximum': 375}
+ExecutorID: Executor4
+{'Minimum': 96, 'Q1': 164.75, 'Median': 200.0, 'Q3': 238.0, 'Maximum': 453, 'Whisker Minimum': 96, 'Whisker Maximum': 346}
+ExecutorID: Executor5
+{'Minimum': 93, 'Q1': 174.0, 'Median': 202.0, 'Q3': 245.5, 'Maximum': 521, 'Whisker Minimum': 93, 'Whisker Maximum': 352}
+ExecutorID: Executor6
+{'Minimum': 102, 'Q1': 168.0, 'Median': 197.0, 'Q3': 240.75, 'Maximum': 720, 'Whisker Minimum': 102, 'Whisker Maximum': 348}
+ExecutorID: Executor7
+{'Minimum': 108, 'Q1': 166.0, 'Median': 199.0, 'Q3': 240.0, 'Maximum': 485, 'Whisker Minimum': 108, 'Whisker Maximum': 345}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 56, 'Q1': 83.0, 'Median': 88.0, 'Q3': 93.0, 'Maximum': 362, 'Whisker Minimum': 69, 'Whisker Maximum': 107}
+ExecutorID: Executor2
+{'Minimum': 63, 'Q1': 86.0, 'Median': 98.0, 'Q3': 105.0, 'Maximum': 296, 'Whisker Minimum': 63, 'Whisker Maximum': 133}
+ExecutorID: Executor3
+{'Minimum': 60, 'Q1': 84.0, 'Median': 102.0, 'Q3': 109.0, 'Maximum': 289, 'Whisker Minimum': 60, 'Whisker Maximum': 146}
+ExecutorID: Executor4
+{'Minimum': 61, 'Q1': 97.0, 'Median': 112.0, 'Q3': 115.0, 'Maximum': 297, 'Whisker Minimum': 71, 'Whisker Maximum': 141}
+ExecutorID: Executor5
+{'Minimum': 63, 'Q1': 97.0, 'Median': 112.0, 'Q3': 116.0, 'Maximum': 367, 'Whisker Minimum': 69, 'Whisker Maximum': 144}
+ExecutorID: Executor6
+{'Minimum': 70, 'Q1': 115.0, 'Median': 130.0, 'Q3': 148.0, 'Maximum': 280, 'Whisker Minimum': 70, 'Whisker Maximum': 197}
+ExecutorID: Executor7
+{'Minimum': 67, 'Q1': 111.0, 'Median': 125.0, 'Q3': 139.0, 'Maximum': 281, 'Whisker Minimum': 70, 'Whisker Maximum': 180}
+With data
+ExecutorID: Executor1
+{'Minimum': 84, 'Q1': 110.25, 'Median': 116.0, 'Q3': 121.75, 'Maximum': 235, 'Whisker Minimum': 94, 'Whisker Maximum': 137}
+ExecutorID: Executor2
+{'Minimum': 111, 'Q1': 164.5, 'Median': 269.5, 'Q3': 330.0, 'Maximum': 670, 'Whisker Minimum': 111, 'Whisker Maximum': 493}
+ExecutorID: Executor3
+{'Minimum': 114, 'Q1': 161.75, 'Median': 235.0, 'Q3': 323.5, 'Maximum': 810, 'Whisker Minimum': 114, 'Whisker Maximum': 530}
+ExecutorID: Executor4
+{'Minimum': 118, 'Q1': 186.5, 'Median': 224.0, 'Q3': 302.5, 'Maximum': 813, 'Whisker Minimum': 118, 'Whisker Maximum': 473}
+ExecutorID: Executor5
+{'Minimum': 122, 'Q1': 193.0, 'Median': 225.0, 'Q3': 294.5, 'Maximum': 819, 'Whisker Minimum': 122, 'Whisker Maximum': 446}
+ExecutorID: Executor6
+{'Minimum': 139, 'Q1': 213.0, 'Median': 249.0, 'Q3': 297.0, 'Maximum': 766, 'Whisker Minimum': 139, 'Whisker Maximum': 422}
+ExecutorID: Executor7
+{'Minimum': 141, 'Q1': 209.0, 'Median': 245.0, 'Q3': 274.0, 'Maximum': 734, 'Whisker Minimum': 141, 'Whisker Maximum': 371}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 33, 'Q1': 156.0, 'Median': 182.0, 'Q3': 240.0, 'Maximum': 528, 'Whisker Minimum': 33, 'Whisker Maximum': 365}
+ExecutorID: Executor2
+{'Minimum': 11, 'Q1': 210.0, 'Median': 252.0, 'Q3': 298.0, 'Maximum': 539, 'Whisker Minimum': 161, 'Whisker Maximum': 429}
+ExecutorID: Executor3
+{'Minimum': 10, 'Q1': 232.0, 'Median': 273.0, 'Q3': 323.0, 'Maximum': 726, 'Whisker Minimum': 184, 'Whisker Maximum': 459}
+ExecutorID: Executor4
+{'Minimum': 9, 'Q1': 251.0, 'Median': 295.0, 'Q3': 353.0, 'Maximum': 580, 'Whisker Minimum': 200, 'Whisker Maximum': 504}
+ExecutorID: Executor5
+{'Minimum': 10, 'Q1': 264.0, 'Median': 312.0, 'Q3': 363.0, 'Maximum': 569, 'Whisker Minimum': 200, 'Whisker Maximum': 511}
+ExecutorID: Executor6
+{'Minimum': 9, 'Q1': 273.0, 'Median': 329.0, 'Q3': 376.0, 'Maximum': 783, 'Whisker Minimum': 207, 'Whisker Maximum': 530}
+ExecutorID: Executor7
+{'Minimum': 11, 'Q1': 29.0, 'Median': 32.0, 'Q3': 37.0, 'Maximum': 81, 'Whisker Minimum': 19, 'Whisker Maximum': 48}
+With data
+ExecutorID: Executor1
+{'Minimum': 407, 'Q1': 469.5, 'Median': 570.0, 'Q3': 700.0, 'Maximum': 1087, 'Whisker Minimum': 407, 'Whisker Maximum': 993}
+ExecutorID: Executor2
+{'Minimum': 316, 'Q1': 450.75, 'Median': 542.0, 'Q3': 656.25, 'Maximum': 1085, 'Whisker Minimum': 316, 'Whisker Maximum': 932}
+ExecutorID: Executor3
+{'Minimum': 286, 'Q1': 412.0, 'Median': 500.5, 'Q3': 622.0, 'Maximum': 987, 'Whisker Minimum': 286, 'Whisker Maximum': 936}
+ExecutorID: Executor4
+{'Minimum': 274, 'Q1': 413.0, 'Median': 498.0, 'Q3': 610.0, 'Maximum': 1225, 'Whisker Minimum': 274, 'Whisker Maximum': 905}
+ExecutorID: Executor5
+{'Minimum': 286, 'Q1': 410.0, 'Median': 491.0, 'Q3': 595.0, 'Maximum': 1046, 'Whisker Minimum': 286, 'Whisker Maximum': 851}
+ExecutorID: Executor6
+{'Minimum': 296, 'Q1': 436.0, 'Median': 532.0, 'Q3': 641.0, 'Maximum': 1005, 'Whisker Minimum': 296, 'Whisker Maximum': 945}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   202756938
+1  Executor2    61648194
+2  Executor3   175083320
+3  Executor4   130101557
+4  Executor5   136881184
+6  Executor6    12556186
+5  Executor7    56199035
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   601388939
+2  Executor2   714578446
+3  Executor3   816090613
+4  Executor4   879530058
+5  Executor5   917399188
+6  Executor6   940232083
+0  Executor7   173943501
+./result/automated_test_json/varied_let/automated_test3.json
+7
+CallbackLET: 2205.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 65, 'Q1': 100.0, 'Median': 121.0, 'Q3': 145.0, 'Maximum': 249, 'Whisker Minimum': 65, 'Whisker Maximum': 209}
+ExecutorID: Executor2
+{'Minimum': 65, 'Q1': 88.0, 'Median': 106.0, 'Q3': 130.0, 'Maximum': 221, 'Whisker Minimum': 65, 'Whisker Maximum': 190}
+ExecutorID: Executor3
+{'Minimum': 70, 'Q1': 114.0, 'Median': 133.0, 'Q3': 157.0, 'Maximum': 304, 'Whisker Minimum': 70, 'Whisker Maximum': 221}
+ExecutorID: Executor4
+{'Minimum': 68, 'Q1': 85.0, 'Median': 95.0, 'Q3': 125.0, 'Maximum': 217, 'Whisker Minimum': 68, 'Whisker Maximum': 184}
+ExecutorID: Executor5
+{'Minimum': 92, 'Q1': 132.0, 'Median': 146.0, 'Q3': 170.0, 'Maximum': 281, 'Whisker Minimum': 92, 'Whisker Maximum': 226}
+ExecutorID: Executor6
+{'Minimum': 86, 'Q1': 104.0, 'Median': 118.0, 'Q3': 154.0, 'Maximum': 257, 'Whisker Minimum': 86, 'Whisker Maximum': 228}
+ExecutorID: Executor7
+{'Minimum': 90, 'Q1': 124.0, 'Median': 140.0, 'Q3': 165.0, 'Maximum': 291, 'Whisker Minimum': 90, 'Whisker Maximum': 226}
+With data
+ExecutorID: Executor1
+{'Minimum': 88, 'Q1': 125.25, 'Median': 150.0, 'Q3': 189.75, 'Maximum': 277, 'Whisker Minimum': 88, 'Whisker Maximum': 277}
+ExecutorID: Executor2
+{'Minimum': 90, 'Q1': 159.75, 'Median': 213.0, 'Q3': 250.75, 'Maximum': 533, 'Whisker Minimum': 90, 'Whisker Maximum': 379}
+ExecutorID: Executor3
+{'Minimum': 108, 'Q1': 217.5, 'Median': 254.0, 'Q3': 303.0, 'Maximum': 547, 'Whisker Minimum': 108, 'Whisker Maximum': 419}
+ExecutorID: Executor4
+{'Minimum': 85, 'Q1': 157.0, 'Median': 215.0, 'Q3': 275.5, 'Maximum': 739, 'Whisker Minimum': 85, 'Whisker Maximum': 445}
+ExecutorID: Executor5
+{'Minimum': 117, 'Q1': 214.75, 'Median': 259.0, 'Q3': 323.0, 'Maximum': 669, 'Whisker Minimum': 117, 'Whisker Maximum': 483}
+ExecutorID: Executor6
+{'Minimum': 91, 'Q1': 193.0, 'Median': 228.0, 'Q3': 296.0, 'Maximum': 732, 'Whisker Minimum': 91, 'Whisker Maximum': 442}
+ExecutorID: Executor7
+{'Minimum': 109, 'Q1': 212.0, 'Median': 260.0, 'Q3': 317.0, 'Maximum': 689, 'Whisker Minimum': 109, 'Whisker Maximum': 471}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 60, 'Q1': 84.0, 'Median': 90.0, 'Q3': 103.0, 'Maximum': 429, 'Whisker Minimum': 60, 'Whisker Maximum': 131}
+ExecutorID: Executor2
+{'Minimum': 63, 'Q1': 101.0, 'Median': 113.0, 'Q3': 133.0, 'Maximum': 354, 'Whisker Minimum': 63, 'Whisker Maximum': 178}
+ExecutorID: Executor3
+{'Minimum': 64, 'Q1': 100.0, 'Median': 104.0, 'Q3': 130.0, 'Maximum': 240, 'Whisker Minimum': 64, 'Whisker Maximum': 174}
+ExecutorID: Executor4
+{'Minimum': 64, 'Q1': 101.0, 'Median': 110.0, 'Q3': 134.0, 'Maximum': 219, 'Whisker Minimum': 64, 'Whisker Maximum': 183}
+ExecutorID: Executor5
+{'Minimum': 65, 'Q1': 107.0, 'Median': 126.0, 'Q3': 155.0, 'Maximum': 418, 'Whisker Minimum': 65, 'Whisker Maximum': 224}
+ExecutorID: Executor6
+{'Minimum': 68, 'Q1': 101.0, 'Median': 118.0, 'Q3': 144.0, 'Maximum': 242, 'Whisker Minimum': 68, 'Whisker Maximum': 208}
+ExecutorID: Executor7
+{'Minimum': 61, 'Q1': 79.0, 'Median': 95.0, 'Q3': 123.0, 'Maximum': 231, 'Whisker Minimum': 61, 'Whisker Maximum': 187}
+With data
+ExecutorID: Executor1
+{'Minimum': 84, 'Q1': 111.0, 'Median': 119.0, 'Q3': 139.0, 'Maximum': 231, 'Whisker Minimum': 84, 'Whisker Maximum': 170}
+ExecutorID: Executor2
+{'Minimum': 144, 'Q1': 236.0, 'Median': 290.0, 'Q3': 352.75, 'Maximum': 670, 'Whisker Minimum': 144, 'Whisker Maximum': 519}
+ExecutorID: Executor3
+{'Minimum': 123, 'Q1': 194.0, 'Median': 289.0, 'Q3': 392.0, 'Maximum': 854, 'Whisker Minimum': 123, 'Whisker Maximum': 678}
+ExecutorID: Executor4
+{'Minimum': 124, 'Q1': 193.25, 'Median': 256.5, 'Q3': 360.75, 'Maximum': 833, 'Whisker Minimum': 124, 'Whisker Maximum': 595}
+ExecutorID: Executor5
+{'Minimum': 128, 'Q1': 211.75, 'Median': 259.0, 'Q3': 330.25, 'Maximum': 766, 'Whisker Minimum': 128, 'Whisker Maximum': 504}
+ExecutorID: Executor6
+{'Minimum': 137, 'Q1': 192.0, 'Median': 238.0, 'Q3': 302.0, 'Maximum': 835, 'Whisker Minimum': 137, 'Whisker Maximum': 462}
+ExecutorID: Executor7
+{'Minimum': 129, 'Q1': 169.75, 'Median': 213.5, 'Q3': 260.25, 'Maximum': 703, 'Whisker Minimum': 129, 'Whisker Maximum': 395}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 21, 'Q1': 163.0, 'Median': 187.0, 'Q3': 227.0, 'Maximum': 740, 'Whisker Minimum': 128, 'Whisker Maximum': 320}
+ExecutorID: Executor2
+{'Minimum': 12, 'Q1': 204.0, 'Median': 246.0, 'Q3': 289.0, 'Maximum': 648, 'Whisker Minimum': 177, 'Whisker Maximum': 416}
+ExecutorID: Executor3
+{'Minimum': 5, 'Q1': 243.0, 'Median': 285.0, 'Q3': 338.0, 'Maximum': 552, 'Whisker Minimum': 196, 'Whisker Maximum': 480}
+ExecutorID: Executor4
+{'Minimum': 6, 'Q1': 241.0, 'Median': 293.0, 'Q3': 340.0, 'Maximum': 658, 'Whisker Minimum': 190, 'Whisker Maximum': 488}
+ExecutorID: Executor5
+{'Minimum': 7, 'Q1': 265.5, 'Median': 319.0, 'Q3': 372.0, 'Maximum': 679, 'Whisker Minimum': 221, 'Whisker Maximum': 529}
+ExecutorID: Executor6
+{'Minimum': 5, 'Q1': 261.0, 'Median': 329.0, 'Q3': 365.0, 'Maximum': 628, 'Whisker Minimum': 217, 'Whisker Maximum': 519}
+ExecutorID: Executor7
+{'Minimum': 5, 'Q1': 26.0, 'Median': 31.0, 'Q3': 35.0, 'Maximum': 67, 'Whisker Minimum': 19, 'Whisker Maximum': 48}
+With data
+ExecutorID: Executor1
+{'Minimum': 391, 'Q1': 447.5, 'Median': 533.0, 'Q3': 640.5, 'Maximum': 1040, 'Whisker Minimum': 391, 'Whisker Maximum': 912}
+ExecutorID: Executor2
+{'Minimum': 307, 'Q1': 451.0, 'Median': 584.0, 'Q3': 675.0, 'Maximum': 1324, 'Whisker Minimum': 307, 'Whisker Maximum': 987}
+ExecutorID: Executor3
+{'Minimum': 269, 'Q1': 470.25, 'Median': 610.5, 'Q3': 749.5, 'Maximum': 1447, 'Whisker Minimum': 269, 'Whisker Maximum': 1112}
+ExecutorID: Executor4
+{'Minimum': 300, 'Q1': 504.0, 'Median': 614.0, 'Q3': 771.0, 'Maximum': 1172, 'Whisker Minimum': 300, 'Whisker Maximum': 1154}
+ExecutorID: Executor5
+{'Minimum': 310, 'Q1': 519.5, 'Median': 667.0, 'Q3': 829.0, 'Maximum': 1735, 'Whisker Minimum': 310, 'Whisker Maximum': 1274}
+ExecutorID: Executor6
+{'Minimum': 256, 'Q1': 509.0, 'Median': 648.0, 'Q3': 810.0, 'Maximum': 1639, 'Whisker Minimum': 256, 'Whisker Maximum': 1222}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   200639000
+1  Executor2    25509080
+2  Executor3   124685750
+4  Executor4   -18126477
+5  Executor5    98293029
+6  Executor6    15860753
+3  Executor7   131049601
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   581795527
+2  Executor2   680466589
+4  Executor3   804864048
+3  Executor4   761520607
+6  Executor5   897887812
+5  Executor6   839396932
+0  Executor7   157338889
+./result/automated_test_json/varied_let/automated_test4.json
+7
+CallbackLET: 1905.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 68, 'Q1': 107.0, 'Median': 118.0, 'Q3': 134.0, 'Maximum': 436, 'Whisker Minimum': 68, 'Whisker Maximum': 174}
+ExecutorID: Executor2
+{'Minimum': 76, 'Q1': 122.0, 'Median': 137.0, 'Q3': 159.25, 'Maximum': 342, 'Whisker Minimum': 76, 'Whisker Maximum': 215}
+ExecutorID: Executor3
+{'Minimum': 76, 'Q1': 127.0, 'Median': 141.0, 'Q3': 169.0, 'Maximum': 290, 'Whisker Minimum': 76, 'Whisker Maximum': 230}
+ExecutorID: Executor4
+{'Minimum': 84, 'Q1': 132.0, 'Median': 150.0, 'Q3': 176.25, 'Maximum': 264, 'Whisker Minimum': 84, 'Whisker Maximum': 242}
+ExecutorID: Executor5
+{'Minimum': 85, 'Q1': 133.0, 'Median': 148.0, 'Q3': 175.0, 'Maximum': 272, 'Whisker Minimum': 85, 'Whisker Maximum': 237}
+ExecutorID: Executor6
+{'Minimum': 88, 'Q1': 135.0, 'Median': 151.0, 'Q3': 179.0, 'Maximum': 268, 'Whisker Minimum': 88, 'Whisker Maximum': 244}
+ExecutorID: Executor7
+{'Minimum': 89, 'Q1': 122.0, 'Median': 147.0, 'Q3': 172.0, 'Maximum': 268, 'Whisker Minimum': 89, 'Whisker Maximum': 246}
+With data
+ExecutorID: Executor1
+{'Minimum': 101, 'Q1': 132.0, 'Median': 146.0, 'Q3': 170.75, 'Maximum': 307, 'Whisker Minimum': 101, 'Whisker Maximum': 218}
+ExecutorID: Executor2
+{'Minimum': 108, 'Q1': 168.25, 'Median': 210.0, 'Q3': 251.5, 'Maximum': 419, 'Whisker Minimum': 108, 'Whisker Maximum': 375}
+ExecutorID: Executor3
+{'Minimum': 95, 'Q1': 174.0, 'Median': 219.0, 'Q3': 278.75, 'Maximum': 501, 'Whisker Minimum': 95, 'Whisker Maximum': 433}
+ExecutorID: Executor4
+{'Minimum': 94, 'Q1': 174.75, 'Median': 213.0, 'Q3': 269.0, 'Maximum': 488, 'Whisker Minimum': 94, 'Whisker Maximum': 402}
+ExecutorID: Executor5
+{'Minimum': 94, 'Q1': 171.0, 'Median': 210.0, 'Q3': 250.0, 'Maximum': 518, 'Whisker Minimum': 94, 'Whisker Maximum': 368}
+ExecutorID: Executor6
+{'Minimum': 97, 'Q1': 171.0, 'Median': 204.0, 'Q3': 245.5, 'Maximum': 489, 'Whisker Minimum': 97, 'Whisker Maximum': 357}
+ExecutorID: Executor7
+{'Minimum': 105, 'Q1': 169.0, 'Median': 194.0, 'Q3': 237.0, 'Maximum': 492, 'Whisker Minimum': 105, 'Whisker Maximum': 337}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 63, 'Q1': 87.0, 'Median': 97.0, 'Q3': 111.0, 'Maximum': 434, 'Whisker Minimum': 63, 'Whisker Maximum': 146}
+ExecutorID: Executor2
+{'Minimum': 57, 'Q1': 76.0, 'Median': 94.0, 'Q3': 122.0, 'Maximum': 298, 'Whisker Minimum': 57, 'Whisker Maximum': 173}
+ExecutorID: Executor3
+{'Minimum': 55, 'Q1': 68.0, 'Median': 83.0, 'Q3': 107.0, 'Maximum': 274, 'Whisker Minimum': 55, 'Whisker Maximum': 165}
+ExecutorID: Executor4
+{'Minimum': 60, 'Q1': 105.0, 'Median': 116.0, 'Q3': 141.0, 'Maximum': 298, 'Whisker Minimum': 60, 'Whisker Maximum': 194}
+ExecutorID: Executor5
+{'Minimum': 64, 'Q1': 82.0, 'Median': 102.0, 'Q3': 133.0, 'Maximum': 241, 'Whisker Minimum': 64, 'Whisker Maximum': 209}
+ExecutorID: Executor6
+{'Minimum': 63, 'Q1': 78.0, 'Median': 97.0, 'Q3': 128.0, 'Maximum': 225, 'Whisker Minimum': 63, 'Whisker Maximum': 202}
+ExecutorID: Executor7
+{'Minimum': 64, 'Q1': 78.0, 'Median': 95.0, 'Q3': 123.0, 'Maximum': 207, 'Whisker Minimum': 64, 'Whisker Maximum': 190}
+With data
+ExecutorID: Executor1
+{'Minimum': 90, 'Q1': 115.0, 'Median': 127.0, 'Q3': 140.75, 'Maximum': 228, 'Whisker Minimum': 90, 'Whisker Maximum': 175}
+ExecutorID: Executor2
+{'Minimum': 107, 'Q1': 243.0, 'Median': 304.5, 'Q3': 371.75, 'Maximum': 545, 'Whisker Minimum': 107, 'Whisker Maximum': 545}
+ExecutorID: Executor3
+{'Minimum': 110, 'Q1': 209.75, 'Median': 310.0, 'Q3': 410.75, 'Maximum': 666, 'Whisker Minimum': 110, 'Whisker Maximum': 666}
+ExecutorID: Executor4
+{'Minimum': 129, 'Q1': 208.5, 'Median': 270.0, 'Q3': 383.0, 'Maximum': 778, 'Whisker Minimum': 129, 'Whisker Maximum': 623}
+ExecutorID: Executor5
+{'Minimum': 129, 'Q1': 208.0, 'Median': 254.0, 'Q3': 328.0, 'Maximum': 706, 'Whisker Minimum': 129, 'Whisker Maximum': 507}
+ExecutorID: Executor6
+{'Minimum': 127, 'Q1': 186.0, 'Median': 229.0, 'Q3': 292.0, 'Maximum': 774, 'Whisker Minimum': 127, 'Whisker Maximum': 449}
+ExecutorID: Executor7
+{'Minimum': 130, 'Q1': 177.0, 'Median': 211.0, 'Q3': 254.0, 'Maximum': 732, 'Whisker Minimum': 130, 'Whisker Maximum': 369}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 39, 'Q1': 174.0, 'Median': 205.5, 'Q3': 243.0, 'Maximum': 538, 'Whisker Minimum': 126, 'Whisker Maximum': 346}
+ExecutorID: Executor2
+{'Minimum': 11, 'Q1': 215.0, 'Median': 252.0, 'Q3': 300.0, 'Maximum': 657, 'Whisker Minimum': 167, 'Whisker Maximum': 427}
+ExecutorID: Executor3
+{'Minimum': 9, 'Q1': 234.0, 'Median': 287.0, 'Q3': 329.0, 'Maximum': 542, 'Whisker Minimum': 187, 'Whisker Maximum': 471}
+ExecutorID: Executor4
+{'Minimum': 10, 'Q1': 254.0, 'Median': 316.0, 'Q3': 358.0, 'Maximum': 727, 'Whisker Minimum': 203, 'Whisker Maximum': 512}
+ExecutorID: Executor5
+{'Minimum': 8, 'Q1': 299.0, 'Median': 340.0, 'Q3': 389.0, 'Maximum': 741, 'Whisker Minimum': 219, 'Whisker Maximum': 523}
+ExecutorID: Executor6
+{'Minimum': 11, 'Q1': 277.75, 'Median': 343.0, 'Q3': 378.0, 'Maximum': 720, 'Whisker Minimum': 211, 'Whisker Maximum': 527}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 30.0, 'Median': 34.0, 'Q3': 36.0, 'Maximum': 72, 'Whisker Minimum': 22, 'Whisker Maximum': 44}
+With data
+ExecutorID: Executor1
+{'Minimum': 381, 'Q1': 512.75, 'Median': 610.5, 'Q3': 702.25, 'Maximum': 1009, 'Whisker Minimum': 381, 'Whisker Maximum': 965}
+ExecutorID: Executor2
+{'Minimum': 322, 'Q1': 445.0, 'Median': 557.0, 'Q3': 683.5, 'Maximum': 1105, 'Whisker Minimum': 322, 'Whisker Maximum': 1017}
+ExecutorID: Executor3
+{'Minimum': 267, 'Q1': 421.25, 'Median': 517.0, 'Q3': 632.75, 'Maximum': 994, 'Whisker Minimum': 267, 'Whisker Maximum': 949}
+ExecutorID: Executor4
+{'Minimum': 267, 'Q1': 420.0, 'Median': 507.5, 'Q3': 610.0, 'Maximum': 1035, 'Whisker Minimum': 267, 'Whisker Maximum': 865}
+ExecutorID: Executor5
+{'Minimum': 279, 'Q1': 452.0, 'Median': 528.0, 'Q3': 630.5, 'Maximum': 1020, 'Whisker Minimum': 279, 'Whisker Maximum': 896}
+ExecutorID: Executor6
+{'Minimum': 267, 'Q1': 408.0, 'Median': 493.0, 'Q3': 578.0, 'Maximum': 1026, 'Whisker Minimum': 267, 'Whisker Maximum': 831}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   181817176
+2  Executor2   183012597
+1  Executor3   212504845
+6  Executor4   142482824
+4  Executor5   156509368
+5  Executor6   159518800
+3  Executor7   135508865
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   624329401
+2  Executor2   770492108
+3  Executor3   838860692
+4  Executor4   891456058
+6  Executor5   986103401
+5  Executor6   946371363
+0  Executor7   174503716
+./result/automated_test_json/varied_let/automated_test5.json
+7
+CallbackLET: 2305.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 79, 'Q1': 106.0, 'Median': 112.0, 'Q3': 124.0, 'Maximum': 333, 'Whisker Minimum': 81, 'Whisker Maximum': 150}
+ExecutorID: Executor2
+{'Minimum': 80, 'Q1': 115.0, 'Median': 123.0, 'Q3': 140.0, 'Maximum': 339, 'Whisker Minimum': 80, 'Whisker Maximum': 177}
+ExecutorID: Executor3
+{'Minimum': 81, 'Q1': 120.0, 'Median': 129.0, 'Q3': 147.0, 'Maximum': 271, 'Whisker Minimum': 81, 'Whisker Maximum': 187}
+ExecutorID: Executor4
+{'Minimum': 84, 'Q1': 124.0, 'Median': 135.0, 'Q3': 152.5, 'Maximum': 265, 'Whisker Minimum': 84, 'Whisker Maximum': 195}
+ExecutorID: Executor5
+{'Minimum': 80, 'Q1': 127.0, 'Median': 151.0, 'Q3': 179.0, 'Maximum': 292, 'Whisker Minimum': 80, 'Whisker Maximum': 256}
+ExecutorID: Executor6
+{'Minimum': 95, 'Q1': 134.0, 'Median': 149.0, 'Q3': 169.0, 'Maximum': 364, 'Whisker Minimum': 95, 'Whisker Maximum': 221}
+ExecutorID: Executor7
+{'Minimum': 91, 'Q1': 131.0, 'Median': 146.0, 'Q3': 171.0, 'Maximum': 296, 'Whisker Minimum': 91, 'Whisker Maximum': 230}
+With data
+ExecutorID: Executor1
+{'Minimum': 105, 'Q1': 126.0, 'Median': 137.0, 'Q3': 153.0, 'Maximum': 283, 'Whisker Minimum': 105, 'Whisker Maximum': 185}
+ExecutorID: Executor2
+{'Minimum': 100, 'Q1': 143.0, 'Median': 198.0, 'Q3': 230.0, 'Maximum': 439, 'Whisker Minimum': 100, 'Whisker Maximum': 354}
+ExecutorID: Executor3
+{'Minimum': 89, 'Q1': 161.0, 'Median': 203.0, 'Q3': 237.0, 'Maximum': 467, 'Whisker Minimum': 89, 'Whisker Maximum': 346}
+ExecutorID: Executor4
+{'Minimum': 104, 'Q1': 164.0, 'Median': 202.0, 'Q3': 235.0, 'Maximum': 512, 'Whisker Minimum': 104, 'Whisker Maximum': 339}
+ExecutorID: Executor5
+{'Minimum': 92, 'Q1': 191.0, 'Median': 228.0, 'Q3': 278.25, 'Maximum': 530, 'Whisker Minimum': 92, 'Whisker Maximum': 405}
+ExecutorID: Executor6
+{'Minimum': 108, 'Q1': 169.0, 'Median': 200.0, 'Q3': 240.0, 'Maximum': 499, 'Whisker Minimum': 108, 'Whisker Maximum': 343}
+ExecutorID: Executor7
+{'Minimum': 109, 'Q1': 166.25, 'Median': 200.0, 'Q3': 256.0, 'Maximum': 585, 'Whisker Minimum': 109, 'Whisker Maximum': 390}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 59, 'Q1': 84.0, 'Median': 94.0, 'Q3': 107.0, 'Maximum': 455, 'Whisker Minimum': 59, 'Whisker Maximum': 141}
+ExecutorID: Executor2
+{'Minimum': 57, 'Q1': 78.0, 'Median': 92.0, 'Q3': 116.0, 'Maximum': 338, 'Whisker Minimum': 57, 'Whisker Maximum': 170}
+ExecutorID: Executor3
+{'Minimum': 54, 'Q1': 68.0, 'Median': 83.0, 'Q3': 109.0, 'Maximum': 431, 'Whisker Minimum': 54, 'Whisker Maximum': 169}
+ExecutorID: Executor4
+{'Minimum': 61, 'Q1': 101.0, 'Median': 112.0, 'Q3': 138.0, 'Maximum': 389, 'Whisker Minimum': 61, 'Whisker Maximum': 193}
+ExecutorID: Executor5
+{'Minimum': 64, 'Q1': 78.0, 'Median': 88.0, 'Q3': 123.0, 'Maximum': 410, 'Whisker Minimum': 64, 'Whisker Maximum': 190}
+ExecutorID: Executor6
+{'Minimum': 62, 'Q1': 77.0, 'Median': 91.0, 'Q3': 128.0, 'Maximum': 245, 'Whisker Minimum': 62, 'Whisker Maximum': 204}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 96.0, 'Median': 116.0, 'Q3': 143.0, 'Maximum': 231, 'Whisker Minimum': 63, 'Whisker Maximum': 213}
+With data
+ExecutorID: Executor1
+{'Minimum': 86, 'Q1': 113.25, 'Median': 125.0, 'Q3': 140.0, 'Maximum': 204, 'Whisker Minimum': 86, 'Whisker Maximum': 179}
+ExecutorID: Executor2
+{'Minimum': 110, 'Q1': 215.75, 'Median': 296.0, 'Q3': 362.0, 'Maximum': 687, 'Whisker Minimum': 110, 'Whisker Maximum': 523}
+ExecutorID: Executor3
+{'Minimum': 103, 'Q1': 168.25, 'Median': 293.5, 'Q3': 391.75, 'Maximum': 868, 'Whisker Minimum': 103, 'Whisker Maximum': 724}
+ExecutorID: Executor4
+{'Minimum': 124, 'Q1': 223.0, 'Median': 271.0, 'Q3': 343.0, 'Maximum': 759, 'Whisker Minimum': 124, 'Whisker Maximum': 519}
+ExecutorID: Executor5
+{'Minimum': 121, 'Q1': 194.5, 'Median': 255.0, 'Q3': 329.0, 'Maximum': 822, 'Whisker Minimum': 121, 'Whisker Maximum': 528}
+ExecutorID: Executor6
+{'Minimum': 126, 'Q1': 185.0, 'Median': 239.0, 'Q3': 308.0, 'Maximum': 896, 'Whisker Minimum': 126, 'Whisker Maximum': 491}
+ExecutorID: Executor7
+{'Minimum': 134, 'Q1': 190.0, 'Median': 231.0, 'Q3': 273.0, 'Maximum': 623, 'Whisker Minimum': 134, 'Whisker Maximum': 393}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 27, 'Q1': 162.0, 'Median': 186.0, 'Q3': 224.0, 'Maximum': 653, 'Whisker Minimum': 133, 'Whisker Maximum': 316}
+ExecutorID: Executor2
+{'Minimum': 12, 'Q1': 207.0, 'Median': 239.0, 'Q3': 290.0, 'Maximum': 482, 'Whisker Minimum': 177, 'Whisker Maximum': 414}
+ExecutorID: Executor3
+{'Minimum': 11, 'Q1': 226.0, 'Median': 265.0, 'Q3': 314.0, 'Maximum': 653, 'Whisker Minimum': 195, 'Whisker Maximum': 444}
+ExecutorID: Executor4
+{'Minimum': 10, 'Q1': 268.0, 'Median': 319.0, 'Q3': 373.0, 'Maximum': 747, 'Whisker Minimum': 210, 'Whisker Maximum': 526}
+ExecutorID: Executor5
+{'Minimum': 9, 'Q1': 263.0, 'Median': 312.0, 'Q3': 363.0, 'Maximum': 577, 'Whisker Minimum': 221, 'Whisker Maximum': 512}
+ExecutorID: Executor6
+{'Minimum': 9, 'Q1': 278.0, 'Median': 345.0, 'Q3': 397.0, 'Maximum': 611, 'Whisker Minimum': 228, 'Whisker Maximum': 568}
+ExecutorID: Executor7
+{'Minimum': 10, 'Q1': 31.0, 'Median': 34.0, 'Q3': 38.0, 'Maximum': 72, 'Whisker Minimum': 21, 'Whisker Maximum': 48}
+With data
+ExecutorID: Executor1
+{'Minimum': 374, 'Q1': 444.5, 'Median': 564.0, 'Q3': 671.0, 'Maximum': 1095, 'Whisker Minimum': 374, 'Whisker Maximum': 959}
+ExecutorID: Executor2
+{'Minimum': 320, 'Q1': 431.0, 'Median': 534.0, 'Q3': 611.5, 'Maximum': 1272, 'Whisker Minimum': 320, 'Whisker Maximum': 869}
+ExecutorID: Executor3
+{'Minimum': 267, 'Q1': 424.75, 'Median': 487.5, 'Q3': 586.0, 'Maximum': 966, 'Whisker Minimum': 267, 'Whisker Maximum': 825}
+ExecutorID: Executor4
+{'Minimum': 261, 'Q1': 443.0, 'Median': 522.5, 'Q3': 628.75, 'Maximum': 1120, 'Whisker Minimum': 261, 'Whisker Maximum': 901}
+ExecutorID: Executor5
+{'Minimum': 282, 'Q1': 401.0, 'Median': 489.0, 'Q3': 594.0, 'Maximum': 1131, 'Whisker Minimum': 282, 'Whisker Maximum': 871}
+ExecutorID: Executor6
+{'Minimum': 309, 'Q1': 416.0, 'Median': 499.0, 'Q3': 597.0, 'Maximum': 1068, 'Whisker Minimum': 309, 'Whisker Maximum': 863}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   169613941
+1  Executor2   149970605
+2  Executor3   170942665
+5  Executor4   111255713
+3  Executor5   180709710
+4  Executor6   152478829
+6  Executor7   140375777
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   551640161
+2  Executor2   683419938
+3  Executor3   747750159
+5  Executor4   920435214
+4  Executor5   905692211
+6  Executor6   981202348
+0  Executor7   186617705
+./result/automated_test_json/varied_let/automated_test6.json
+7
+CallbackLET: 1705.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 73, 'Q1': 99.0, 'Median': 108.0, 'Q3': 120.0, 'Maximum': 339, 'Whisker Minimum': 73, 'Whisker Maximum': 151}
+ExecutorID: Executor2
+{'Minimum': 79, 'Q1': 117.0, 'Median': 129.0, 'Q3': 158.0, 'Maximum': 311, 'Whisker Minimum': 79, 'Whisker Maximum': 219}
+ExecutorID: Executor3
+{'Minimum': 76, 'Q1': 113.0, 'Median': 128.0, 'Q3': 144.0, 'Maximum': 256, 'Whisker Minimum': 76, 'Whisker Maximum': 190}
+ExecutorID: Executor4
+{'Minimum': 76, 'Q1': 119.0, 'Median': 134.0, 'Q3': 147.0, 'Maximum': 262, 'Whisker Minimum': 81, 'Whisker Maximum': 188}
+ExecutorID: Executor5
+{'Minimum': 82, 'Q1': 118.0, 'Median': 136.0, 'Q3': 150.0, 'Maximum': 275, 'Whisker Minimum': 82, 'Whisker Maximum': 197}
+ExecutorID: Executor6
+{'Minimum': 76, 'Q1': 124.0, 'Median': 140.0, 'Q3': 152.0, 'Maximum': 313, 'Whisker Minimum': 84, 'Whisker Maximum': 193}
+ExecutorID: Executor7
+{'Minimum': 84, 'Q1': 121.25, 'Median': 138.5, 'Q3': 163.0, 'Maximum': 267, 'Whisker Minimum': 84, 'Whisker Maximum': 224}
+With data
+ExecutorID: Executor1
+{'Minimum': 92, 'Q1': 121.0, 'Median': 132.0, 'Q3': 151.75, 'Maximum': 336, 'Whisker Minimum': 92, 'Whisker Maximum': 190}
+ExecutorID: Executor2
+{'Minimum': 99, 'Q1': 153.25, 'Median': 203.0, 'Q3': 277.75, 'Maximum': 519, 'Whisker Minimum': 99, 'Whisker Maximum': 454}
+ExecutorID: Executor3
+{'Minimum': 95, 'Q1': 159.75, 'Median': 201.0, 'Q3': 233.25, 'Maximum': 409, 'Whisker Minimum': 95, 'Whisker Maximum': 342}
+ExecutorID: Executor4
+{'Minimum': 98, 'Q1': 176.0, 'Median': 207.0, 'Q3': 244.0, 'Maximum': 635, 'Whisker Minimum': 98, 'Whisker Maximum': 340}
+ExecutorID: Executor5
+{'Minimum': 106, 'Q1': 171.0, 'Median': 207.0, 'Q3': 239.5, 'Maximum': 482, 'Whisker Minimum': 106, 'Whisker Maximum': 340}
+ExecutorID: Executor6
+{'Minimum': 96, 'Q1': 160.0, 'Median': 201.0, 'Q3': 251.0, 'Maximum': 557, 'Whisker Minimum': 96, 'Whisker Maximum': 387}
+ExecutorID: Executor7
+{'Minimum': 98, 'Q1': 170.0, 'Median': 207.0, 'Q3': 245.0, 'Maximum': 493, 'Whisker Minimum': 98, 'Whisker Maximum': 354}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 52, 'Q1': 76.0, 'Median': 85.0, 'Q3': 91.0, 'Maximum': 350, 'Whisker Minimum': 54, 'Whisker Maximum': 113}
+ExecutorID: Executor2
+{'Minimum': 55, 'Q1': 71.0, 'Median': 77.0, 'Q3': 89.0, 'Maximum': 383, 'Whisker Minimum': 55, 'Whisker Maximum': 115}
+ExecutorID: Executor3
+{'Minimum': 53, 'Q1': 63.0, 'Median': 71.0, 'Q3': 87.0, 'Maximum': 291, 'Whisker Minimum': 53, 'Whisker Maximum': 122}
+ExecutorID: Executor4
+{'Minimum': 55, 'Q1': 66.0, 'Median': 71.0, 'Q3': 93.0, 'Maximum': 257, 'Whisker Minimum': 55, 'Whisker Maximum': 133}
+ExecutorID: Executor5
+{'Minimum': 60, 'Q1': 70.0, 'Median': 78.0, 'Q3': 98.0, 'Maximum': 260, 'Whisker Minimum': 60, 'Whisker Maximum': 139}
+ExecutorID: Executor6
+{'Minimum': 62, 'Q1': 70.0, 'Median': 78.0, 'Q3': 100.0, 'Maximum': 235, 'Whisker Minimum': 62, 'Whisker Maximum': 144}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 72.0, 'Median': 80.0, 'Q3': 101.0, 'Maximum': 213, 'Whisker Minimum': 63, 'Whisker Maximum': 144}
+With data
+ExecutorID: Executor1
+{'Minimum': 84, 'Q1': 106.0, 'Median': 115.0, 'Q3': 124.75, 'Maximum': 254, 'Whisker Minimum': 84, 'Whisker Maximum': 146}
+ExecutorID: Executor2
+{'Minimum': 103, 'Q1': 231.0, 'Median': 277.0, 'Q3': 329.5, 'Maximum': 594, 'Whisker Minimum': 103, 'Whisker Maximum': 474}
+ExecutorID: Executor3
+{'Minimum': 107, 'Q1': 139.25, 'Median': 252.0, 'Q3': 342.75, 'Maximum': 808, 'Whisker Minimum': 107, 'Whisker Maximum': 596}
+ExecutorID: Executor4
+{'Minimum': 111, 'Q1': 171.0, 'Median': 239.5, 'Q3': 315.25, 'Maximum': 796, 'Whisker Minimum': 111, 'Whisker Maximum': 520}
+ExecutorID: Executor5
+{'Minimum': 119, 'Q1': 170.5, 'Median': 221.0, 'Q3': 291.5, 'Maximum': 836, 'Whisker Minimum': 119, 'Whisker Maximum': 471}
+ExecutorID: Executor6
+{'Minimum': 127, 'Q1': 173.0, 'Median': 219.0, 'Q3': 276.5, 'Maximum': 823, 'Whisker Minimum': 127, 'Whisker Maximum': 431}
+ExecutorID: Executor7
+{'Minimum': 129, 'Q1': 158.0, 'Median': 190.0, 'Q3': 231.0, 'Maximum': 682, 'Whisker Minimum': 129, 'Whisker Maximum': 333}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 31, 'Q1': 152.0, 'Median': 165.0, 'Q3': 206.0, 'Maximum': 433, 'Whisker Minimum': 117, 'Whisker Maximum': 286}
+ExecutorID: Executor2
+{'Minimum': 10, 'Q1': 208.0, 'Median': 241.0, 'Q3': 289.0, 'Maximum': 519, 'Whisker Minimum': 167, 'Whisker Maximum': 410}
+ExecutorID: Executor3
+{'Minimum': 9, 'Q1': 227.0, 'Median': 275.0, 'Q3': 336.0, 'Maximum': 619, 'Whisker Minimum': 183, 'Whisker Maximum': 498}
+ExecutorID: Executor4
+{'Minimum': 10, 'Q1': 246.0, 'Median': 293.0, 'Q3': 348.0, 'Maximum': 563, 'Whisker Minimum': 202, 'Whisker Maximum': 500}
+ExecutorID: Executor5
+{'Minimum': 10, 'Q1': 259.0, 'Median': 308.0, 'Q3': 352.25, 'Maximum': 604, 'Whisker Minimum': 208, 'Whisker Maximum': 490}
+ExecutorID: Executor6
+{'Minimum': 10, 'Q1': 269.0, 'Median': 321.0, 'Q3': 371.0, 'Maximum': 581, 'Whisker Minimum': 210, 'Whisker Maximum': 522}
+ExecutorID: Executor7
+{'Minimum': 9, 'Q1': 29.0, 'Median': 32.0, 'Q3': 35.0, 'Maximum': 60, 'Whisker Minimum': 21, 'Whisker Maximum': 43}
+With data
+ExecutorID: Executor1
+{'Minimum': 375, 'Q1': 430.75, 'Median': 586.0, 'Q3': 712.25, 'Maximum': 955, 'Whisker Minimum': 375, 'Whisker Maximum': 955}
+ExecutorID: Executor2
+{'Minimum': 313, 'Q1': 442.0, 'Median': 543.0, 'Q3': 645.0, 'Maximum': 997, 'Whisker Minimum': 313, 'Whisker Maximum': 944}
+ExecutorID: Executor3
+{'Minimum': 239, 'Q1': 431.0, 'Median': 523.0, 'Q3': 625.0, 'Maximum': 1020, 'Whisker Minimum': 239, 'Whisker Maximum': 886}
+ExecutorID: Executor4
+{'Minimum': 270, 'Q1': 405.0, 'Median': 496.0, 'Q3': 603.5, 'Maximum': 1112, 'Whisker Minimum': 270, 'Whisker Maximum': 901}
+ExecutorID: Executor5
+{'Minimum': 263, 'Q1': 412.5, 'Median': 510.0, 'Q3': 653.0, 'Maximum': 1204, 'Whisker Minimum': 263, 'Whisker Maximum': 1007}
+ExecutorID: Executor6
+{'Minimum': 287, 'Q1': 416.0, 'Median': 503.0, 'Q3': 619.0, 'Maximum': 1169, 'Whisker Minimum': 287, 'Whisker Maximum': 919}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   181425064
+1  Executor2   216682564
+2  Executor3   197084938
+3  Executor4   187498929
+5  Executor5   156494113
+6  Executor6   145481172
+4  Executor7   175523846
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   527958658
+2  Executor2   747387841
+3  Executor3   831527181
+4  Executor4   852439728
+5  Executor5   876719533
+6  Executor6   916336333
+0  Executor7   169736258
+./result/automated_test_json/varied_let/automated_test7.json
+7
+CallbackLET: 1605.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 72, 'Q1': 96.0, 'Median': 100.0, 'Q3': 111.0, 'Maximum': 339, 'Whisker Minimum': 74, 'Whisker Maximum': 133}
+ExecutorID: Executor2
+{'Minimum': 76, 'Q1': 107.0, 'Median': 109.0, 'Q3': 122.0, 'Maximum': 328, 'Whisker Minimum': 85, 'Whisker Maximum': 144}
+ExecutorID: Executor3
+{'Minimum': 69, 'Q1': 110.0, 'Median': 114.0, 'Q3': 123.0, 'Maximum': 247, 'Whisker Minimum': 91, 'Whisker Maximum': 142}
+ExecutorID: Executor4
+{'Minimum': 75, 'Q1': 117.0, 'Median': 133.0, 'Q3': 151.0, 'Maximum': 298, 'Whisker Minimum': 75, 'Whisker Maximum': 201}
+ExecutorID: Executor5
+{'Minimum': 76, 'Q1': 101.0, 'Median': 106.0, 'Q3': 134.25, 'Maximum': 288, 'Whisker Minimum': 76, 'Whisker Maximum': 183}
+ExecutorID: Executor6
+{'Minimum': 71, 'Q1': 87.0, 'Median': 97.0, 'Q3': 123.0, 'Maximum': 273, 'Whisker Minimum': 71, 'Whisker Maximum': 174}
+ExecutorID: Executor7
+{'Minimum': 72, 'Q1': 84.0, 'Median': 89.0, 'Q3': 115.0, 'Maximum': 255, 'Whisker Minimum': 72, 'Whisker Maximum': 161}
+With data
+ExecutorID: Executor1
+{'Minimum': 92, 'Q1': 118.0, 'Median': 122.0, 'Q3': 137.0, 'Maximum': 248, 'Whisker Minimum': 92, 'Whisker Maximum': 163}
+ExecutorID: Executor2
+{'Minimum': 101, 'Q1': 129.0, 'Median': 172.0, 'Q3': 200.0, 'Maximum': 474, 'Whisker Minimum': 101, 'Whisker Maximum': 306}
+ExecutorID: Executor3
+{'Minimum': 91, 'Q1': 140.0, 'Median': 182.0, 'Q3': 206.0, 'Maximum': 433, 'Whisker Minimum': 91, 'Whisker Maximum': 303}
+ExecutorID: Executor4
+{'Minimum': 92, 'Q1': 163.0, 'Median': 195.0, 'Q3': 239.0, 'Maximum': 573, 'Whisker Minimum': 92, 'Whisker Maximum': 347}
+ExecutorID: Executor5
+{'Minimum': 88, 'Q1': 136.0, 'Median': 175.0, 'Q3': 216.0, 'Maximum': 426, 'Whisker Minimum': 88, 'Whisker Maximum': 333}
+ExecutorID: Executor6
+{'Minimum': 85, 'Q1': 124.0, 'Median': 162.0, 'Q3': 198.0, 'Maximum': 485, 'Whisker Minimum': 85, 'Whisker Maximum': 301}
+ExecutorID: Executor7
+{'Minimum': 86, 'Q1': 124.0, 'Median': 141.0, 'Q3': 167.0, 'Maximum': 470, 'Whisker Minimum': 86, 'Whisker Maximum': 231}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 52, 'Q1': 82.0, 'Median': 90.0, 'Q3': 104.0, 'Maximum': 288, 'Whisker Minimum': 52, 'Whisker Maximum': 136}
+ExecutorID: Executor2
+{'Minimum': 54, 'Q1': 77.0, 'Median': 88.0, 'Q3': 101.0, 'Maximum': 262, 'Whisker Minimum': 54, 'Whisker Maximum': 136}
+ExecutorID: Executor3
+{'Minimum': 56, 'Q1': 92.0, 'Median': 101.0, 'Q3': 109.0, 'Maximum': 270, 'Whisker Minimum': 67, 'Whisker Maximum': 134}
+ExecutorID: Executor4
+{'Minimum': 60, 'Q1': 92.0, 'Median': 99.0, 'Q3': 111.0, 'Maximum': 277, 'Whisker Minimum': 64, 'Whisker Maximum': 139}
+ExecutorID: Executor5
+{'Minimum': 62, 'Q1': 95.0, 'Median': 105.0, 'Q3': 116.0, 'Maximum': 264, 'Whisker Minimum': 64, 'Whisker Maximum': 147}
+ExecutorID: Executor6
+{'Minimum': 66, 'Q1': 101.0, 'Median': 107.0, 'Q3': 120.0, 'Maximum': 234, 'Whisker Minimum': 73, 'Whisker Maximum': 148}
+ExecutorID: Executor7
+{'Minimum': 63, 'Q1': 84.0, 'Median': 98.0, 'Q3': 114.0, 'Maximum': 224, 'Whisker Minimum': 63, 'Whisker Maximum': 158}
+With data
+ExecutorID: Executor1
+{'Minimum': 77, 'Q1': 110.25, 'Median': 122.0, 'Q3': 137.0, 'Maximum': 200, 'Whisker Minimum': 77, 'Whisker Maximum': 161}
+ExecutorID: Executor2
+{'Minimum': 103, 'Q1': 234.0, 'Median': 269.0, 'Q3': 317.5, 'Maximum': 538, 'Whisker Minimum': 110, 'Whisker Maximum': 438}
+ExecutorID: Executor3
+{'Minimum': 103, 'Q1': 176.25, 'Median': 293.0, 'Q3': 379.5, 'Maximum': 757, 'Whisker Minimum': 103, 'Whisker Maximum': 670}
+ExecutorID: Executor4
+{'Minimum': 110, 'Q1': 191.0, 'Median': 256.0, 'Q3': 350.0, 'Maximum': 862, 'Whisker Minimum': 110, 'Whisker Maximum': 583}
+ExecutorID: Executor5
+{'Minimum': 112, 'Q1': 184.0, 'Median': 236.0, 'Q3': 324.5, 'Maximum': 853, 'Whisker Minimum': 112, 'Whisker Maximum': 534}
+ExecutorID: Executor6
+{'Minimum': 121, 'Q1': 182.0, 'Median': 214.0, 'Q3': 288.0, 'Maximum': 888, 'Whisker Minimum': 121, 'Whisker Maximum': 446}
+ExecutorID: Executor7
+{'Minimum': 123, 'Q1': 170.0, 'Median': 206.0, 'Q3': 253.0, 'Maximum': 738, 'Whisker Minimum': 123, 'Whisker Maximum': 376}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 25, 'Q1': 142.0, 'Median': 147.0, 'Q3': 189.0, 'Maximum': 407, 'Whisker Minimum': 130, 'Whisker Maximum': 259}
+ExecutorID: Executor2
+{'Minimum': 10, 'Q1': 191.0, 'Median': 215.0, 'Q3': 272.0, 'Maximum': 484, 'Whisker Minimum': 169, 'Whisker Maximum': 393}
+ExecutorID: Executor3
+{'Minimum': 10, 'Q1': 211.0, 'Median': 257.0, 'Q3': 311.25, 'Maximum': 498, 'Whisker Minimum': 174, 'Whisker Maximum': 461}
+ExecutorID: Executor4
+{'Minimum': 8, 'Q1': 225.0, 'Median': 253.0, 'Q3': 318.5, 'Maximum': 626, 'Whisker Minimum': 202, 'Whisker Maximum': 457}
+ExecutorID: Executor5
+{'Minimum': 11, 'Q1': 236.0, 'Median': 293.0, 'Q3': 326.0, 'Maximum': 568, 'Whisker Minimum': 219, 'Whisker Maximum': 460}
+ExecutorID: Executor6
+{'Minimum': 7, 'Q1': 230.0, 'Median': 300.0, 'Q3': 332.0, 'Maximum': 548, 'Whisker Minimum': 223, 'Whisker Maximum': 484}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 22.0, 'Median': 23.0, 'Q3': 29.0, 'Maximum': 66, 'Whisker Minimum': 18, 'Whisker Maximum': 39}
+With data
+ExecutorID: Executor1
+{'Minimum': 303, 'Q1': 377.0, 'Median': 473.0, 'Q3': 527.0, 'Maximum': 855, 'Whisker Minimum': 303, 'Whisker Maximum': 707}
+ExecutorID: Executor2
+{'Minimum': 300, 'Q1': 386.0, 'Median': 445.0, 'Q3': 523.5, 'Maximum': 1026, 'Whisker Minimum': 300, 'Whisker Maximum': 729}
+ExecutorID: Executor3
+{'Minimum': 245, 'Q1': 389.25, 'Median': 450.5, 'Q3': 541.75, 'Maximum': 994, 'Whisker Minimum': 245, 'Whisker Maximum': 764}
+ExecutorID: Executor4
+{'Minimum': 274, 'Q1': 401.5, 'Median': 453.0, 'Q3': 568.0, 'Maximum': 904, 'Whisker Minimum': 274, 'Whisker Maximum': 801}
+ExecutorID: Executor5
+{'Minimum': 263, 'Q1': 360.0, 'Median': 431.0, 'Q3': 516.0, 'Maximum': 974, 'Whisker Minimum': 263, 'Whisker Maximum': 746}
+ExecutorID: Executor6
+{'Minimum': 256, 'Q1': 358.0, 'Median': 419.5, 'Q3': 488.0, 'Maximum': 954, 'Whisker Minimum': 256, 'Whisker Maximum': 680}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   135804258
+1  Executor2   123428883
+2  Executor3    92831045
+3  Executor4   131392002
+5  Executor5    50581292
+6  Executor6     -758326
+4  Executor7      526445
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   501316511
+2  Executor2   671728517
+3  Executor3   766402588
+6  Executor4   814928846
+4  Executor5   791548374
+5  Executor6   786444620
+0  Executor7   111266670
+./result/automated_test_json/varied_let/automated_test8.json
+7
+CallbackLET: 1505.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 65, 'Q1': 91.0, 'Median': 96.0, 'Q3': 107.0, 'Maximum': 433, 'Whisker Minimum': 68, 'Whisker Maximum': 130}
+ExecutorID: Executor2
+{'Minimum': 65, 'Q1': 83.0, 'Median': 88.0, 'Q3': 96.0, 'Maximum': 272, 'Whisker Minimum': 65, 'Whisker Maximum': 115}
+ExecutorID: Executor3
+{'Minimum': 77, 'Q1': 112.0, 'Median': 127.0, 'Q3': 151.5, 'Maximum': 234, 'Whisker Minimum': 77, 'Whisker Maximum': 206}
+ExecutorID: Executor4
+{'Minimum': 78, 'Q1': 119.0, 'Median': 133.0, 'Q3': 144.0, 'Maximum': 230, 'Whisker Minimum': 83, 'Whisker Maximum': 181}
+ExecutorID: Executor5
+{'Minimum': 80, 'Q1': 121.0, 'Median': 135.0, 'Q3': 138.0, 'Maximum': 266, 'Whisker Minimum': 96, 'Whisker Maximum': 163}
+ExecutorID: Executor6
+{'Minimum': 80, 'Q1': 124.0, 'Median': 140.0, 'Q3': 143.0, 'Maximum': 289, 'Whisker Minimum': 96, 'Whisker Maximum': 171}
+ExecutorID: Executor7
+{'Minimum': 89, 'Q1': 109.0, 'Median': 123.0, 'Q3': 137.0, 'Maximum': 262, 'Whisker Minimum': 89, 'Whisker Maximum': 178}
+With data
+ExecutorID: Executor1
+{'Minimum': 93, 'Q1': 118.0, 'Median': 127.0, 'Q3': 140.0, 'Maximum': 253, 'Whisker Minimum': 93, 'Whisker Maximum': 171}
+ExecutorID: Executor2
+{'Minimum': 77, 'Q1': 102.0, 'Median': 161.0, 'Q3': 218.0, 'Maximum': 369, 'Whisker Minimum': 77, 'Whisker Maximum': 369}
+ExecutorID: Executor3
+{'Minimum': 95, 'Q1': 157.0, 'Median': 196.0, 'Q3': 234.0, 'Maximum': 446, 'Whisker Minimum': 95, 'Whisker Maximum': 334}
+ExecutorID: Executor4
+{'Minimum': 93, 'Q1': 149.0, 'Median': 203.0, 'Q3': 250.0, 'Maximum': 423, 'Whisker Minimum': 93, 'Whisker Maximum': 399}
+ExecutorID: Executor5
+{'Minimum': 100, 'Q1': 152.0, 'Median': 189.0, 'Q3': 234.5, 'Maximum': 392, 'Whisker Minimum': 100, 'Whisker Maximum': 344}
+ExecutorID: Executor6
+{'Minimum': 105, 'Q1': 171.25, 'Median': 200.0, 'Q3': 245.75, 'Maximum': 466, 'Whisker Minimum': 105, 'Whisker Maximum': 347}
+ExecutorID: Executor7
+{'Minimum': 109, 'Q1': 159.0, 'Median': 195.0, 'Q3': 236.0, 'Maximum': 498, 'Whisker Minimum': 109, 'Whisker Maximum': 349}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 50, 'Q1': 76.0, 'Median': 86.0, 'Q3': 90.0, 'Maximum': 223, 'Whisker Minimum': 56, 'Whisker Maximum': 110}
+ExecutorID: Executor2
+{'Minimum': 53, 'Q1': 71.0, 'Median': 77.0, 'Q3': 88.0, 'Maximum': 189, 'Whisker Minimum': 53, 'Whisker Maximum': 113}
+ExecutorID: Executor3
+{'Minimum': 53, 'Q1': 66.0, 'Median': 73.0, 'Q3': 94.0, 'Maximum': 195, 'Whisker Minimum': 53, 'Whisker Maximum': 135}
+ExecutorID: Executor4
+{'Minimum': 54, 'Q1': 73.0, 'Median': 78.0, 'Q3': 94.0, 'Maximum': 204, 'Whisker Minimum': 54, 'Whisker Maximum': 125}
+ExecutorID: Executor5
+{'Minimum': 56, 'Q1': 75.0, 'Median': 82.0, 'Q3': 97.0, 'Maximum': 197, 'Whisker Minimum': 56, 'Whisker Maximum': 129}
+ExecutorID: Executor6
+{'Minimum': 60, 'Q1': 75.0, 'Median': 81.0, 'Q3': 99.0, 'Maximum': 201, 'Whisker Minimum': 60, 'Whisker Maximum': 133}
+ExecutorID: Executor7
+{'Minimum': 59, 'Q1': 74.0, 'Median': 82.0, 'Q3': 98.0, 'Maximum': 196, 'Whisker Minimum': 59, 'Whisker Maximum': 133}
+With data
+ExecutorID: Executor1
+{'Minimum': 80, 'Q1': 101.0, 'Median': 113.0, 'Q3': 118.0, 'Maximum': 186, 'Whisker Minimum': 80, 'Whisker Maximum': 139}
+ExecutorID: Executor2
+{'Minimum': 100, 'Q1': 225.0, 'Median': 272.0, 'Q3': 316.0, 'Maximum': 557, 'Whisker Minimum': 100, 'Whisker Maximum': 425}
+ExecutorID: Executor3
+{'Minimum': 106, 'Q1': 148.0, 'Median': 274.0, 'Q3': 328.0, 'Maximum': 612, 'Whisker Minimum': 106, 'Whisker Maximum': 574}
+ExecutorID: Executor4
+{'Minimum': 118, 'Q1': 177.0, 'Median': 243.5, 'Q3': 324.0, 'Maximum': 612, 'Whisker Minimum': 118, 'Whisker Maximum': 503}
+ExecutorID: Executor5
+{'Minimum': 124, 'Q1': 175.25, 'Median': 223.0, 'Q3': 300.0, 'Maximum': 753, 'Whisker Minimum': 124, 'Whisker Maximum': 487}
+ExecutorID: Executor6
+{'Minimum': 111, 'Q1': 167.0, 'Median': 210.0, 'Q3': 284.0, 'Maximum': 834, 'Whisker Minimum': 111, 'Whisker Maximum': 450}
+ExecutorID: Executor7
+{'Minimum': 127, 'Q1': 164.0, 'Median': 195.0, 'Q3': 238.0, 'Maximum': 550, 'Whisker Minimum': 127, 'Whisker Maximum': 346}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 27, 'Q1': 163.5, 'Median': 187.0, 'Q3': 212.0, 'Maximum': 442, 'Whisker Minimum': 131, 'Whisker Maximum': 284}
+ExecutorID: Executor2
+{'Minimum': 9, 'Q1': 216.0, 'Median': 241.0, 'Q3': 285.0, 'Maximum': 626, 'Whisker Minimum': 177, 'Whisker Maximum': 388}
+ExecutorID: Executor3
+{'Minimum': 8, 'Q1': 224.0, 'Median': 247.0, 'Q3': 302.25, 'Maximum': 515, 'Whisker Minimum': 196, 'Whisker Maximum': 418}
+ExecutorID: Executor4
+{'Minimum': 9, 'Q1': 240.0, 'Median': 275.0, 'Q3': 329.0, 'Maximum': 540, 'Whisker Minimum': 209, 'Whisker Maximum': 462}
+ExecutorID: Executor5
+{'Minimum': 9, 'Q1': 250.0, 'Median': 289.0, 'Q3': 336.0, 'Maximum': 628, 'Whisker Minimum': 218, 'Whisker Maximum': 462}
+ExecutorID: Executor6
+{'Minimum': 9, 'Q1': 262.0, 'Median': 301.0, 'Q3': 353.5, 'Maximum': 579, 'Whisker Minimum': 228, 'Whisker Maximum': 486}
+ExecutorID: Executor7
+{'Minimum': 8, 'Q1': 29.0, 'Median': 31.0, 'Q3': 35.0, 'Maximum': 50, 'Whisker Minimum': 21, 'Whisker Maximum': 43}
+With data
+ExecutorID: Executor1
+{'Minimum': 347, 'Q1': 464.0, 'Median': 520.0, 'Q3': 587.0, 'Maximum': 866, 'Whisker Minimum': 347, 'Whisker Maximum': 767}
+ExecutorID: Executor2
+{'Minimum': 295, 'Q1': 399.0, 'Median': 460.0, 'Q3': 550.5, 'Maximum': 918, 'Whisker Minimum': 295, 'Whisker Maximum': 765}
+ExecutorID: Executor3
+{'Minimum': 262, 'Q1': 382.0, 'Median': 444.0, 'Q3': 535.0, 'Maximum': 939, 'Whisker Minimum': 262, 'Whisker Maximum': 749}
+ExecutorID: Executor4
+{'Minimum': 263, 'Q1': 380.5, 'Median': 457.0, 'Q3': 538.0, 'Maximum': 978, 'Whisker Minimum': 263, 'Whisker Maximum': 773}
+ExecutorID: Executor5
+{'Minimum': 263, 'Q1': 389.0, 'Median': 483.0, 'Q3': 585.5, 'Maximum': 1068, 'Whisker Minimum': 263, 'Whisker Maximum': 867}
+ExecutorID: Executor6
+{'Minimum': 284, 'Q1': 405.0, 'Median': 480.5, 'Q3': 563.25, 'Maximum': 1081, 'Whisker Minimum': 284, 'Whisker Maximum': 782}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   163115683
+1  Executor2    60310901
+2  Executor3   191750865
+3  Executor4   161092158
+5  Executor5   139159772
+6  Executor6   144581838
+4  Executor7   110225960
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   558595948
+2  Executor2   675557188
+3  Executor3   762671248
+4  Executor4   790865204
+5  Executor5   831924429
+6  Executor6   840954975
+0  Executor7   165665530
+./result/automated_test_json/varied_let/automated_test9.json
+7
+CallbackLET: 1405.0
+Input Overhead with LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 68, 'Q1': 95.0, 'Median': 107.0, 'Q3': 111.0, 'Maximum': 247, 'Whisker Minimum': 74, 'Whisker Maximum': 134}
+ExecutorID: Executor2
+{'Minimum': 79, 'Q1': 108.0, 'Median': 121.0, 'Q3': 123.0, 'Maximum': 223, 'Whisker Minimum': 86, 'Whisker Maximum': 145}
+ExecutorID: Executor3
+{'Minimum': 79, 'Q1': 115.0, 'Median': 129.0, 'Q3': 133.0, 'Maximum': 219, 'Whisker Minimum': 89, 'Whisker Maximum': 159}
+ExecutorID: Executor4
+{'Minimum': 82, 'Q1': 120.0, 'Median': 134.0, 'Q3': 141.0, 'Maximum': 229, 'Whisker Minimum': 89, 'Whisker Maximum': 172}
+ExecutorID: Executor5
+{'Minimum': 85, 'Q1': 125.0, 'Median': 140.0, 'Q3': 168.0, 'Maximum': 256, 'Whisker Minimum': 85, 'Whisker Maximum': 232}
+ExecutorID: Executor6
+{'Minimum': 86, 'Q1': 125.0, 'Median': 140.0, 'Q3': 143.0, 'Maximum': 242, 'Whisker Minimum': 99, 'Whisker Maximum': 167}
+ExecutorID: Executor7
+{'Minimum': 87, 'Q1': 116.0, 'Median': 130.0, 'Q3': 135.0, 'Maximum': 238, 'Whisker Minimum': 90, 'Whisker Maximum': 163}
+With data
+ExecutorID: Executor1
+{'Minimum': 92, 'Q1': 118.0, 'Median': 132.0, 'Q3': 137.75, 'Maximum': 234, 'Whisker Minimum': 92, 'Whisker Maximum': 164}
+ExecutorID: Executor2
+{'Minimum': 98, 'Q1': 139.0, 'Median': 177.0, 'Q3': 225.0, 'Maximum': 469, 'Whisker Minimum': 98, 'Whisker Maximum': 341}
+ExecutorID: Executor3
+{'Minimum': 91, 'Q1': 149.0, 'Median': 191.0, 'Q3': 227.0, 'Maximum': 384, 'Whisker Minimum': 91, 'Whisker Maximum': 335}
+ExecutorID: Executor4
+{'Minimum': 94, 'Q1': 151.0, 'Median': 178.0, 'Q3': 209.0, 'Maximum': 412, 'Whisker Minimum': 94, 'Whisker Maximum': 294}
+ExecutorID: Executor5
+{'Minimum': 95, 'Q1': 158.0, 'Median': 194.0, 'Q3': 240.0, 'Maximum': 488, 'Whisker Minimum': 95, 'Whisker Maximum': 360}
+ExecutorID: Executor6
+{'Minimum': 98, 'Q1': 151.0, 'Median': 173.0, 'Q3': 198.5, 'Maximum': 484, 'Whisker Minimum': 98, 'Whisker Maximum': 269}
+ExecutorID: Executor7
+{'Minimum': 94, 'Q1': 134.0, 'Median': 156.0, 'Q3': 193.5, 'Maximum': 450, 'Whisker Minimum': 94, 'Whisker Maximum': 278}
+Input Overhead without LET
+Without data
+ExecutorID: Executor1
+{'Minimum': 49, 'Q1': 80.0, 'Median': 89.0, 'Q3': 102.0, 'Maximum': 467, 'Whisker Minimum': 49, 'Whisker Maximum': 134}
+ExecutorID: Executor2
+{'Minimum': 52, 'Q1': 78.0, 'Median': 94.0, 'Q3': 117.0, 'Maximum': 410, 'Whisker Minimum': 52, 'Whisker Maximum': 174}
+ExecutorID: Executor3
+{'Minimum': 52, 'Q1': 79.0, 'Median': 101.0, 'Q3': 125.0, 'Maximum': 289, 'Whisker Minimum': 52, 'Whisker Maximum': 191}
+ExecutorID: Executor4
+{'Minimum': 52, 'Q1': 72.0, 'Median': 96.0, 'Q3': 124.5, 'Maximum': 278, 'Whisker Minimum': 52, 'Whisker Maximum': 203}
+ExecutorID: Executor5
+{'Minimum': 52, 'Q1': 79.0, 'Median': 100.0, 'Q3': 129.0, 'Maximum': 267, 'Whisker Minimum': 52, 'Whisker Maximum': 203}
+ExecutorID: Executor6
+{'Minimum': 53, 'Q1': 77.0, 'Median': 99.0, 'Q3': 129.0, 'Maximum': 229, 'Whisker Minimum': 53, 'Whisker Maximum': 201}
+ExecutorID: Executor7
+{'Minimum': 55, 'Q1': 81.0, 'Median': 102.0, 'Q3': 129.0, 'Maximum': 241, 'Whisker Minimum': 55, 'Whisker Maximum': 200}
+With data
+ExecutorID: Executor1
+{'Minimum': 80, 'Q1': 108.0, 'Median': 117.0, 'Q3': 136.0, 'Maximum': 179, 'Whisker Minimum': 80, 'Whisker Maximum': 177}
+ExecutorID: Executor2
+{'Minimum': 111, 'Q1': 246.0, 'Median': 321.0, 'Q3': 368.0, 'Maximum': 524, 'Whisker Minimum': 111, 'Whisker Maximum': 524}
+ExecutorID: Executor3
+{'Minimum': 112, 'Q1': 218.5, 'Median': 306.5, 'Q3': 416.75, 'Maximum': 782, 'Whisker Minimum': 112, 'Whisker Maximum': 667}
+ExecutorID: Executor4
+{'Minimum': 105, 'Q1': 191.0, 'Median': 255.0, 'Q3': 367.0, 'Maximum': 775, 'Whisker Minimum': 105, 'Whisker Maximum': 615}
+ExecutorID: Executor5
+{'Minimum': 114, 'Q1': 194.25, 'Median': 245.0, 'Q3': 337.75, 'Maximum': 776, 'Whisker Minimum': 114, 'Whisker Maximum': 549}
+ExecutorID: Executor6
+{'Minimum': 105, 'Q1': 184.0, 'Median': 231.0, 'Q3': 307.0, 'Maximum': 833, 'Whisker Minimum': 105, 'Whisker Maximum': 484}
+ExecutorID: Executor7
+{'Minimum': 117, 'Q1': 179.0, 'Median': 217.0, 'Q3': 265.0, 'Maximum': 667, 'Whisker Minimum': 117, 'Whisker Maximum': 393}
+Output Thread Overhead
+Without data
+ExecutorID: Executor1
+{'Minimum': 20, 'Q1': 154.0, 'Median': 174.0, 'Q3': 197.0, 'Maximum': 472, 'Whisker Minimum': 131, 'Whisker Maximum': 261}
+ExecutorID: Executor2
+{'Minimum': 11, 'Q1': 206.0, 'Median': 216.0, 'Q3': 276.0, 'Maximum': 518, 'Whisker Minimum': 169, 'Whisker Maximum': 378}
+ExecutorID: Executor3
+{'Minimum': 7, 'Q1': 224.0, 'Median': 235.0, 'Q3': 302.0, 'Maximum': 498, 'Whisker Minimum': 185, 'Whisker Maximum': 418}
+ExecutorID: Executor4
+{'Minimum': 10, 'Q1': 249.0, 'Median': 271.0, 'Q3': 337.0, 'Maximum': 529, 'Whisker Minimum': 212, 'Whisker Maximum': 468}
+ExecutorID: Executor5
+{'Minimum': 6, 'Q1': 251.0, 'Median': 269.0, 'Q3': 340.0, 'Maximum': 569, 'Whisker Minimum': 205, 'Whisker Maximum': 473}
+ExecutorID: Executor6
+{'Minimum': 6, 'Q1': 263.0, 'Median': 298.0, 'Q3': 353.0, 'Maximum': 625, 'Whisker Minimum': 213, 'Whisker Maximum': 486}
+ExecutorID: Executor7
+{'Minimum': 7, 'Q1': 27.0, 'Median': 30.0, 'Q3': 34.0, 'Maximum': 57, 'Whisker Minimum': 19, 'Whisker Maximum': 44}
+With data
+ExecutorID: Executor1
+{'Minimum': 365, 'Q1': 443.0, 'Median': 506.0, 'Q3': 566.25, 'Maximum': 886, 'Whisker Minimum': 365, 'Whisker Maximum': 743}
+ExecutorID: Executor2
+{'Minimum': 326, 'Q1': 390.0, 'Median': 468.0, 'Q3': 556.5, 'Maximum': 809, 'Whisker Minimum': 326, 'Whisker Maximum': 798}
+ExecutorID: Executor3
+{'Minimum': 255, 'Q1': 375.0, 'Median': 441.5, 'Q3': 517.75, 'Maximum': 1205, 'Whisker Minimum': 255, 'Whisker Maximum': 730}
+ExecutorID: Executor4
+{'Minimum': 269, 'Q1': 381.0, 'Median': 440.0, 'Q3': 512.0, 'Maximum': 902, 'Whisker Minimum': 269, 'Whisker Maximum': 705}
+ExecutorID: Executor5
+{'Minimum': 258, 'Q1': 366.0, 'Median': 422.0, 'Q3': 496.0, 'Maximum': 961, 'Whisker Minimum': 258, 'Whisker Maximum': 685}
+ExecutorID: Executor6
+{'Minimum': 259, 'Q1': 365.0, 'Median': 440.0, 'Q3': 518.0, 'Maximum': 1011, 'Whisker Minimum': 259, 'Whisker Maximum': 747}
+input overhead increase total
+  ExecutorID  Difference
+0  Executor1   142208916
+1  Executor2   107548630
+2  Executor3   112399486
+3  Executor4   120822351
+4  Executor5   139261295
+6  Executor6    93566487
+5  Executor7    60235728
+output overhead increase total
+  ExecutorID  Difference
+1  Executor1   538547794
+2  Executor2   675339280
+3  Executor3   739964007
+4  Executor4   807639606
+5  Executor5   812673044
+6  Executor6   858510843
+0  Executor7   160161340
+./result/automated_test_json/varied_let/automated_test10.json
+7

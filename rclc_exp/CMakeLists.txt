@@ -68,8 +68,8 @@ ament_target_dependencies(test1 rcl rclc_let custom_interfaces)
 # add_executable(test3 src/test3.c src/utilities.c)
 # ament_target_dependencies(test3 rcl rclc_let custom_interfaces)
 
-# add_executable(auto src/automated_test.c src/utilities.c)
-# ament_target_dependencies(auto rcl rclc_let custom_interfaces)
+add_executable(auto src/automated_test.c src/utilities.c)
+ament_target_dependencies(auto rcl rclc_let custom_interfaces)
 
 # add_executable(sleep_test src/test_sleep_time.c src/utilities.c)
 # ament_target_dependencies(sleep_test rcl rclc_let custom_interfaces)
@@ -108,7 +108,7 @@ install(TARGETS
   # test2
   # test3
   # rcv
-  # auto
+  auto
   # sleep_test
   DESTINATION lib/${PROJECT_NAME}
 )

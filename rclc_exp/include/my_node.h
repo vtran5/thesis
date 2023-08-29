@@ -569,3 +569,115 @@ void subscriber_callback_us(
     strcat(stat,temp);     
   }
 }
+
+typedef struct {
+  size_t current_memory_size;
+  size_t max_memory_size;
+} rcl_allocator_state_t;
+
+void *my_allocate(size_t size, void *state) {
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = size;
+    alloc_state->current_memory_size += size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(ptr + 1);
+}
+
+void *main_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void *support_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void *executor_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void my_deallocate(void *pointer, void *state) {
+    if (!pointer) return;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)pointer - 1;
+    alloc_state->current_memory_size -= *ptr;
+    free(ptr);
+}
+
+void main_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void support_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void executor_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void *my_reallocate(void *pointer, size_t size, void *state) {
+    if (!pointer) return my_allocate(size, state);
+    size_t *old_ptr = (size_t *)pointer - 1;
+    size_t old_size = *old_ptr;
+    size_t *new_ptr = (size_t *)realloc(old_ptr, size + sizeof(size_t));
+    if (!new_ptr) return NULL;
+    *new_ptr = size;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    alloc_state->current_memory_size += size - old_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(new_ptr + 1);
+}
+
+void *main_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *support_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *executor_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    size_t total_size = number_of_elements * size_of_element;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(total_size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = total_size; // Storing the total size
+    alloc_state->current_memory_size += total_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    void *user_ptr = (void *)(ptr + 1);
+    memset(user_ptr, 0, total_size); // Set all bytes to zero
+    return user_ptr;
+}
+
+void *main_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
+}
+
+void *support_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
+}
+
+void *executor_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
+}

@@ -5,13 +5,21 @@ import numpy as np
 import json
 import matplotlib.pyplot as plt
 
-# input_file = './result/dump.txt'
-# input_file_nolet = './result/dump_nolet.txt'
-# json_file = './result/automated_test_json/automated_test1.json'
+if len(sys.argv) != 4:
+    print("Usage: python export_csv.py <input_file> <input_file_nolet> <json_file>")
+    sys.exit(1)
 
-input_file = './result/temp1_data.txt'
-input_file_nolet = './result/temp1_data_nolet.txt'
-json_file = './result/test1.json'
+input_file = sys.argv[1]
+input_file_nolet = sys.argv[2]
+json_file = sys.argv[3]
+
+# input_file = './result/automated_test_result/varied_pub_num/data1.txt'
+# input_file_nolet = './result/automated_test_result/varied_pub_num/data1_nolet.txt'
+# json_file = './result/automated_test_json/varied_pub_num/automated_test1.json'
+
+# input_file = './result/data_let_200000B.txt'
+# input_file_nolet = './result/data_nolet_200000B.txt'
+# json_file = './result/test1.json'
 
 with open(json_file, 'r') as f:
     json_data = json.load(f)
@@ -22,6 +30,12 @@ print(len(executors))
 if not executors:
     print("No 'executors' data found in the JSON file.")
     sys.exit(1)
+
+def find_let(df):
+    start_time_df = df[df.iloc[:, 0] == 'CallbackLET']
+    start_time_df = start_time_df.dropna(axis=1)
+    start_time = float(start_time_df.iloc[0, 1])
+    return start_time
 
 # callback_chains = json_data["callback_chain"]
 # if not callback_chains:
@@ -39,7 +53,8 @@ df_nolet = pu.read_input_file(input_file_nolet)
 
 start_time = pu.find_start_time(df)
 start_program_time = 0
-
+callback_let = find_let(df)
+print(f"CallbackLET: {callback_let}")
 subscriber_map = pu.find_map(df, 'Subscriber')
 timer_map = pu.find_map(df, 'Timer')
 executor_map = pu.find_map(df, 'Executor')
@@ -63,6 +78,7 @@ total_overhead_input = pu.process_dataframe(df, 'OverheadTotalInput', executor_m
 total_overhead_output = pu.process_dataframe(df, 'OverheadTotalOutput', executor_map, frame_id=False)
 total_publish_overhead = pu.process_dataframe(df, 'OverheadTotalPublish', publisher_map, frame_id=False)
 total_publish_internal_overhead = pu.process_dataframe(df, 'OverheadTotalInternalPublish', publisher_map, frame_id=False)
+# total_trigger_overhead = pu.process_dataframe(df, 'TriggerOverhead', executor_map, frame_id=False)
 # wait_thread = pu.process_dataframe(df, 'WaitThread', executor_map, frame_id=True)
 # wait_all = pu.process_dataframe(df, 'WaitAll', executor_map, frame_id=True)
 
@@ -126,24 +142,57 @@ my_path = "./result/data.csv"
 #     for df in dfs_nolet:
 #         df.to_csv(file, index=False)
 #         file.write('---\n')
-def plot_output_overhead_nolet_one_executor(executor_id, ax, output_overhead):
+
+def calculate_time_statistics(df):
+    df.loc[:, 'Time'] = df['Time'].astype(int)
+    Q1 = df['Time'].quantile(0.25)
+    Q3 = df['Time'].quantile(0.75)
+    IQR = Q3 - Q1
+    minimum = df['Time'].min()
+    median = df['Time'].median()
+    maximum = df['Time'].max()
+    lower_bound = Q1 - 1.5 * IQR  # Potential lower bound for outliers
+    upper_bound = Q3 + 1.5 * IQR  # Potential upper bound for outliers
+
+    # Adjust minimum and maximum if they are beyond whiskers
+    whisker_min = df['Time'][df['Time'] > lower_bound].min()
+    whisker_max = df['Time'][df['Time'] < upper_bound].max()
+
+    box_plot_data = {
+        'Minimum': minimum,
+        'Q1': Q1,
+        'Median': median,
+        'Q3': Q3,
+        'Maximum': maximum,
+        'Whisker Minimum': whisker_min,
+        'Whisker Maximum': whisker_max
+    }
+
+    return box_plot_data
+
+def print_time_statistics(df, title):
+    box_plot_data = calculate_time_statistics(df)
+    print(title)
+    print(box_plot_data)
+
+def plot_one_type_overhead_one_executor(executor_id, ax, output_overhead, color):
     # Filter DataFrames based on ExecutorID
     data = output_overhead[output_overhead['ExecutorID'] == executor_id]
     data.loc[:, 'FrameID'] = data['FrameID'].astype(int)
     data.loc[:, 'Time'] = data['Time'].astype(int)
     data.loc[:, 'Time'] = data['Time']/1000
 
+    print_time_statistics(data, f'ExecutorID: {executor_id}')
     # Plot 'Time' values with red dots for with_data and blue dots for without_data
-    ax.scatter(data['FrameID'], data['Time'], color='red', zorder=1)
+    ax.scatter(data['FrameID'], data['Time'], color=color, zorder=1)
     
     # Labels and title
     ax.set_xlabel('Instance Number')
     ax.set_ylabel('Time (us)')
     ax.set_title(f'ExecutorID: {executor_id}')
-    ax.legend()
     ax.grid(True, zorder=0)
 
-def plot_output_nolet_overhead(output_overhead, title):
+def plot_one_type_overhead(output_overhead, title, color):
     # Get unique ExecutorIDs
     unique_executors = output_overhead['ExecutorID'].unique()
     executors = sorted(unique_executors)
@@ -154,7 +203,7 @@ def plot_output_nolet_overhead(output_overhead, title):
     # Plot scatter plot for each unique ExecutorID (using updated function)
     for i, executor_id in enumerate(executors):
         ax = axs[i // 2, i % 2]
-        plot_output_overhead_nolet_one_executor(executor_id, ax, output_overhead)
+        plot_one_type_overhead_one_executor(executor_id, ax, output_overhead, color)
     plt.suptitle(title, fontsize=16)
     plt.tight_layout()
 
@@ -181,23 +230,32 @@ def plot_input_overhead_one_executor(executor_id, ax, input_overhead_with_data, 
     ax.legend()
     ax.grid(True, zorder=0)
 
-def plot_input_overhead(input_overhead, input_triggered, title):
+def split_data(data, matching_data):
     # Creating a set of tuples representing the FrameID and ExecutorID pairs in input_triggered
-    common_pairs = set(tuple(row) for row in input_triggered[['FrameID', 'ExecutorID']].values)
+    common_pairs = set(tuple(row) for row in matching_data[['FrameID', 'ExecutorID']].values)
 
     # Function to determine if a row has a matching pair in common_pairs
     def has_matching_pair(row):
         return (row['FrameID'], row['ExecutorID']) in common_pairs
 
     # Applying the function to split the input_overhead DataFrame
-    input_overhead_with_data = input_overhead[input_overhead.apply(has_matching_pair, axis=1)]
-    input_overhead_without_data = input_overhead[~input_overhead.apply(has_matching_pair, axis=1)]
+    data_matched = data[data.apply(has_matching_pair, axis=1)]
+    data_not_matched = data[~data.apply(has_matching_pair, axis=1)]
+    return data_matched, data_not_matched
 
+
+def plot_overhead(input_overhead, input_triggered, title):
+     # Applying the function to split the input_overhead DataFrame
+    input_overhead_with_data, input_overhead_without_data = split_data(input_overhead, input_triggered)
+    # input_overhead_with_data = input_overhead_with_data.iloc[5:]
+    # input_overhead_without_data = input_overhead_without_data.iloc[5:]
     # Get unique ExecutorIDs
     unique_executors = input_overhead['ExecutorID'].unique()
     executors = sorted(unique_executors)
-
-    plot_output_nolet_overhead(input_overhead_without_data, title+"without data")
+    print("Without data")
+    plot_one_type_overhead(input_overhead_without_data, title+" without data", 'blue')
+    print("With data")
+    plot_one_type_overhead(input_overhead_with_data, title+" with data", 'red')
 
     # Create 2x2 subplots
     fig, axs = plt.subplots(round((len(executors)+1)/2), 2, figsize=(12, 10))
@@ -210,15 +268,6 @@ def plot_input_overhead(input_overhead, input_triggered, title):
     plt.suptitle(title, fontsize=16)
     plt.tight_layout()
     
-
-
-def calculate_time_statistics(df):
-    df.loc[:, 'Time'] = df['Time'].astype(int)
-    mean_time = df['Time'].mean()
-    min_time = df['Time'].min()
-    max_time = df['Time'].max()
-    return mean_time, min_time, max_time
-
 def calculate_publish_overhead(publish_overhead, publish_internal_overhead):
     publish_overhead.loc[:, 'Time'] = publish_overhead['Time'].astype(int)
     publish_internal_overhead.loc[:, 'Time'] = publish_internal_overhead['Time'].astype(int)
@@ -250,20 +299,20 @@ def plot_total_input_overhead(total_overhead_input_nolet, total_overhead_input):
     # Plotting the bar chart
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    bar_width = 0.35
+    bar_width = 0.1
     index = range(len(merged_df['ExecutorID']))
 
-    overhead_increase = merged_df['Time_let'] - merged_df['Time_nolet']
-    print("input overhead increase")
-    print(overhead_increase)
-
-    bar_nolet = plt.bar(index, merged_df['Time_nolet']/1000000, bar_width, label='WithoutLET')
+    merged_df['Difference'] = merged_df['Time_let'] - merged_df['Time_nolet']
+    print("input overhead increase total")
+    print(merged_df[['ExecutorID','Difference']])
+    bar = plt.bar(index, merged_df['Difference']/1000000, bar_width, label='Difference')
+    bar_nolet = plt.bar([i + 2*bar_width for i in index], merged_df['Time_nolet']/1000000, bar_width, label='WithoutLET')
     bar_let = plt.bar([i + bar_width for i in index], merged_df['Time_let']/1000000, bar_width, label='WithLET')
 
     plt.xlabel('Executor')
     plt.ylabel('Time (ms)')
     plt.title('Comparison of total input overhead without let and with let')
-    plt.xticks([i + bar_width / 2 for i in index], merged_df['ExecutorID'])
+    plt.xticks([i + 3*bar_width / 2 for i in index], merged_df['ExecutorID'])
     plt.legend()
     plt.tight_layout()
 
@@ -295,26 +344,31 @@ def plot_total_output_overhead(executors, total_overhead_output, total_publish_o
     output_overhead_merged['Time_nolet'].fillna(0, inplace=True)
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    bar_width = 0.35
+    bar_width = 0.15
     index = range(len(output_overhead_merged['ExecutorID']))
-    overhead_increase = (output_overhead_merged['Time_let'] - output_overhead_merged['Time_nolet'])/1000
-    print("output overhead increase")
-    print(format(overhead_increase), '.0f')
-    print(output_overhead_merged['ExecutorID'])
-    bar_nolet = plt.bar(index, output_overhead_merged['Time_nolet']/1000000, bar_width, label='WithoutLET')
+    output_overhead_merged['Difference'] = output_overhead_merged['Time_let'] - output_overhead_merged['Time_nolet']
+    print("output overhead increase total")
+    pd.set_option('display.float_format', '{:.0f}'.format)
+    print(output_overhead_merged[['ExecutorID', 'Difference']])
+    bar = plt.bar(index, output_overhead_merged['Difference'] /1000000, bar_width, label='Difference')
+    bar_nolet = plt.bar([i + 2*bar_width for i in index], output_overhead_merged['Time_nolet']/1000000, bar_width, label='WithoutLET')
     bar_let = plt.bar([i + bar_width for i in index], output_overhead_merged['Time_let']/1000000, bar_width, label='WithLET')
 
     plt.xlabel('Executor')
     plt.ylabel('Time (ms)')
     plt.title('Comparison of total output overhead without let and with let')
-    plt.xticks([i + bar_width / 2 for i in index], output_overhead_merged['ExecutorID'])
+    plt.xticks([i + 3*bar_width / 2 for i in index], output_overhead_merged['ExecutorID'])
     plt.legend()
     plt.tight_layout()
 
-plot_input_overhead(input_overhead, input_triggered, "Input Thread Overhead per One Run with LET")
-plot_input_overhead(input_overhead_nolet, input_triggered_nolet, "Input Thread Overhead per Executor Period without LET")
+print("Input Overhead with LET")
+plot_overhead(input_overhead, input_triggered, "Input Thread Overhead per One Run with LET")
+print("Input Overhead without LET")
+plot_overhead(input_overhead_nolet, input_triggered_nolet, "Input Thread Overhead per Executor Period without LET")
 # #calculate_publish_overhead(publish_overhead, publish_internal_overhead)
-plot_input_overhead(output_overhead, output_write, "Output Thread Overhead per One Run with LET")
-# plot_total_input_overhead(total_overhead_input_nolet, total_overhead_input)
-# plot_total_output_overhead(executors, total_overhead_output, total_publish_overhead, total_publish_internal_overhead, total_publish_overhead_nolet)
-plt.show()
+print("Output Thread Overhead")
+plot_overhead(output_overhead, output_write, "Output Thread Overhead per One Run with LET")
+plot_total_input_overhead(total_overhead_input_nolet, total_overhead_input)
+plot_total_output_overhead(executors, total_overhead_output, total_publish_overhead, total_publish_internal_overhead, total_publish_overhead_nolet)
+# plot_overhead(output_overhead,publish_overhead, "Overhead for publishing")
+# plt.show()

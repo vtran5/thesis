@@ -1,0 +1,282 @@
+{
+    "executors": {
+        "Executor1": [
+            "Executor1",
+            "Publisher1",
+            "Publisher2",
+            "Publisher3",
+            "Publisher4",
+            "Publisher5",
+            "Publisher6",
+            "Publisher7",
+            "Timer1",
+            "Timer2",
+            "Timer3",
+            "Timer4",
+            "Timer5",
+            "Timer6",
+            "Timer7"
+        ],
+        "Executor2": [
+            "Executor2",
+            "Publisher8",
+            "Publisher9",
+            "Publisher10",
+            "Publisher11",
+            "Publisher12",
+            "Publisher13",
+            "Publisher14",
+            "Publisher15",
+            "Publisher16",
+            "Publisher17",
+            "Publisher18",
+            "Publisher19",
+            "Publisher20",
+            "Subscriber1",
+            "Subscriber2",
+            "Subscriber3",
+            "Subscriber4",
+            "Subscriber5",
+            "Subscriber6",
+            "Subscriber7",
+            "Timer8",
+            "Timer9",
+            "Timer10",
+            "Timer11",
+            "Timer12",
+            "Timer13"
+        ],
+        "Executor3": [
+            "Executor3",
+            "Publisher21",
+            "Publisher22",
+            "Publisher23",
+            "Publisher24",
+            "Publisher25",
+            "Publisher26",
+            "Publisher27",
+            "Publisher28",
+            "Publisher29",
+            "Publisher30",
+            "Publisher31",
+            "Publisher32",
+            "Publisher33",
+            "Publisher34",
+            "Publisher35",
+            "Subscriber8",
+            "Subscriber9",
+            "Subscriber10",
+            "Subscriber11",
+            "Subscriber12",
+            "Subscriber13",
+            "Subscriber14",
+            "Subscriber15",
+            "Subscriber16",
+            "Subscriber17",
+            "Subscriber18",
+            "Subscriber19",
+            "Subscriber20",
+            "Timer14",
+            "Timer15"
+        ],
+        "Executor4": [
+            "Executor4",
+            "Publisher36",
+            "Publisher37",
+            "Publisher38",
+            "Publisher39",
+            "Publisher40",
+            "Publisher41",
+            "Publisher42",
+            "Publisher43",
+            "Publisher44",
+            "Publisher45",
+            "Publisher46",
+            "Publisher47",
+            "Publisher48",
+            "Publisher49",
+            "Publisher50",
+            "Publisher51",
+            "Publisher52",
+            "Subscriber21",
+            "Subscriber22",
+            "Subscriber23",
+            "Subscriber24",
+            "Subscriber25",
+            "Subscriber26",
+            "Subscriber27",
+            "Subscriber28",
+            "Subscriber29",
+            "Subscriber30",
+            "Subscriber31",
+            "Subscriber32",
+            "Subscriber33",
+            "Subscriber34",
+            "Subscriber35",
+            "Timer16",
+            "Timer17"
+        ],
+        "Executor5": [
+            "Executor5",
+            "Publisher53",
+            "Publisher54",
+            "Publisher55",
+            "Publisher56",
+            "Publisher57",
+            "Publisher58",
+            "Publisher59",
+            "Publisher60",
+            "Publisher61",
+            "Publisher62",
+            "Publisher63",
+            "Publisher64",
+            "Publisher65",
+            "Publisher66",
+            "Publisher67",
+            "Publisher68",
+            "Publisher69",
+            "Publisher70",
+            "Subscriber36",
+            "Subscriber37",
+            "Subscriber38",
+            "Subscriber39",
+            "Subscriber40",
+            "Subscriber41",
+            "Subscriber42",
+            "Subscriber43",
+            "Subscriber44",
+            "Subscriber45",
+            "Subscriber46",
+            "Subscriber47",
+            "Subscriber48",
+            "Subscriber49",
+            "Subscriber50",
+            "Subscriber51",
+            "Subscriber52",
+            "Timer18"
+        ],
+        "Executor6": [
+            "Executor6",
+            "Publisher71",
+            "Publisher72",
+            "Publisher73",
+            "Publisher74",
+            "Publisher75",
+            "Publisher76",
+            "Publisher77",
+            "Publisher78",
+            "Publisher79",
+            "Publisher80",
+            "Publisher81",
+            "Publisher82",
+            "Publisher83",
+            "Publisher84",
+            "Publisher85",
+            "Publisher86",
+            "Publisher87",
+            "Publisher88",
+            "Publisher89",
+            "Subscriber53",
+            "Subscriber54",
+            "Subscriber55",
+            "Subscriber56",
+            "Subscriber57",
+            "Subscriber58",
+            "Subscriber59",
+            "Subscriber60",
+            "Subscriber61",
+            "Subscriber62",
+            "Subscriber63",
+            "Subscriber64",
+            "Subscriber65",
+            "Subscriber66",
+            "Subscriber67",
+            "Subscriber68",
+            "Subscriber69",
+            "Subscriber70",
+            "Timer19"
+        ],
+        "Executor7": [
+            "Executor7",
+            "Subscriber71",
+            "Subscriber72",
+            "Subscriber73",
+            "Subscriber74",
+            "Subscriber75",
+            "Subscriber76",
+            "Subscriber77",
+            "Subscriber78",
+            "Subscriber79",
+            "Subscriber80",
+            "Subscriber81",
+            "Subscriber82",
+            "Subscriber83",
+            "Subscriber84",
+            "Subscriber85",
+            "Subscriber86",
+            "Subscriber87",
+            "Subscriber88",
+            "Subscriber89"
+        ]
+    },
+    "callback_chain": {
+        "chain1": [
+            "Timer1"
+        ],
+        "chain2": [
+            "Timer2"
+        ],
+        "chain3": [
+            "Timer3"
+        ],
+        "chain4": [
+            "Timer4"
+        ],
+        "chain5": [
+            "Timer5"
+        ],
+        "chain6": [
+            "Timer6"
+        ],
+        "chain7": [
+            "Timer7"
+        ],
+        "chain8": [
+            "Timer8"
+        ],
+        "chain9": [
+            "Timer9"
+        ],
+        "chain10": [
+            "Timer10"
+        ],
+        "chain11": [
+            "Timer11"
+        ],
+        "chain12": [
+            "Timer12"
+        ],
+        "chain13": [
+            "Timer13"
+        ],
+        "chain14": [
+            "Timer14"
+        ],
+        "chain15": [
+            "Timer15"
+        ],
+        "chain16": [
+            "Timer16"
+        ],
+        "chain17": [
+            "Timer17"
+        ],
+        "chain18": [
+            "Timer18"
+        ],
+        "chain19": [
+            "Timer19"
+        ]
+    },
+    "publisher_mapping": {}
+}

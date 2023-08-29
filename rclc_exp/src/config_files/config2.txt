@@ -1,5 +1,5 @@
 nodes: 7
-executor_period: 620
+executor_period: 50
 timer_period: 740
 message_size: 512
 callback_let: 2110

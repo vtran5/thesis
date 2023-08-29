@@ -1,0 +1,12 @@
+nodes: 7
+executor_period: 50
+timer_period: 740
+message_size: 512
+callback_let: 2110
+1: 77 0 7
+2: 83 5 6
+3: 85 8 2
+4: 87 10 2
+5: 88 12 1
+6: 89 13 1
+7: 0 14 0

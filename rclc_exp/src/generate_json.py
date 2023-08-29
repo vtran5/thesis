@@ -2,8 +2,8 @@ import json
 import os
 import glob
 
-config_files_path = './config_files'
-result_path = '../../result/automated_test_json'
+config_files_path = './rclc_exp/src/config_files/varied_let'
+result_path = './result/automated_test_json/varied_let'
 current_path = os.getcwd()
 print(f"Current working directory: {current_path}")
 file_list = glob.glob(os.path.join(config_files_path, 'config*.txt'))
