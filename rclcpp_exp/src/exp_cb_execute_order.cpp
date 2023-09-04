@@ -43,7 +43,8 @@ private:
 		//message.data = "Hello" + std::to_string(count++);
 		message.frame_id = count++;
 		message.stamp = now.nanoseconds();
-		timestamp.at(0).at(message.frame_id) = (now - start_time).nanoseconds()/1000;
+		std::cout << "Publishing: " << message.frame_id << "\n";
+		//timestamp.at(0).at(message.frame_id) = (now - start_time).nanoseconds()/1000;
 		//RCLCPP_INFO(this->get_logger(), "Publishing: '%s' at %f", message.header.frame_id.c_str(), t);
 		publisher1->publish(message);
 	}
@@ -52,19 +53,20 @@ private:
 	{
 		rclcpp::Time now = this->now();
 		busy_wait(80ms);
-		timestamp.at(1).at(count) = (now - start_time).nanoseconds()/1000;
+		//timestamp.at(1).at(count) = (now - start_time).nanoseconds()/1000;
 		//RCLCPP_INFO(this->get_logger(), "Publishing: '%s' at %f", message.header.frame_id.c_str(), t);
 	}
 	
 	void sub1_callback(const custom_interfaces::msg::Message & msg)
   	{
   		rclcpp::Time now = this->now();
-  		timestamp.at(2).at(msg.frame_id) = (now.nanoseconds() - msg.stamp)/1000;
+			std::cout << "Receiving: " << msg.frame_id << "\n";
+  		//timestamp.at(2).at(msg.frame_id) = (now.nanoseconds() - msg.stamp)/1000;
     	//RCLCPP_INFO(this->get_logger(), "I heard: '%s' at %f", msg.header.frame_id.c_str(), t);
     	//msg.header.stamp = now - start_time;
     	busy_wait(80ms);
     	now = this->now();
-    	timestamp.at(3).at(msg.frame_id) = (now.nanoseconds() - msg.stamp)/1000;
+    	//timestamp.at(3).at(msg.frame_id) = (now.nanoseconds() - msg.stamp)/1000;
   	}
 
 	rclcpp::TimerBase::SharedPtr timer1;
@@ -99,7 +101,7 @@ int main(int argc, char const *argv[])
 	  RCLCPP_WARN(logger1, "Failed to configure high priority thread, are you root?");
 	}
 
-	const std::chrono::seconds EXPERIMENT_DURATION = 10s;
+	const std::chrono::seconds EXPERIMENT_DURATION = 100s;
   	RCLCPP_INFO_STREAM(
     	logger1, "Running experiment from now on for " << EXPERIMENT_DURATION.count() << " seconds ...");
   	std::this_thread::sleep_for(EXPERIMENT_DURATION);
