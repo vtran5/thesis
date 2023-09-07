@@ -141,7 +141,7 @@ void print_ret(rcl_ret_t ret, unsigned long ptr)
 // Circular Queue
 rcl_ret_t rclc_init_circular_queue(
   rclc_circular_queue_t* queue, 
-  int elem_size, 
+  size_t elem_size, 
   int capacity,
   const rcl_allocator_t * allocator) {
   if (elem_size <= 0 || capacity <= 0 || !queue) 
@@ -160,7 +160,6 @@ rcl_ret_t rclc_init_circular_queue(
   queue->elem_size = elem_size;
   queue->capacity = capacity;
   queue->state = RCLC_QUEUE_EMPTY;
-
   return RCL_RET_OK;
 }
 
@@ -267,11 +266,11 @@ rcl_ret_t rclc_flush_circular_queue(rclc_circular_queue_t * queue) {
 /************Priority Queue********************/
 rcl_ret_t rclc_init_priority_queue(
   rclc_priority_queue_t* queue, 
-  int elem_size, 
+  size_t elem_size, 
   int capacity,
   const rcl_allocator_t * allocator) 
 {
-    if (queue == NULL | elem_size <= 0 | capacity <= 0)
+    if ((queue == NULL) | (elem_size <= 0) | (capacity <= 0))
     {
       printf("Invalid priority queue argument\n");
       return RCL_RET_INVALID_ARGUMENT;
@@ -565,11 +564,11 @@ bool rclc_contains_key_map(rclc_map_t *map, const void *key) {
 rcl_ret_t rclc_init_2d_circular_queue(
   rclc_2d_circular_queue_t * queue2d, 
   int _2d_capacity,
-  int elem_size, 
+  size_t elem_size, 
   int _1d_capacity,
   const rcl_allocator_t * allocator) 
   {
-    if (queue2d == NULL | elem_size <= 0 | _2d_capacity <= 0 | _1d_capacity <= 0)
+    if ((queue2d == NULL) | (elem_size <= 0) | (_2d_capacity <= 0) | (_1d_capacity <= 0))
     {
       printf("Invalid priority queue argument\n");
       return RCL_RET_INVALID_ARGUMENT;
@@ -630,13 +629,13 @@ rclc_circular_queue_t* rclc_get_queue(rclc_2d_circular_queue_t * queue2d, int qu
 /******************** Array *************************/
 rcl_ret_t rclc_init_array(
   rclc_array_t * array, 
-  int elem_size, 
+  size_t elem_size, 
   int capacity,
   const rcl_allocator_t * allocator) 
 {
-    if (array == NULL | elem_size <= 0 | capacity <= 0)
+    if ((array == NULL) | (elem_size <= 0) | (capacity <= 0))
     {
-      printf("Invalid priority queue argument\n");
+      printf("Invalid array argument: elem_size %zu, capacity %d, array %lu\n", elem_size, capacity, (unsigned long) array);
       return RCL_RET_INVALID_ARGUMENT;
     }
     RCL_CHECK_ALLOCATOR_WITH_MSG(allocator, "allocator is NULL", return RCL_RET_INVALID_ARGUMENT);

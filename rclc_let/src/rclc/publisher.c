@@ -19,6 +19,17 @@
 #include <rcl/error_handling.h>
 #include <rcutils/logging_macros.h>
 #include <rmw/qos_profiles.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+static
+rcl_ret_t _rclc_get_system_time_now(int64_t * now)
+{
+  TickType_t current_tick_t = xTaskGetTickCount();
+  int64_t current_tick = (int64_t) current_tick_t;
+  *now = (current_tick*1000000000)/configTICK_RATE_HZ;
+  // printf("Current Tick %lld %lld %lu\n",*now, current_tick, current_tick_t);
+  return RCL_RET_OK;
+}
 
 rcl_ret_t
 rclc_publisher_init_default(
@@ -97,7 +108,8 @@ _rclc_publish_LET(
   uint64_t executor_index = *(publisher->executor_index);
   int buffer_size = publisher->message_buffer->size;
   int index = (int) (executor_index%buffer_size);
-  printf("Publish %lu at index %d %ld %d\n", (unsigned long) publisher, index, executor_index, buffer_size);
+  int32_t * ptr = ros_message;
+  printf("Publish %lu at index %ld %lld %ld %ld\n", (unsigned long) publisher, index, executor_index, ptr[0], buffer_size);
   rcl_ret_t ret = rclc_enqueue_2d_circular_queue(publisher->message_buffer, 
                   ros_message, index);
   return ret;
@@ -118,8 +130,8 @@ rclc_publish(
   }
   else if (semantics == RCLCPP_EXECUTOR)
   {
-    ret = rcutils_steady_time_now(&now);
-    printf("Output %lu %ld\n", (unsigned long) publisher, now);
+    ret = _rclc_get_system_time_now(&now);
+    printf("Output %lu %lld\n", (unsigned long) publisher, now);
     ret = _rclc_publish_default(publisher, ros_message, allocation);
   }
   return ret;
@@ -151,14 +163,14 @@ rclc_LET_output(rclc_publisher_t * publisher, int queue_index)
 {
   rcl_ret_t ret = RCL_RET_OK;
   rcutils_time_point_value_t now;
-  ret = rcutils_steady_time_now(&now);
-
+  ret = _rclc_get_system_time_now(&now);
   while(!rclc_is_empty_circular_queue(rclc_get_queue(publisher->message_buffer, queue_index)))
   {
     void * array;
-    rclc_dequeue_2d_circular_queue(publisher->message_buffer, &array, queue_index);
-    int64_t * ptr = array;
-    printf("Output %lu %ld %ld\n", (unsigned long) publisher, ptr[1], now);
+    ret = rclc_dequeue_2d_circular_queue(publisher->message_buffer, &array, queue_index);
+    printf("ret = %d\n", ret);
+    int32_t * ptr = array;
+    printf("Output %lu %ld %ld %lld\n", (unsigned long) publisher, ptr[0], queue_index, now);
     ret = rcl_publish(&(publisher->rcl_publisher), array, NULL);
   }
   return ret;
@@ -198,4 +210,3 @@ rclc_publisher_flush_buffer(rclc_publisher_t * publisher,
   rcl_ret_t ret = rclc_flush_circular_queue(queue);
   return ret;
 }
-

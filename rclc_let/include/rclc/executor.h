@@ -39,12 +39,11 @@ extern "C"
 #include "rclc/types.h"
 #include "rclc/sleep.h"
 #include "rclc/visibility_control.h"
-
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/semphr.h"
 #include "rclc/action_client.h"
 #include "rclc/action_server.h"
-
-#include <pthread.h>
-#include <sched.h>
 
 /*! \file executor.h
     \brief The RCLC-Executor provides an Executor based on RCL in which all callbacks are
@@ -81,18 +80,13 @@ typedef struct
   /// Overrun handling option
   rclc_executor_let_overrun_option_t overrun_option;
   /// Maximum number of 'let_handles' per callback (private)
-  size_t max_let_handles_per_callback;
+  int max_let_handles_per_callback;
   /// Flag to signal overrun
   bool deadline_passed;
-  /// Condition variables to signal callback status (private)
-  pthread_cond_t cond_callback;
-  /// Condition variables for LET scheduling (private)
-  pthread_cond_t exec_period;
-  pthread_cond_t let_input_done;
   /// Mutex to protect variable (private)
-  pthread_mutex_t mutex;
+  SemaphoreHandle_t mutex;
   /// Mutex to protect callback state
-  pthread_mutex_t mutex_state;
+  SemaphoreHandle_t mutex_state;
     /// Id of the next added handle (private)
   int next_callback_id;
   /// period index of the executor
@@ -103,6 +97,8 @@ typedef struct
   rcutils_time_point_value_t input_invocation_time;
   /// Queue to store wakeup time for the LET output (private)
   rclc_priority_queue_t output_invocation_times;
+  /// Task handle of callback thread
+  TaskHandle_t callback_task_handle;
 } rclc_executor_let_t;
 
 /// Container for RCLC-Executor
@@ -300,7 +296,7 @@ rclc_executor_add_subscription(
   rclc_subscription_callback_t callback,
   rclc_executor_handle_invocation_t invocation,
   rcutils_time_point_value_t callback_let_ns,
-  int message_size);
+  size_t message_size);
 
 /**
  *  Adds a subscription to an executor.

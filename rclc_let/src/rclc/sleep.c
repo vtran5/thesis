@@ -20,6 +20,8 @@
 #include <Windows.h>
 #else
 #include <unistd.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #endif
 
 void
@@ -39,9 +41,8 @@ rclc_sleep_ns(uint64_t ns)
 #ifdef WIN32
   Sleep(ns/1000000);
 #else
-  struct timespec ts;
-  ts.tv_sec = ns / 1000000000;
-  ts.tv_nsec = (ns % 1000000000);
-  nanosleep(&ts, NULL);
+  uint64_t ns_per_tick = (1000*1000*1000)/configTICK_RATE_HZ;
+  const TickType_t xTicksToDelay = (TickType_t) ns/ns_per_tick;
+  vTaskDelay(xTicksToDelay);
 #endif  
 }

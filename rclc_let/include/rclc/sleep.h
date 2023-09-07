@@ -23,7 +23,6 @@ extern "C"
 
 #include "rclc/visibility_control.h"
 #include <stdint.h>
-#include <time.h>
 
 /**
  *  Waits for milliseconds.

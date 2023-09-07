@@ -39,13 +39,13 @@ typedef struct rclc_circular_queue_s {
     /// Container to memory allocator for array handles
     const rcl_allocator_t * allocator;
     int front, rear;
-    int elem_size;
+    size_t elem_size;
     int capacity;
     void* buffer;
     rclc_queue_state_t state;
 } rclc_circular_queue_t;
 
-rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, int elem_size, int capacity, const rcl_allocator_t * allocator);
+rcl_ret_t rclc_init_circular_queue(rclc_circular_queue_t * queue, size_t elem_size, int capacity, const rcl_allocator_t * allocator);
 rcl_ret_t rclc_fini_circular_queue(rclc_circular_queue_t * queue);
 rcl_ret_t rclc_enqueue_circular_queue(rclc_circular_queue_t * queue, const void* item);
 rcl_ret_t rclc_dequeue_circular_queue(rclc_circular_queue_t * queue, void ** item);
@@ -72,10 +72,10 @@ typedef struct rclc_priority_queue_s {
     rclc_priority_node_t* head;
     int size;
     int capacity;
-    int elem_size;
+    size_t elem_size;
 } rclc_priority_queue_t;
 
-rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, int elem_size, int capacity, const rcl_allocator_t * allocator);
+rcl_ret_t rclc_init_priority_queue(rclc_priority_queue_t* queue, size_t elem_size, int capacity, const rcl_allocator_t * allocator);
 rcl_ret_t rclc_enqueue_priority_queue(rclc_priority_queue_t* queue, const void* item, int64_t priority);
 rcl_ret_t rclc_dequeue_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
 rcl_ret_t rclc_peek_priority_queue(rclc_priority_queue_t* queue, void* item, int64_t * priority);
@@ -142,7 +142,7 @@ typedef struct rclc_2d_circular_queue_s {
     rclc_circular_queue_t* queues;
 } rclc_2d_circular_queue_t;
 
-rcl_ret_t rclc_init_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, int _2d_capacity, int elem_size, int _1d_capacity, const rcl_allocator_t * allocator);
+rcl_ret_t rclc_init_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, int _2d_capacity, size_t elem_size, int _1d_capacity, const rcl_allocator_t * allocator);
 rcl_ret_t rclc_fini_2d_circular_queue(rclc_2d_circular_queue_t * queue2d);
 rcl_ret_t rclc_enqueue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, const void* item, int queue_index);
 rcl_ret_t rclc_dequeue_2d_circular_queue(rclc_2d_circular_queue_t * queue2d, void ** item, int queue_index);
@@ -162,12 +162,12 @@ typedef struct rclc_array_element_s {
 typedef struct rclc_array_s {
     /// Container to memory allocator for array handles
     const rcl_allocator_t * allocator;
-    int elem_size;
+    size_t elem_size;
     int capacity;
     rclc_array_element_t* buffer;
 } rclc_array_t;
 
-rcl_ret_t rclc_init_array(rclc_array_t * array, int elem_size, int capacity, const rcl_allocator_t * allocator);
+rcl_ret_t rclc_init_array(rclc_array_t * array, size_t elem_size, int capacity, const rcl_allocator_t * allocator);
 rcl_ret_t rclc_fini_array(rclc_array_t * array);
 rcl_ret_t rclc_set_array(rclc_array_t * array, const void* item, int index);
 rcl_ret_t rclc_get_array(rclc_array_t * array, void * item, int index);
