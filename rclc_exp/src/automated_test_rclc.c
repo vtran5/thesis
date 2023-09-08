@@ -2,7 +2,7 @@
 // #include "custom_interfaces/msg/sequence_msg.h"
 #include "utilities.h"
 #include <stdlib.h>
-#include "my_node.h"
+#include "my_node_rclc.h"
 
 volatile rcl_time_point_value_t start_time;
 rcl_allocator_t allocator_main;
@@ -32,7 +32,7 @@ void node_timer_callback(rcl_timer_t * timer, void * context)
   // busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
-    RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], &pub_msg, NULL, semantics));
+    RCSOFTCHECK(rcl_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], &pub_msg, NULL));
     printf("Callback timer %lu call publisher %lu pub_num %d\n", (unsigned long) timer, (unsigned long) &context_ptr->node->publisher[context_ptr->pub_index[i]], context_ptr->pub_num);
   }
 
@@ -55,7 +55,7 @@ void node_subscriber_callback(const void * msgin, void * context)
   now = rclc_now(&support);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
-    RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], msg, NULL, semantics));
+    RCSOFTCHECK(rcl_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], msg, NULL));
     printf("Callback subs call publisher %lu\n", (unsigned long) &context_ptr->node->publisher[context_ptr->pub_index[i]]);
   }
   if (context_ptr->pub_num > 0)
@@ -172,7 +172,7 @@ void add_entities_to_executor(
 
       RCCHECK(rclc_executor_add_subscription_with_context(
         &executor[i], &nodes[i]->subscriber[j], &nodes[i]->sub_msg[j], nodes[i]->subscriber_callback[j],
-        (void *) &nodes[i]->sub_context[j], ON_NEW_DATA, callback_let, (int) sizeof(custom_interfaces__msg__Message)));
+        (void *) &nodes[i]->sub_context[j], ON_NEW_DATA));
       printf("Add subscriber %lu to executor %lu\n", (unsigned long) &nodes[i]->subscriber[j], (unsigned long) &executor[i]);
     }
 
@@ -195,20 +195,20 @@ void add_entities_to_executor(
       }
 
       RCCHECK(rclc_executor_add_timer_with_context(&executor[i], &nodes[i]->timer[j], &node_timer_callback,
-        (void *) &nodes[i]->timer_context[j], callback_let));
+        (void *) &nodes[i]->timer_context[j]));
       printf("Add timer %lu to executor %lu\n", (unsigned long) &nodes[i]->timer[j], (unsigned long) &executor[i]);
     }
 
-    if (semantics == LET)
-    {
-      for (j = 0; j < nodes[i]->pub_num; j++)
-      {
-        int callback_index = j % (nodes[i]->sub_num + nodes[i]->timer_num);
-        RCCHECK(rclc_executor_add_publisher_LET(&executor[i], &nodes[i]->publisher[j], sizeof(custom_interfaces__msg__Message),
-          max_call_num_per_callback, nodes[i]->callback[callback_index].handle_ptr, nodes[i]->callback[callback_index].type));       
-        printf("Add publisher %lu to callback %lu\n", (unsigned long) &nodes[i]->publisher[j], (unsigned long) nodes[i]->callback[callback_index].handle_ptr);
-      }
-    }
+    // if (semantics == LET)
+    // {
+    //   for (j = 0; j < nodes[i]->pub_num; j++)
+    //   {
+    //     int callback_index = j % (nodes[i]->sub_num + nodes[i]->timer_num);
+    //     RCCHECK(rclc_executor_add_publisher_LET(&executor[i], &nodes[i]->publisher[j], sizeof(custom_interfaces__msg__Message),
+    //       max_call_num_per_callback, nodes[i]->callback[callback_index].handle_ptr, nodes[i]->callback[callback_index].type));       
+    //     printf("Add publisher %lu to callback %lu\n", (unsigned long) &nodes[i]->publisher[j], (unsigned long) nodes[i]->callback[callback_index].handle_ptr);
+    //   }
+    // }
   }
 }
 
@@ -366,15 +366,15 @@ int main(int argc, char const *argv[])
     executor[i] = rclc_executor_get_zero_initialized_executor();
     RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator[i])); 
     RCCHECK(rclc_executor_set_semantics(&executor[i], semantics));
-    RCCHECK(rclc_executor_set_period(&executor[i], RCUTILS_MS_TO_NS(executor_period)));
+    // RCCHECK(rclc_executor_set_period(&executor[i], RCUTILS_MS_TO_NS(executor_period)));
     RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
     printf("ExecutorID Executor%d %lu\n", i+1, (unsigned long) &executor[i]);
     print_id(nodes[i], &sub_count, &pub_count, &timer_count);
-    if (semantics == LET)
-    {
-      num_let_handles = (nodes[i]->pub_num / num_handles) + 1;
-      RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, CANCEL_NEXT_PERIOD));
-    }
+    // if (semantics == LET)
+    // {
+    //   num_let_handles = (nodes[i]->pub_num / num_handles) + 1;
+    //   RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, CANCEL_NEXT_PERIOD));
+    // }
   }
 
   add_entities_to_executor(nodes, executor, num_nodes, RCL_MS_TO_NS(callback_let),
@@ -396,7 +396,7 @@ int main(int argc, char const *argv[])
       ex_args[i].period = RCL_MS_TO_NS(executor_period);
       ex_args[i].executor = &executor[i];
       ex_args[i].support = &support;
-      thread_create(&threads[i], policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex_args[i]);
+      thread_create(&threads[i], policy, 49, 0, rclc_executor_spin_period_wrapper, &ex_args[i]);
     }
     else
     {
@@ -413,18 +413,18 @@ int main(int argc, char const *argv[])
     pthread_join(threads[i], NULL);
   }
 
-  for (i = 0; i < num_nodes; i++)
-  {
-    printf("Node%d\n", i);
-    printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
-    printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
-    // printf("TriggerOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].trigger_condition_overhead);
-    for (int j = 0; j < nodes[i]->pub_num; j++)
-    {
-      printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
-      printf("OverheadTotalInternalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].internal_overhead);
-    }
-  }
+  // for (i = 0; i < num_nodes; i++)
+  // {
+  //   printf("Node%d\n", i);
+  //   printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
+  //   printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
+  //   // printf("TriggerOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].trigger_condition_overhead);
+  //   for (int j = 0; j < nodes[i]->pub_num; j++)
+  //   {
+  //     printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
+  //     printf("OverheadTotalInternalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].internal_overhead);
+  //   }
+  // }
 
   // clean up 
   allocator_main.deallocate(threads, allocator_main.state);
@@ -451,7 +451,7 @@ int main(int argc, char const *argv[])
     }
     destroy_topic_name_array(nodes[i]->pub_topic_name, nodes[i]->pub_num, &allocator_main);
     destroy_topic_name_array(nodes[i]->sub_topic_name, nodes[i]->sub_num, &allocator_main);
-    RCCHECK(rclc_executor_let_fini(&executor[i]));
+    // RCCHECK(rclc_executor_let_fini(&executor[i]));
     RCCHECK(rclc_executor_fini(&executor[i]));
     destroy_node(nodes[i], &allocator_main);
   }

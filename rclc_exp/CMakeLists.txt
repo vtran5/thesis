@@ -59,6 +59,9 @@ ament_target_dependencies(exp6 rcl rclc custom_interfaces)
 add_executable(test1 src/test1.c src/utilities.c)
 ament_target_dependencies(test1 rcl rclc_let custom_interfaces)
 
+add_executable(test1_rclc src/test1_rclc.c src/utilities.c)
+ament_target_dependencies(test1_rclc rcl rclc custom_interfaces)
+
 # add_executable(test2 src/test2.c src/utilities.c)
 # ament_target_dependencies(test2 rcl rclc_let custom_interfaces)
 
@@ -70,6 +73,12 @@ ament_target_dependencies(test1 rcl rclc_let custom_interfaces)
 
 add_executable(auto src/automated_test.c src/utilities.c)
 ament_target_dependencies(auto rcl rclc_let custom_interfaces)
+
+add_executable(auto_rclc src/automated_test_rclc.c src/utilities.c)
+ament_target_dependencies(auto_rclc rcl rclc custom_interfaces)
+
+add_executable(esp32 src/esp32_test.c src/utilities.c)
+ament_target_dependencies(esp32 rcl rclc_let std_msgs custom_interfaces)
 
 # add_executable(sleep_test src/test_sleep_time.c src/utilities.c)
 # ament_target_dependencies(sleep_test rcl rclc_let custom_interfaces)
@@ -109,6 +118,9 @@ install(TARGETS
   # test3
   # rcv
   auto
+  auto_rclc
+  test1_rclc
+  esp32
   # sleep_test
   DESTINATION lib/${PROJECT_NAME}
 )
