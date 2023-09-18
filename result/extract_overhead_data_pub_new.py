@@ -160,7 +160,7 @@ def plot_side_by_side_boxes(df1, df2, title):
 
         ax.set_xticks([i for i in range(len(positions))])
         ax.set_xticklabels(positions, fontsize=12)
-        ax.set_xlabel('Number of Timers',  fontsize=14)
+        ax.set_xlabel('Number of Publishers',  fontsize=14)
         ax.set_ylabel('Time (µs)',  fontsize=14)
         ax.set_title(executor, fontsize=15)
 
@@ -173,94 +173,6 @@ def percent_formatter(x, pos):
         return f"{100 * x:.0f}%"
     else:
         return f"{100 * x:.2f}%"
-
-def plot_grouped_barchart(dfs_in, dfs_out, title):
-    """Plots a grouped bar chart from a dictionary of dataframes.
-    
-    Args:
-    - dfs (dict): Dictionary where the keys are callbackLET values and 
-                  the values are corresponding dataframes.
-    """
-    
-    width = 0.2  # Width of the bars
-    # Collect unique ExecutorID
-    executor_ids = set()
-    for _, df in dfs_in:
-        executor_ids.update(df['ExecutorID'].values)
-    executor_ids = sorted(list(executor_ids))
-    executor_ids = [e for e in executor_ids if e != 'Executor7' and e != 'Executor1']
-    fig, axes = plt.subplots(round((len(executor_ids)+1)/2), 2, figsize=(12, 1.8 * len(executor_ids)))
-
-    # Create a bar for each ExecutorID's value per callbackLET
-    for idx, executor in enumerate(executor_ids):
-        ax = axes[(idx) // 2, (idx) % 2]
-        values = []
-        values2 = []
-
-        # Collect all unique publishers for the current ExecutorID
-        pub_set = set()
-        for pub_count, _ in dfs_in:
-            if executor in pub_count:
-                pub_set.add(pub_count[executor])
-        
-        pubs = sorted([int(pub) for pub in pub_set])
-        pubs_num = len(pubs)
-        values = []
-        values2 = []
-
-        for pub_count, df in dfs_in:
-            overhead_value = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
-            overhead_old = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
-            overhead_old_int = int(overhead_old)
-            overhead_value_int = int(overhead_value)
-            if title == "original":
-                values.append(overhead_value_int/overhead_old_int)
-            else:
-                values.append(overhead_value_int/180000000000)
-            
-        for pub_count, df in dfs_out:
-            overhead_value2 = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
-            overhead_old2 = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
-            overhead_old_int2 = int(overhead_old2)
-            overhead_value_int2 = int(overhead_value2)
-            if title == "original":
-                values2.append(overhead_value_int2/overhead_old_int2)
-            else:
-                values2.append(overhead_value_int2/180000000000)
-
-        a1 = ax.bar([x - width/2 for x in range(pubs_num)], sorted(values), width=width, label="Input Overhead", color='blue')
-        a2 = ax.bar([x + width/2 for x in range(pubs_num)], sorted(values2), width=width, label="Output Overhead", color='orange')
-
-        
-        ax.set_xticks(range(pubs_num))
-        ax.set_xticklabels(pubs, fontsize = 12)
-        ax.yaxis.set_major_formatter(mticker.FuncFormatter(percent_formatter))
-        for label in ax.get_yticklabels():
-            label.set_fontsize(12)  # Change 12 to the desired font size
-        ax.set_xlabel('Number of Timers', fontsize = 14)
-        ax.set_ylabel('Relative Overhead', fontsize = 14)
-        ax.set_title(executor, fontsize = 15)
-        # Removing individual legends
-        # ax.legend()
-
-    # Adding a single legend outside the subplots
-    labels = ["Input Overhead", "Output Overhead"]
-    fig.legend([a1, a2], labels = labels, loc='lower right', fontsize=16)
-
-    plt.tight_layout()
-
-def count_entity_per_executor(json_file_path, name):
-    # Load the JSON file
-    with open(json_file_path, "r") as f:
-        data = json.load(f)
-
-    # Extract the number of publishers for each executor
-    publishers_count_per_executor = {}
-    for executor, entities in data["executors"].items():
-        publishers_count = sum(1 for entity in entities if name in entity)
-        publishers_count_per_executor[executor] = publishers_count
-
-    return publishers_count_per_executor
 
 def plot_twin_barchart(dfs_in, dfs_out, title):
     """Plots a grouped bar chart with twin y-axes from a dictionary of dataframes."""
@@ -342,7 +254,7 @@ def plot_twin_barchart(dfs_in, dfs_out, title):
             label.set_fontsize(12)
         for label in ax2.get_yticklabels():
             label.set_fontsize(12)
-        ax.set_xlabel('Number of Timers', fontsize=14)
+        ax.set_xlabel('Number of Publishers', fontsize=14)
         ax.set_ylabel('Input Overhead', fontsize=14)
         ax2.set_ylabel('Output Overhead', fontsize=14)
         ax.set_title(executor, fontsize=15)
@@ -360,8 +272,21 @@ def plot_twin_barchart(dfs_in, dfs_out, title):
 
     plt.tight_layout()
 
+def count_entity_per_executor(json_file_path, name):
+    # Load the JSON file
+    with open(json_file_path, "r") as f:
+        data = json.load(f)
+
+    # Extract the number of publishers for each executor
+    publishers_count_per_executor = {}
+    for executor, entities in data["executors"].items():
+        publishers_count = sum(1 for entity in entities if name in entity)
+        publishers_count_per_executor[executor] = publishers_count
+
+    return publishers_count_per_executor
+
 if __name__ == "__main__":
-    file_path = "./result/overhead_profile_varied_timer_num.txt"  # You can replace with your file path
+    file_path = "./result/overhead_profile_varied_pub_num.txt"  # You can replace with your file path
     extracted_data = extract_all_data_from_content(file_path)
     # Creating the first table
     table_1_data = []
@@ -371,7 +296,7 @@ if __name__ == "__main__":
     total_op_old = []
     for data in extracted_data:
         json_path = data["path"]
-        pub_count = count_entity_per_executor(json_path, "Timer")
+        pub_count = count_entity_per_executor(json_path, "Publisher")
         
         for data_type, data_values in data.items():
             if data_type not in ["path", "Total input overhead vs default", "Total Output overhead vs default", "Total input overhead vs old let", "Total output overhead vs old let"]:
@@ -401,7 +326,7 @@ if __name__ == "__main__":
                 if data_type == "Total output overhead vs old let":
                     total_op_old.append(pair)
 
-    print(total_ip_default)
+    # print(total_ip_default)
 
     table1_df = pd.DataFrame(table_1_data)
 
@@ -425,10 +350,20 @@ if __name__ == "__main__":
         (table1_df["data available"] == True)
         ]
 
+    # pub_set1 = []
+    # executor = 'Executor4'
+    # for pub_count, df in total_ip_old:
+    #     print(pub_count)
+    #     print(pub_count[executor])
+    #     pub_set1.append(pub_count[executor])
+    # pubs1 = [int(pub) for pub in pub_set1]
+    # print(pubs1)
+    
     plot_twin_barchart(total_ip_old, total_op_old, "runtime")
     plot_twin_barchart(total_ip_old, total_op_old, "original")
     plot_twin_barchart(total_ip_default, total_op_default, "runtime")
     plot_twin_barchart(total_ip_default, total_op_default, "original")
+
     plot_side_by_side_boxes(filtered_df_ip_no_data, filtered_df_ip_data, "input")
     plot_side_by_side_boxes(filtered_df_op_no_data, filtered_df_op_data, "output")
     plt.show()

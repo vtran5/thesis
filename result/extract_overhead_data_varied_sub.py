@@ -1,20 +1,8 @@
 import ast
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import json
-
-def count_subscribers_per_executor(json_file_path):
-    # Load the JSON file
-    with open(json_file_path, "r") as f:
-        data = json.load(f)
-
-    # Extract the number of subscribers for each executor
-    subscribers_count_per_executor = {}
-    for executor, entities in data["executors"].items():
-        subscribers_count = sum(1 for entity in entities if "Subscriber" in entity)
-        subscribers_count_per_executor[executor] = subscribers_count
-
-    return subscribers_count_per_executor
 
 def extract_data_for_section(content, start_section, end_section=None):
     """Extract data between start and end section markers."""
@@ -46,9 +34,9 @@ def extract_data_for_section(content, start_section, end_section=None):
 
 def extract_table_data(content, start_section):
     """Extract table data starting from the given section."""
-    data = {}
     in_section = False
     headers = []
+    rows = []
     
     for line in content:
         line = line.strip()
@@ -62,18 +50,20 @@ def extract_table_data(content, start_section):
                 continue
             row_data = [item.strip() for item in line.split()]
             # Ensure the row data has the expected format
-            if len(row_data) == 3:
-                executor_id = row_data[1]
-                data_values = row_data[2:]
-                data[executor_id] = dict(zip(headers[1:], data_values))
+            if len(row_data) == 5:  # If there are 5 items in the row, including the row index
+                rows.append(row_data[1:])  # Append only the 4 desired columns of data
             else:
                 break
-    return data
+    
+    # Convert the collected rows to a dataframe
+    df = pd.DataFrame(rows, columns=headers[0:])
+    
+    return df
 
 def extract_all_data_from_content(file_path):
     with open(file_path, "r") as file:
         content = file.readlines()
-    """Extract data for all number of subscriberss from the content."""
+    """Extract data for all callbackLETs from the content."""
     all_data = []
     current_data = {}
     current_section = None
@@ -82,28 +72,34 @@ def extract_all_data_from_content(file_path):
     while idx < len(content):
         line = content[idx].strip()
         if line.startswith("path:"):
-            # Save the previous path data and start a new one
+            # Save the previous callbackLET data and start a new one
             if current_data:
                 all_data.append(current_data)
                 current_data = {}
             current_data["path"] = line.split(":")[1].strip()
-        elif line in ["Input Overhead with LET", 
-                      "Input Overhead without LET", 
-                      "Output Thread Overhead"]:
+        elif line in ["Input Overhead per wakeup", 
+                      "Output Overhead per wakeup"]:
             current_section = line
             data = extract_data_for_section(content[idx:], current_section)
             current_data[current_section] = data
-        elif line in ["input overhead increase total", "output overhead increase total"]:
+        elif line in ["Total input overhead vs default", "Total Output overhead vs default", "Total input overhead vs old let", "Total output overhead vs old let"]:
             current_section = line
             data = extract_table_data(content[idx:], current_section)
             current_data[current_section] = data
         idx += 1
     
-    # Append the last number of subscribers data
+    # Append the last callbackLET data
     if current_data:
         all_data.append(current_data)
     
     return all_data
+
+def print_dataframe(df, df_name):
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    print(f"Dataframe name: {df_name}\n")
+    print(df)
 
 # Defining a darker color palette using the specified xkcd colors
 colors = [
@@ -116,116 +112,272 @@ colors = [
     '#7f7f7f'   # Grey
 ]
 
-def plot_box_whiskier(filtered_df, title):
-    print(filtered_df)
-    # List of unique ExecutorIDs
-    executors = filtered_df["ExecutorID"].unique()
-    
-    # Define positions for each number of subscribers
-    
-    # fig, axes = plt.subplots(nrows=len(executors)-1, figsize=(12, 4 * len(executors)))
-    fig, axes = plt.subplots(round((len(executors)-1)/2), 2, figsize=(12, 1.8 * len(executors)))
-    # Plot data for each executor
-    for idx, executor in enumerate(executors):
-        if executor == "Executor1":
-            continue
-        # if executor == "Executor7":
-        #     continue
-        ax = axes[(idx-1) // 2, (idx-1) % 2]
-        executor_data = filtered_df[filtered_df["ExecutorID"] == executor]
-        positions = sorted(executor_data["number of subscribers"].unique())
-        print(positions)
-        for pos in positions:
-            data_row = executor_data[executor_data["number of subscribers"] == pos]
-            if not data_row.empty:
-                stats = [{
-                    "label": pos,
-                    "whislo": data_row["Whisker Minimum"].values[0],
-                    "q1": data_row["Q1"].values[0],
-                    "med": data_row["Median"].values[0],
-                    "q3": data_row["Q3"].values[0],
-                    "whishi": data_row["Whisker Maximum"].values[0],
-                    "fliers": []
-                }]
-                ax.bxp(stats, positions=[positions.index(pos)], widths=0.6, vert=True, patch_artist=True,
-                      boxprops=dict(facecolor=colors[idx]),
-                      whiskerprops=dict(color=colors[idx]),
-                      capprops=dict(color=colors[idx]),
-                      medianprops=dict(color='yellow'),
-                      flierprops=dict(markeredgecolor=colors[idx]))
+def plot_side_by_side_boxes(df1, df2, title):
+    # Assuming both dataframes have the same ExecutorIDs
+    executors = df1["ExecutorID"].unique()
+    executors = [e for e in executors if e != 'Executor7' and e != 'Executor1']
+  
+    fig, axes = plt.subplots(round((len(executors)+1)/2), 2, figsize=(12, 1.8 * len(executors)))
 
-        ax.set_xticks(range(len(positions)))
-        ax.set_xticklabels(positions)
-        ax.set_xlabel('Number of subscribers')
-        ax.set_ylabel('Time (µs)')
-        ax.set_title(executor)
+    # Ensure axes is always a list for consistent indexing
+    if len(executors) == 1:
+        axes = [axes]
 
-    # plt.suptitle(title)
-    plt.tight_layout()
-    plt.subplots_adjust(hspace = 0.3)
-
-def plot_total_overhead(df,title):
-    # List of unique ExecutorIDs
-    unique_executors = df["ExecutorID"].unique()
-    executors = sorted(unique_executors)
-
-    # Create bar plots for each executor
-    # fig, axes = plt.subplots(nrows=len(executors), figsize=(12, 4 * len(executors)), sharex=True)
-    fig1, axes1 = plt.subplots(round((len(executors)-1)/2), 2, figsize=(10, 8))
-    plt.tight_layout()
-    plt.subplots_adjust(hspace = 0.3)
-    fig2, axes2 = plt.subplots(round((len(executors)-1)/2), 2, figsize=(10, 8))
-    plt.tight_layout()
-    plt.subplots_adjust(hspace = 0.3)
-    bar_width = 0.35  # width of the bars
+    # Define a function to get box stats from the data row
+    def get_box_stats(data_row):
+        return {
+            "whislo": data_row["Whisker Minimum"].values[0],
+            "q1": data_row["Q1"].values[0],
+            "med": data_row["Median"].values[0],
+            "q3": data_row["Q3"].values[0],
+            "whishi": data_row["Whisker Maximum"].values[0],
+            "fliers": []
+        }
 
     for idx, executor in enumerate(executors):
-        # Filter data for the current executor
-        executor_data = df[df["ExecutorID"] == executor].sort_values(by="number of subscribers")
-        executor_data["Input Overhead Total"] = executor_data["Input Overhead Total"]/1200000000
-        executor_data["Output Overhead Total"] = executor_data["Output Overhead Total"]/1200000000 
-        # executor_data["number of subscribers"] = executor_data["number of subscribers"] .sort_values()
-        index_positions = range(len(executor_data["number of subscribers"].unique()))    
-        if executor == "Executor1":
-            continue
-        if executor == "Executor7":
-            continue
-        ax1 = axes1[(idx-1) // 2, (idx-1) % 2]
-        ax2 = axes2[(idx-1) // 2, (idx-1) % 2]
-        bars1 = ax1.bar(index_positions, executor_data["Input Overhead Total"], bar_width, label="Input Overhead Total", alpha=0.8)
-        bars2 = ax2.bar(index_positions, executor_data["Output Overhead Total"], bar_width, label="Output Overhead Total", alpha=0.8)
+        executor_data = df1[df1["ExecutorID"] == executor]
+        positions = sorted(executor_data["number of publishers"].unique().astype(int))
         
-        ax1.set_title(f'{executor}')
-        ax1.set_xticks([i for i in index_positions])
-        ax1.set_xticklabels(executor_data["number of subscribers"].unique())
-        ax1.set_xlabel('Number of Subscribers')
-        ax1.set_ylabel('Overhead Total (%)')
+        ax = axes[(idx) // 2, (idx) % 2]
+        
+        for pos_idx, pos in enumerate(positions):
+            data_row1 = df1[(df1["ExecutorID"] == executor) & (df1["number of publishers"] == pos)]
+            data_row2 = df2[(df2["ExecutorID"] == executor) & (df2["number of publishers"] == pos)]
 
-        ax2.set_title(f'{executor}')
-        ax2.set_xticks([i for i in index_positions])
-        ax2.set_xticklabels(executor_data["number of subscribers"].unique())
-        ax2.set_xlabel('Number of Subscribers')
-        ax2.set_ylabel('Overhead Total (%)')
+            stats = []
+            colors = []
+            if not data_row1.empty:
+                stats.append(get_box_stats(data_row1))
+                colors.append('orange')
+                
+            if not data_row2.empty:
+                stats.append(get_box_stats(data_row2))
+                colors.append('blue')
+                
+            for i, stat in enumerate(stats):
+                ax.bxp([stat], positions=[pos_idx + i * 0.3], widths=0.25, vert=True, 
+                       patch_artist=True, boxprops=dict(facecolor=colors[i]))
+
+        ax.set_xticks([i for i in range(len(positions))])
+        ax.set_xticklabels(positions, fontsize=12)
+        ax.set_xlabel('Number of Subscribers',  fontsize=14)
+        ax.set_ylabel('Time (µs)',  fontsize=14)
+        ax.set_title(executor, fontsize=15)
 
     plt.tight_layout()
-    plt.subplots_adjust(hspace = 0.3)
+    plt.subplots_adjust(hspace = 0.5)
+
+# Custom formatter function
+def percent_formatter(x, pos):
+    if 100*x > 8 or 100*x <-8 or x == 0:
+        return f"{100 * x:.0f}%"
+    else:
+        return f"{100 * x:.2f}%"
+
+def plot_grouped_barchart(dfs_in, dfs_out, title):
+    """Plots a grouped bar chart from a dictionary of dataframes.
     
+    Args:
+    - dfs (dict): Dictionary where the keys are callbackLET values and 
+                  the values are corresponding dataframes.
+    """
+    
+    width = 0.2  # Width of the bars
+    # Collect unique ExecutorID
+    executor_ids = set()
+    for _, df in dfs_in:
+        executor_ids.update(df['ExecutorID'].values)
+    executor_ids = sorted(list(executor_ids))
+    executor_ids = [e for e in executor_ids if e != 'Executor7' and e != 'Executor1']
+    fig, axes = plt.subplots(round((len(executor_ids)+1)/2), 2, figsize=(12, 1.8 * len(executor_ids)))
+
+    # Create a bar for each ExecutorID's value per callbackLET
+    for idx, executor in enumerate(executor_ids):
+        ax = axes[(idx) // 2, (idx) % 2]
+        values = []
+        values2 = []
+
+        # Collect all unique publishers for the current ExecutorID
+        pub_set = set()
+        for pub_count, _ in dfs_in:
+            if executor in pub_count:
+                pub_set.add(pub_count[executor])
+        
+        pubs = sorted([int(pub) for pub in pub_set])
+        pubs_num = len(pubs)
+        values = []
+        values2 = []
+
+        for pub_count, df in dfs_in:
+            overhead_value = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
+            overhead_old = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
+            overhead_old_int = int(overhead_old)
+            overhead_value_int = int(overhead_value)
+            if title == "original":
+                values.append(overhead_value_int/overhead_old_int)
+            else:
+                values.append(overhead_value_int/180000000000)
+            
+        for pub_count, df in dfs_out:
+            overhead_value2 = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
+            overhead_old2 = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
+            overhead_old_int2 = int(overhead_old2)
+            overhead_value_int2 = int(overhead_value2)
+            if title == "original":
+                values2.append(overhead_value_int2/overhead_old_int2)
+            else:
+                values2.append(overhead_value_int2/180000000000)
+
+        a1 = ax.bar([x - width/2 for x in range(pubs_num)], values, width=width, label="Input Overhead", color='blue')
+        a2 = ax.bar([x + width/2 for x in range(pubs_num)], values2, width=width, label="Output Overhead", color='orange')
+
+        
+        ax.set_xticks(range(pubs_num))
+        ax.set_xticklabels(pubs, fontsize = 12)
+        ax.yaxis.set_major_formatter(mticker.FuncFormatter(percent_formatter))
+        for label in ax.get_yticklabels():
+            label.set_fontsize(12)  # Change 12 to the desired font size
+        ax.set_xlabel('Number of Subscribers', fontsize = 14)
+        ax.set_ylabel('Relative Overhead', fontsize = 14)
+        ax.set_title(executor, fontsize = 15)
+        # Removing individual legends
+        # ax.legend()
+
+    # Adding a single legend outside the subplots
+    labels = ["Input Overhead", "Output Overhead"]
+    fig.legend([a1, a2], labels = labels, loc='lower right', fontsize=16)
+
+    plt.tight_layout()
+
+def count_entity_per_executor(json_file_path, name):
+    # Load the JSON file
+    with open(json_file_path, "r") as f:
+        data = json.load(f)
+
+    # Extract the number of publishers for each executor
+    publishers_count_per_executor = {}
+    for executor, entities in data["executors"].items():
+        publishers_count = sum(1 for entity in entities if name in entity)
+        publishers_count_per_executor[executor] = publishers_count
+
+    return publishers_count_per_executor
+
+def plot_twin_barchart(dfs_in, dfs_out, title):
+    """Plots a grouped bar chart with twin y-axes from a dictionary of dataframes."""
+    width = 0.2
+    executor_ids = set()
+    for _, df in dfs_in:
+        executor_ids.update(df['ExecutorID'].values)
+    executor_ids = sorted(list(executor_ids))
+    executor_ids = [e for e in executor_ids if e != 'Executor7' and e != 'Executor1']
+    fig, axes = plt.subplots(round((len(executor_ids)+1)/2), 2, figsize=(12, 1.8 * len(executor_ids)))
+
+    for idx, executor in enumerate(executor_ids):
+        ax = axes[idx // 2, idx % 2]
+        ax2 = ax.twinx()  # Create a twin y-axis
+
+        pub_set1 = []
+        pub_set2 = []
+        
+        values = []
+        values2 = []
+
+        for pub_count, df in dfs_in:
+            pub_set1.append(pub_count[executor])
+            overhead_value = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
+            overhead_old = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
+            overhead_old_int = int(overhead_old)
+            overhead_value_int = int(overhead_value)
+            if title == "original":
+                values.append(overhead_value_int/overhead_old_int)
+            else:
+                values.append(overhead_value_int/180000000000)
+            
+        for pub_count, df in dfs_out:
+            pub_set2.append(pub_count[executor])
+            overhead_value2 = df.loc[df['ExecutorID'] == executor, 'Difference'].values[0]
+            overhead_old2 = df.loc[df['ExecutorID'] == executor, df.columns[3]].values[0]
+            overhead_old_int2 = int(overhead_old2)
+            overhead_value_int2 = int(overhead_value2)
+            if title == "original":
+                values2.append(overhead_value_int2/overhead_old_int2)
+            else:
+                values2.append(overhead_value_int2/180000000000)
+        
+        pubs1 = [int(pub) for pub in pub_set1]
+        pubs2 = [int(pub) for pub in pub_set2]
+        combined1 = list(zip(pubs1, values))
+        sorted_combined1 = sorted(combined1, key=lambda x: x[0])
+        pubs1_sorted, values1_sorted = zip(*sorted_combined1)
+
+        combined2 = list(zip(pubs2, values2))
+        sorted_combined2 = sorted(combined2, key=lambda x: x[0])
+        pubs2_sorted, values2_sorted = zip(*sorted_combined2)
+
+        pubs_num = len(pubs1_sorted)
+
+        # Determine limits to align zeros
+        if (min(values) < 0):
+            min_val = min(values)*1.1
+        else:
+            min_val = 0
+        lims1 = (min_val, max(values)*2.5)
+        lims2 = (min(values2)*0.9, max(values2)*1.1)
+
+        # Compute the range ratio
+        ratio = lims1[1] / lims2[1]
+
+        # Set axis limits
+        ax.set_ylim(lims1)
+        ax2.set_ylim([lims1[0]/ratio, lims1[1]/ratio])
+
+        a1 = ax.bar([x - width/2 for x in range(pubs_num)], values1_sorted, width=width, label="Input Overhead", color='blue')
+        a2 = ax2.bar([x + width/2 for x in range(pubs_num)], values2_sorted, width=width, label="Output Overhead", color='orange')
+        
+        ax.set_xticks(range(pubs_num))
+        ax.set_xticklabels(pubs1_sorted, fontsize=12)
+        ax.yaxis.set_major_formatter(mticker.FuncFormatter(percent_formatter))
+        ax2.yaxis.set_major_formatter(mticker.FuncFormatter(percent_formatter))
+        for label in ax.get_yticklabels():
+            label.set_fontsize(12)
+        for label in ax2.get_yticklabels():
+            label.set_fontsize(12)
+        ax.set_xlabel('Number of Subscribers', fontsize=14)
+        ax.set_ylabel('Input Overhead', fontsize=14)
+        ax2.set_ylabel('Output Overhead', fontsize=14)
+        ax.set_title(executor, fontsize=15)
+
+    # Get the legend handles and labels from both axes
+    handles1, labels1 = ax.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+
+    # Combine the handles and labels
+    all_handles = handles1 + handles2
+    all_labels = labels1 + labels2
+
+    # Set the legend using fig.legend()
+    fig.legend(all_handles, all_labels, loc='lower right', fontsize=16)
+
+    plt.tight_layout()
 
 if __name__ == "__main__":
     file_path = "./result/overhead_profile_varied_sub_num.txt"  # You can replace with your file path
     extracted_data = extract_all_data_from_content(file_path)
     # Creating the first table
     table_1_data = []
-
+    total_ip_default = []
+    total_op_default = []
+    total_ip_old = []
+    total_op_old = []
     for data in extracted_data:
         json_path = data["path"]
-        sub_count = count_subscribers_per_executor(json_path)
+        pub_count = count_entity_per_executor(json_path, "Subscriber")
         
         for data_type, data_values in data.items():
-            if data_type not in ["path", "input overhead increase total", "output overhead increase total"]:
+            if data_type not in ["path", "Total input overhead vs default", "Total Output overhead vs default", "Total input overhead vs old let", "Total output overhead vs old let"]:
                 for (data_availability, executor_id), stats in data_values.items():
                     row = {
-                        "number of subscribers": sub_count[executor_id],
+                        "number of publishers": pub_count[executor_id],
                         "data type": data_type,
                         "ExecutorID": executor_id,
                         "data available": True if data_availability == "With data" else False,
@@ -238,56 +390,46 @@ if __name__ == "__main__":
                         "Whisker Maximum": stats["Whisker Maximum"]
                     }
                     table_1_data.append(row)
+            else:
+                pair = (pub_count, data_values)
+                if data_type == "Total input overhead vs default":
+                    total_ip_default.append(pair)
+                if data_type == "Total Output overhead vs default":
+                    total_op_default.append(pair)
+                if data_type == "Total input overhead vs old let":
+                    total_ip_old.append(pair)
+                if data_type == "Total output overhead vs old let":
+                    total_op_old.append(pair)
+
+    print(total_ip_default)
 
     table1_df = pd.DataFrame(table_1_data)
 
-    # Creating the second table
-    table_2_data = []
+    filtered_df_ip_no_data = table1_df[
+        (table1_df["data type"] == "Input Overhead per wakeup") & 
+        (table1_df["data available"] == False)
+        ]
 
-    for data in extracted_data:
-        json_path = data["path"]
-        sub_count = count_subscribers_per_executor(json_path)
-        # Extracting input and output overhead increase total data
-        input_overhead_data = data.get("input overhead increase total", {})
-        output_overhead_data = data.get("output overhead increase total", {})
-        
-        executor_ids = set(input_overhead_data.keys()) | set(output_overhead_data.keys())
-        
-        for executor_id in executor_ids:
-            row = {
-                "number of subscribers": sub_count[executor_id],
-                "ExecutorID": executor_id,
-                "Input Overhead Total": float(input_overhead_data.get(executor_id, {}).get("Difference", None)),
-                "Output Overhead Total": float(output_overhead_data.get(executor_id, {}).get("Difference", None))
-            }
-            table_2_data.append(row)
+    filtered_df_ip_data = table1_df[
+        (table1_df["data type"] == "Input Overhead per wakeup") & 
+        (table1_df["data available"] == True)
+        ]
 
-    table2_df = pd.DataFrame(table_2_data)
-    print(table2_df.to_csv(index=False, sep=','))
-    filtered_df = table1_df[
-      (table1_df["data type"] == "Output Thread Overhead") & 
-      (table1_df["data available"] == False)
-    ]
+    filtered_df_op_no_data = table1_df[
+        (table1_df["data type"] == "Output Overhead per wakeup") & 
+        (table1_df["data available"] == False)
+        ]
 
-    filtered_df_output_data = table1_df[
-      (table1_df["data type"] == "Output Thread Overhead") & 
-      (table1_df["data available"] == True)
-    ]
+    filtered_df_op_data = table1_df[
+        (table1_df["data type"] == "Output Overhead per wakeup") & 
+        (table1_df["data available"] == True)
+        ]
 
-    filtered_df_input_data = table1_df[
-      (table1_df["data type"] == "Input Overhead with LET") & 
-      (table1_df["data available"] == True)
-    ]
-
-    filtered_df_input_nodata = table1_df[
-      (table1_df["data type"] == "Input Overhead with LET") & 
-      (table1_df["data available"] == False)
-    ]
-
-    plot_total_overhead(table2_df, "Total Overhead")
-    # plot_box_whiskier(filtered_df, "Input Overhead with LET")
-    # plot_box_whiskier(filtered_df_output_data, "Input Overhead with LET")
-    # plot_box_whiskier(filtered_df_input_data, "Input Overhead with LET")
-    # plot_box_whiskier(filtered_df_input_nodata, "Input Overhead with LET")
+    plot_twin_barchart(total_ip_old, total_op_old, "runtime")
+    plot_twin_barchart(total_ip_old, total_op_old, "original")
+    plot_twin_barchart(total_ip_default, total_op_default, "runtime")
+    plot_twin_barchart(total_ip_default, total_op_default, "original")
+    plot_side_by_side_boxes(filtered_df_ip_no_data, filtered_df_ip_data, "input")
+    plot_side_by_side_boxes(filtered_df_op_no_data, filtered_df_op_data, "output")
     plt.show()
     # print_dataframe(table2_df, "table2")
