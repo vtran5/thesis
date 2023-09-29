@@ -427,7 +427,7 @@ int main(int argc, char const *argv[])
     executor_semantics[2] = semantics;
     executor_semantics[3] = semantics;
 
-    const int max_number_per_callback = 2; // Max number of calls per publisher per callback
+    const int max_number_per_callback = 1; // Max number of calls per publisher per callback
     const int num_let_handles = 4; // max number of let handles per callback
     const int max_intermediate_handles = 20; // max number of intermediate handles per executor
 

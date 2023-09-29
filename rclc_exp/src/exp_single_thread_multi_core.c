@@ -186,7 +186,60 @@ void node4_subscriber1_callback(const void * msgin)
   now = rclc_now(&support);
   timestamp[5][msg->frame_id] = (now - msg->stamp)/1000;
 }
+typedef struct {
+  size_t current_memory_size;
+  size_t max_memory_size;
+} rcl_allocator_state_t;
 
+void *my_allocate(size_t size, void *state) {
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = size;
+    alloc_state->current_memory_size += size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(ptr + 1);
+}
+
+void my_deallocate(void *pointer, void *state) {
+    if (!pointer) return;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)pointer - 1;
+    alloc_state->current_memory_size -= *ptr;
+    free(ptr);
+}
+
+void *my_reallocate(void *pointer, size_t size, void *state) {
+    if (!pointer) return my_allocate(size, state);
+    size_t *old_ptr = (size_t *)pointer - 1;
+    size_t old_size = *old_ptr;
+    size_t *new_ptr = (size_t *)realloc(old_ptr, size + sizeof(size_t));
+    if (!new_ptr) return NULL;
+    *new_ptr = size;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    alloc_state->current_memory_size += size - old_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(new_ptr + 1);
+}
+
+void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    size_t total_size = number_of_elements * size_of_element;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(total_size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = total_size; // Storing the total size
+    alloc_state->current_memory_size += total_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    void *user_ptr = (void *)(ptr + 1);
+    memset(user_ptr, 0, total_size); // Set all bytes to zero
+    return user_ptr;
+}
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
@@ -198,6 +251,37 @@ int main(int argc, char const *argv[])
     parse_user_arguments(argc, argv, &executor_period, &timer_period, &experiment_duration, &let);
 
     rcl_allocator_t allocator = rcl_get_default_allocator();
+    rcl_allocator_t allocator1;
+    rcl_allocator_state_t alloc1_state = {0,0};
+    allocator1.state = &alloc1_state;
+    allocator1.allocate = my_allocate;
+    allocator1.deallocate = my_deallocate;
+    allocator1.reallocate = my_reallocate;
+    allocator1.zero_allocate = my_zero_allocate;
+
+        rcl_allocator_t allocator2;
+    rcl_allocator_state_t alloc2_state = {0,0};
+    allocator2.state = &alloc2_state;
+    allocator2.allocate = my_allocate;
+    allocator2.deallocate = my_deallocate;
+    allocator2.reallocate = my_reallocate;
+    allocator2.zero_allocate = my_zero_allocate;
+
+        rcl_allocator_t allocator3;
+    rcl_allocator_state_t alloc3_state = {0,0};
+    allocator3.state = &alloc3_state;
+    allocator3.allocate = my_allocate;
+    allocator3.deallocate = my_deallocate;
+    allocator3.reallocate = my_reallocate;
+    allocator3.zero_allocate = my_zero_allocate;
+
+        rcl_allocator_t allocator4;
+    rcl_allocator_state_t alloc4_state = {0,0};
+    allocator4.state = &alloc4_state;
+    allocator4.allocate = my_allocate;
+    allocator4.deallocate = my_deallocate;
+    allocator4.reallocate = my_reallocate;
+    allocator4.zero_allocate = my_zero_allocate;
     node1.first_run = true;
     node1.count1 = 0;
 
@@ -302,10 +386,10 @@ int main(int argc, char const *argv[])
     
     unsigned int num_handles = 1;
     //printf("Debug: number of DDS handles: %u\n", num_handles);
-    RCCHECK(rclc_executor_init(&executor1, &support.context, num_handles, &allocator));
-    RCCHECK(rclc_executor_init(&executor2, &support.context, num_handles, &allocator));
-    RCCHECK(rclc_executor_init(&executor3, &support.context, num_handles, &allocator));
-    RCCHECK(rclc_executor_init(&executor4, &support.context, num_handles, &allocator));
+    RCCHECK(rclc_executor_init(&executor1, &support.context, num_handles, &allocator1));
+    RCCHECK(rclc_executor_init(&executor2, &support.context, num_handles, &allocator2));
+    RCCHECK(rclc_executor_init(&executor3, &support.context, num_handles, &allocator3));
+    RCCHECK(rclc_executor_init(&executor4, &support.context, num_handles, &allocator4));
 
 
     for (i = 0; i < NODE1_TIMER_NUMBER; i++)
@@ -396,7 +480,10 @@ int main(int argc, char const *argv[])
     pthread_join(thread2, NULL);
     pthread_join(thread3, NULL);
     pthread_join(thread4, NULL);
-
+    printf("Executor1 max size %zu current size %zu\n", alloc1_state.max_memory_size, alloc1_state.current_memory_size);
+    printf("Executor2 max size %zu current size %zu\n", alloc2_state.max_memory_size, alloc2_state.current_memory_size);
+    printf("Executor3 max size %zu current size %zu\n", alloc3_state.max_memory_size, alloc3_state.current_memory_size);
+    printf("Executor4 max size %zu current size %zu\n", alloc4_state.max_memory_size, alloc4_state.current_memory_size);
     // clean up 
     RCCHECK(rclc_executor_fini(&executor1));
     RCCHECK(rclc_executor_fini(&executor2));

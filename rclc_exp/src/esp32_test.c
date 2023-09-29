@@ -25,7 +25,7 @@ void timer_callback_print1(
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.data = node->count[timer_index]++;
   printf("Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.data, now);
-  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  // busy_wait_random(min_run_time_ms, max_run_time_ms);
   RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
   now = rclc_now(&support);
   printf("Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.data, now);
@@ -43,7 +43,7 @@ void subscriber_callback_print1(
   rcl_time_point_value_t now;
   now = rclc_now(&support);
   printf("Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->data, now);
-  busy_wait_random(min_run_time_ms, max_run_time_ms);
+  // busy_wait_random(min_run_time_ms, max_run_time_ms);
   now = rclc_now(&support);
   if (pub_index >= 0)
   {
@@ -161,19 +161,21 @@ int main(int argc, char const *argv[])
     rcutils_time_point_value_t * callback_let_timer1 = create_time_array(NODE1_TIMER_NUMBER, &allocator);
     rcutils_time_point_value_t * callback_let_subscriber1 = create_time_array(NODE1_SUBSCRIBER_NUMBER, &allocator);
 
-    callback_let_timer1[0] = RCUTILS_MS_TO_NS(10);
-    callback_let_subscriber1[0] = RCUTILS_MS_TO_NS(20);
+    callback_let_timer1[0] = RCUTILS_MS_TO_NS(150);
+    callback_let_subscriber1[0] = RCUTILS_MS_TO_NS(150);
 
     unsigned int num_handles = 2;
     
     rcutils_time_point_value_t * executor_period = create_time_array(num_executor, &allocator);
-    executor_period[0] = RCUTILS_MS_TO_NS(100);
+    executor_period[0] = RCUTILS_MS_TO_NS(executor_period_input);
 
     executor_semantics[0] = semantics;
 
     const int max_number_per_callback = 3; // Max number of calls per publisher per callback
     const int num_let_handles = 1; // max number of let handles per callback
-
+    printf("ExPeriod %ld\n", executor_period[0]);
+    printf("TimPeriod %ld\n", timer_timeout_ns[0]);
+    printf("Semantics %d\n", semantics);
     int i;
     for (i = 0; i < num_executor; i++)
     {
@@ -227,6 +229,7 @@ int main(int argc, char const *argv[])
     }
     else
     {
+        RCCHECK(rclc_executor_set_timeout(&executor[0],RCUTILS_MS_TO_NS(1000)));
         thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[0]);
     }
 

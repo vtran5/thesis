@@ -83,6 +83,9 @@ typedef struct
   void * trigger_object;
   /// data communication semantics
   rclc_executor_semantics_t data_comm_semantics;
+  rcutils_time_point_value_t total_overhead;
+  rcutils_time_point_value_t output_overhead;
+  rcutils_time_point_value_t input_overhead;
 } rclc_executor_t;
 
 /**
@@ -307,6 +310,37 @@ rclc_executor_add_timer(
   rclc_executor_t * executor,
   rcl_timer_t * timer);
 
+/**
+ *  Adds a timer with context to an executor.
+ *  Because the callback is executed by executor in rclc instead of rcl, 
+ *  there will be no last_time_call passed into the callback
+ * * An error is returned, if {@link rclc_executor_t.handles} array is full.
+ * * The total number_of_timers field of {@link rclc_executor_t.info} is
+ *   incremented by one.
+ *
+ * <hr>
+ * Attribute          | Adherence
+ * ------------------ | -------------
+ * Allocates Memory   | No
+ * Thread-Safe        | No
+ * Uses Atomics       | No
+ * Lock-Free          | Yes
+ *
+ * \param [inout] executor pointer to initialized executor
+ * \param [in] timer pointer to an allocated timer
+ * \param [in] callback    function pointer to a callback
+ * \param [in] context     type-erased ptr to additional callback context
+ * \return `RCL_RET_OK` if add-operation was successful
+ * \return `RCL_RET_INVALID_ARGUMENT` if any parameter is a null pointer
+ * \return `RCL_RET_ERROR` if any other error occured
+ */
+RCLC_PUBLIC
+rcl_ret_t
+rclc_executor_add_timer_with_context(
+  rclc_executor_t * executor,
+  rcl_timer_t * timer,
+  rclc_timer_callback_with_context_t callback,
+  void * context);
 
 /**
  *  Adds a client to an executor.

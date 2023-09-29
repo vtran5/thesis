@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "utilities.h"
 rclc_support_t support;
-
+custom_interfaces__msg__Message pub_msg;
 typedef struct 
 {
   rclc_executor_handle_type_t type;
@@ -45,6 +45,7 @@ struct subscriber_callback_context_t
     int min_execution_time_ms;
     bool error;
     int error_time;
+    rclc_executor_t * executor;
 };
 
 struct timer_callback_context_t
@@ -57,6 +58,7 @@ struct timer_callback_context_t
     int min_execution_time_ms;
     bool error;
     int error_time;
+    rclc_executor_t * executor;
 };
 
 my_node_t * create_node(
@@ -438,7 +440,6 @@ void timer_callback_print(
   int max_run_time_ms,
   rclc_executor_semantics_t pub_semantics)
 {
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;

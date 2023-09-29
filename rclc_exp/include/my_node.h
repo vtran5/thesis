@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "utilities.h"
 rclc_support_t support;
-
+custom_interfaces__msg__Message pub_msg;
 typedef struct 
 {
   rclc_executor_handle_type_t type;
@@ -392,7 +392,6 @@ void timer_callback(
   rclc_executor_semantics_t pub_semantics)
 {
   char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -438,7 +437,6 @@ void timer_callback_print(
   int max_run_time_ms,
   rclc_executor_semantics_t pub_semantics)
 {
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -482,7 +480,6 @@ void timer_callback_error(
   rclc_executor_semantics_t pub_semantics)
 {
   char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -532,7 +529,6 @@ void timer_callback_us(
   rclc_executor_semantics_t pub_semantics)
 {
   char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -599,6 +595,7 @@ void *support_allocate(size_t size, void *state) {
 
 void *executor_allocate(size_t size, void *state) {
     void * ptr = my_allocate(size, state);
+    // printf("Allocate %zu b\n", size);
     return ptr;
 }
 
@@ -648,6 +645,7 @@ void *support_reallocate(void *pointer, size_t size, void *state) {
 }
 
 void *executor_reallocate(void *pointer, size_t size, void *state) {
+    // printf("Reallocate %zu b\n", size);
     void * ptr = my_reallocate(pointer, size, state);
     return ptr;
 }
@@ -664,6 +662,7 @@ void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *
     }
     void *user_ptr = (void *)(ptr + 1);
     memset(user_ptr, 0, total_size); // Set all bytes to zero
+    // printf("zero-allocate %zu b\n", total_size);
     return user_ptr;
 }
 

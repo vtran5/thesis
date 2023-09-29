@@ -20,7 +20,8 @@ struct arg_spin_period {
   rclc_support_t * support;
 };
 
-
+int64_t get_current_thread_time_ns();
+void busy_wait_us(uint64_t duration);
 /**
  *  pthread_create-compatible wrapper function of rclc_executor_spin.
  *

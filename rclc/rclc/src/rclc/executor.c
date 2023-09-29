@@ -21,6 +21,7 @@
 #include "./action_goal_handle_internal.h"
 #include "./action_client_internal.h"
 #include "./action_server_internal.h"
+#include <pthread.h>
 
 // Include backport of function 'rcl_wait_set_is_valid' introduced in Foxy
 // in case of building for Dashing and Eloquent. This pre-processor macro
@@ -59,6 +60,15 @@ _rclc_let_scheduling(rclc_executor_t * executor, rcl_wait_set_t * wait_set);
 // rationale: user must create an executor with:
 // executor = rclc_executor_get_zero_initialized_executor();
 // then handles==NULL or not (e.g. properly initialized)
+static int64_t _rclc_get_current_thread_time_ns()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000000 + spec.tv_nsec;
+}
+
 static
 bool
 _rclc_executor_is_valid(rclc_executor_t * executor)
@@ -89,7 +99,10 @@ rclc_executor_get_zero_initialized_executor()
     .timeout_ns = 0,
     .invocation_time = 0,
     .trigger_function = NULL,
-    .trigger_object = NULL
+    .trigger_object = NULL,
+    .input_overhead = 0,
+    .output_overhead = 0,
+    .total_overhead = 0
   };
   return null_executor;
 }
@@ -325,6 +338,51 @@ rclc_executor_add_timer(
   executor->handles[executor->index].callback_context = NULL;
   executor->handles[executor->index].data_available = false;
 
+  // increase index of handle array
+  executor->index++;
+
+  // invalidate wait_set so that in next spin_some() call the
+  // 'executor->wait_set' is updated accordingly
+  if (rcl_wait_set_is_valid(&executor->wait_set)) {
+    ret = rcl_wait_set_fini(&executor->wait_set);
+    if (RCL_RET_OK != ret) {
+      RCL_SET_ERROR_MSG("Could not reset wait_set in rclc_executor_add_timer function.");
+      return ret;
+    }
+  }
+  executor->info.number_of_timers++;
+  RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "Added a timer.");
+  return ret;
+}
+
+rcl_ret_t
+rclc_executor_add_timer_with_context(
+  rclc_executor_t * executor,
+  rcl_timer_t * timer,
+  rclc_timer_callback_with_context_t callback,
+  void * context)
+{
+  rcl_ret_t ret = RCL_RET_OK;
+
+  RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
+  RCL_CHECK_ARGUMENT_FOR_NULL(timer, RCL_RET_INVALID_ARGUMENT);
+
+  // array bound check
+  if (executor->index >= executor->max_handles) {
+    rcl_ret_t ret = RCL_RET_ERROR;     // TODO(jst3si) better name : rclc_RET_BUFFER_OVERFLOW
+    RCL_SET_ERROR_MSG("Buffer overflow of 'executor->handles'. Increase 'max_handles'");
+    return ret;
+  }
+
+  // assign data fields
+  executor->handles[executor->index].type = RCLC_TIMER_WITH_CONTEXT;
+  executor->handles[executor->index].timer = timer;
+  executor->handles[executor->index].invocation = ON_NEW_DATA;  // i.e. when timer elapsed
+  executor->handles[executor->index].initialized = true;
+  executor->handles[executor->index].timer_callback_with_context = callback;
+  executor->handles[executor->index].callback_context = context;
+  executor->handles[executor->index].data_available = false;
+  
   // increase index of handle array
   executor->index++;
 
@@ -1035,7 +1093,7 @@ _rclc_check_for_new_data(rclc_executor_handle_t * handle, rcl_wait_set_t * wait_
       break;
 
     case RCLC_TIMER:
-      // case RCLC_TIMER_WITH_CONTEXT:
+    case RCLC_TIMER_WITH_CONTEXT:
       handle->data_available = (NULL != wait_set->timers[handle->index]);
       break;
 
@@ -1123,7 +1181,7 @@ _rclc_take_new_data(rclc_executor_handle_t * handle, rcl_wait_set_t * wait_set)
       break;
 
     case RCLC_TIMER:
-      // case RCLC_TIMER_WITH_CONTEXT:
+    case RCLC_TIMER_WITH_CONTEXT:
       // nothing to do
       // notification, that timer is ready already done in _rclc_evaluate_data_availability()
       break;
@@ -1431,7 +1489,6 @@ _rclc_execute(rclc_executor_handle_t * handle)
         break;
 
       case RCLC_TIMER:
-        // case RCLC_TIMER_WITH_CONTEXT:
         rc = rcl_timer_call(handle->timer);
 
         // cancled timer are not handled, return success
@@ -1444,6 +1501,21 @@ _rclc_execute(rclc_executor_handle_t * handle)
           PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
           return rc;
         }
+        break;
+      case RCLC_TIMER_WITH_CONTEXT:
+        rc = rcl_timer_call(handle->timer);
+
+        // cancled timer are not handled, return success
+        if (rc == RCL_RET_TIMER_CANCELED) {
+          rc = RCL_RET_OK;
+          break;
+        }
+
+        if (rc != RCL_RET_OK) {
+          PRINT_RCLC_ERROR(rclc_execute, rcl_timer_call);
+          return rc;
+        }
+        handle->timer_callback_with_context(handle->timer, handle->callback_context);
         break;
 
       case RCLC_SERVICE:
@@ -1717,6 +1789,8 @@ static
 rcl_ret_t
 _rclc_let_scheduling(rclc_executor_t * executor)
 {
+  int64_t now, stop;
+  now = _rclc_get_current_thread_time_ns();
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   rcl_ret_t rc = RCL_RET_OK;
 
@@ -1735,13 +1809,16 @@ _rclc_let_scheduling(rclc_executor_t * executor)
       return rc;
     }
   }
-
+  bool triggered = executor->trigger_function(
+      executor->handles, executor->max_handles,
+      executor->trigger_object);
+  stop = _rclc_get_current_thread_time_ns();
+  executor->input_overhead += (stop-now);
   // if the trigger condition is fullfilled, fetch data and execute
   // complexity: O(n) where n denotes the number of handles
-  if (executor->trigger_function(
-      executor->handles, executor->max_handles,
-      executor->trigger_object))
+  if (triggered)
   {
+    now = _rclc_get_current_thread_time_ns();
     // step 1: read input data
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_take_new_data(&executor->handles[i], &executor->wait_set);
@@ -1749,7 +1826,8 @@ _rclc_let_scheduling(rclc_executor_t * executor)
         return rc;
       }
     }
-
+    stop = _rclc_get_current_thread_time_ns();
+    executor->input_overhead += (stop-now);
     // step 2:  process (execute)
     for (size_t i = 0; (i < executor->max_handles && executor->handles[i].initialized); i++) {
       rc = _rclc_execute(&executor->handles[i]);
@@ -1801,6 +1879,8 @@ rclc_executor_prepare(rclc_executor_t * executor)
 rcl_ret_t
 rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
 {
+  int64_t now, start;
+  start = _rclc_get_current_thread_time_ns();
   rcl_ret_t rc = RCL_RET_OK;
   RCL_CHECK_ARGUMENT_FOR_NULL(executor, RCL_RET_INVALID_ARGUMENT);
   RCUTILS_LOG_DEBUG_NAMED(ROS_PACKAGE_NAME, "spin_some");
@@ -1842,7 +1922,7 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
         break;
 
       case RCLC_TIMER:
-        // case RCLC_TIMER_WITH_CONTEXT:
+      case RCLC_TIMER_WITH_CONTEXT:
         // add timer to wait_set and save index
         rc = rcl_wait_set_add_timer(
           &executor->wait_set, executor->handles[i].timer,
@@ -1953,7 +2033,8 @@ rclc_executor_spin_some(rclc_executor_t * executor, const uint64_t timeout_ns)
   // new data from DDS queue.
   rc = rcl_wait(&executor->wait_set, timeout_ns);
   RCLC_UNUSED(rc);
-
+  now = _rclc_get_current_thread_time_ns();
+  executor->input_overhead += (now-start);
   // based on semantics process input data
   switch (executor->data_comm_semantics) {
     case LET:

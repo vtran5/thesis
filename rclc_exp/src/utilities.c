@@ -5,12 +5,17 @@ void *rclc_executor_spin_wrapper(void *arg)
 {
   rclc_executor_t * executor = (rclc_executor_t *) arg;
   rcl_ret_t ret = RCL_RET_OK;
+  rcl_time_point_value_t now, start;
+  executor->total_overhead = 0;
+  start = get_current_thread_time_ns();
   while (!exit_flag) {
     ret = rclc_executor_spin_some(executor, executor->timeout_ns);
     if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
       printf("Executor spin failed\n");
     }
   }
+  now = get_current_thread_time_ns();
+  executor->total_overhead = now - start;
   return 0;
 }
 
@@ -21,7 +26,9 @@ void *rclc_executor_spin_period_wrapper(void *arg)
   rclc_support_t * support = arguments->support;
   const uint64_t period = arguments->period;
   rcl_ret_t ret = RCL_RET_OK;
-  rcl_time_point_value_t now;
+  rcl_time_point_value_t now, start;
+  executor->total_overhead = 0;
+  start = get_current_thread_time_ns();
   while (!exit_flag) {
     now = rclc_now(support);
     printf("Executor %lu %ld\n", (unsigned long) executor, now);
@@ -30,6 +37,9 @@ void *rclc_executor_spin_period_wrapper(void *arg)
       printf("Executor spin failed %d\n", ret);
     }
   }
+  now = get_current_thread_time_ns();
+  executor->total_overhead = now - start;
+  printf("Total Overhead %ld %ld\n", now, executor->total_overhead);
   return 0;
 }
 
@@ -44,10 +54,15 @@ void *rclc_executor_spin_period_with_exit_wrapper(void *arg)
   char thread_name[15];
   snprintf(thread_name, sizeof(thread_name), "%lu", (unsigned long) executor);
   pthread_setname_np(pthread_self(), thread_name);
+  rcl_time_point_value_t now, start;
+  executor->total_overhead = 0;
+  start = get_current_thread_time_ns();
   ret = rclc_executor_spin_period_with_exit(executor, period, &exit_flag);
   if (!((ret == RCL_RET_OK) || (ret == RCL_RET_TIMEOUT))) {
     printf("Executor spin failed %d\n", ret);
   }
+  now = get_current_thread_time_ns();
+  executor->total_overhead = now - start;
   return 0;
 }
 #endif
@@ -112,6 +127,15 @@ int get_thread_time(pthread_t thread_id)
 int get_current_thread_time()
 {
   return get_thread_time(pthread_self());
+}
+
+int64_t get_current_thread_time_ns()
+{
+  clockid_t id;
+  pthread_getcpuclockid(pthread_self(), &id);
+  struct timespec spec;
+  clock_gettime(id, &spec);
+  return spec.tv_sec*1000000000 + spec.tv_nsec;
 }
 
 int get_current_thread_time_us()

@@ -29,7 +29,7 @@ void node_timer_callback(rcl_timer_t * timer, void * context)
   pub_msg.frame_id = context_ptr->node->count[context_ptr->timer_index]++;
   pub_msg.stamp = now;
   printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
-  // busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
+  busy_wait_us(500);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
     RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], &pub_msg, NULL, semantics));
@@ -51,7 +51,7 @@ void node_subscriber_callback(const void * msgin, void * context)
   rcl_time_point_value_t now;
   now = rclc_now(&support);
   printf("Subscriber %lu %ld %ld\n", (unsigned long) &context_ptr->node->subscriber[context_ptr->sub_index], msg->frame_id, now);
-  // busy_wait_random(context_ptr->min_execution_time_ms, context_ptr->max_execution_time_ms);
+  busy_wait_us(400);
   now = rclc_now(&support);
   for (int i = 0; i < context_ptr->pub_num; i++)
   {
@@ -271,7 +271,10 @@ int main(int argc, char const *argv[])
   fscanf(file, "timer_period: %d\n", &timer_period);
   fscanf(file, "message_size: %d\n", &message_size);
   fscanf(file, "callback_let: %d\n", &callback_let);
+  printf("TimerPeriod %d\n", timer_period);
   printf("CallbackLET %d\n", callback_let);
+  printf("MessageSize %zu\n", sizeof(custom_interfaces__msg__Message));
+  printf("ExPeriod %d\n", executor_period);
   rcl_allocator_state_t alloc_main_state = {0,0};
   allocator_main.state = &alloc_main_state;
   allocator_main.allocate = main_allocate;
@@ -327,7 +330,17 @@ int main(int argc, char const *argv[])
   ////////////////////////////////////////////////////////////////////////////
   // Configuration of RCL Executor
   ////////////////////////////////////////////////////////////////////////////
-  const uint64_t timeout_ns = 0;
+  uint64_t timeout_ns = 0;
+  if(semantics == LET)
+  {
+    timeout_ns = 0;
+  }
+  else
+  {
+    timeout_ns = RCL_MS_TO_NS(timer_period)*2;
+    printf("Timeout %d\n", timeout_ns);
+  }
+  
   
   rclc_executor_t * executor = allocator_main.allocate(num_nodes*sizeof(rclc_executor_t), allocator_main.state);
   if(executor == NULL)
@@ -391,7 +404,7 @@ int main(int argc, char const *argv[])
   printf("StartTime %ld\n", now);
   for (i = 0; i < num_nodes; i++)
   {
-    if (executor_period > 0)
+    if (semantics == LET)
     {
       ex_args[i].period = RCL_MS_TO_NS(executor_period);
       ex_args[i].executor = &executor[i];
@@ -418,7 +431,7 @@ int main(int argc, char const *argv[])
     printf("Node%d\n", i);
     printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
     printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
-    // printf("TriggerOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].trigger_condition_overhead);
+    printf("OverheadTotalOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].total_overhead);
     for (int j = 0; j < nodes[i]->pub_num; j++)
     {
       printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
