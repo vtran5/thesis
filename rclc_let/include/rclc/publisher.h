@@ -30,8 +30,6 @@ extern "C"
 
 typedef struct 
 {
-  char * topic_name;
-  const rmw_qos_profile_t * qos_profile;
   const rosidl_message_type_support_t * type_support;
   const rcl_node_t * node;
   uint64_t * executor_index; // This should point to the executor spin_index

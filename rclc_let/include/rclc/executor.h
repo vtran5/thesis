@@ -1064,7 +1064,6 @@ rcl_ret_t
 rclc_executor_let_init(
   rclc_executor_t * executor,
   const size_t number_of_let_handles,
-  const size_t max_intermediate_handles,
   rclc_executor_let_overrun_option_t option);
 
 RCLC_PUBLIC

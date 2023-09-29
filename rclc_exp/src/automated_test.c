@@ -1,366 +1,483 @@
 #include "custom_interfaces/msg/message.h"
+// #include "custom_interfaces/msg/sequence_msg.h"
 #include "utilities.h"
 #include <stdlib.h>
 #include "my_node.h"
-#define NODE1_PUBLISHER_NUMBER 2
-#define NODE1_SUBSCRIBER_NUMBER 0
-#define NODE1_TIMER_NUMBER 2
-
-#define NODE2_PUBLISHER_NUMBER 4
-#define NODE2_SUBSCRIBER_NUMBER 2
-#define NODE2_TIMER_NUMBER 1
-
-#define NODE3_PUBLISHER_NUMBER 4
-#define NODE3_SUBSCRIBER_NUMBER 4
-#define NODE3_TIMER_NUMBER 0
-
-#define NODE4_PUBLISHER_NUMBER 0
-#define NODE4_SUBSCRIBER_NUMBER 4
-#define NODE4_TIMER_NUMBER 0
 
 volatile rcl_time_point_value_t start_time;
-my_node_t * node1;
-my_node_t * node2;
-my_node_t * node3;
-my_node_t * node4;
-
+rcl_allocator_t allocator_main;
 rclc_executor_semantics_t semantics;
 
-void node2_timer1_callback(rcl_timer_t * timer, int64_t last_call_time)
+void node_timer_callback(rcl_timer_t * timer, void * context)
 {
-  RCLC_UNUSED(last_call_time);
+  timer_callback_context_t * context_ptr = (timer_callback_context_t *) context;
   if (timer == NULL)
   {
     printf("timer_callback Error: timer parameter is NULL\n");
     return;
   }
-  int timer_index = 0;
-  int pub_index = 2;
-  timer_callback(node2, stat2, timer_index, pub_index, 4, 5, semantics);
+
+  if (context == NULL)
+  {
+    printf("timer_callback Error: context parameter is NULL\n");
+    return;    
+  }
+
+  custom_interfaces__msg__Message pub_msg;
+  rcl_time_point_value_t now = rclc_now(&support);
+
+  pub_msg.frame_id = context_ptr->node->count[context_ptr->timer_index]++;
+  pub_msg.stamp = now;
+  printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
+  // busy_wait_us(500);
+  for (int i = 0; i < context_ptr->pub_num; i++)
+  {
+    RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], &pub_msg, NULL, semantics));
+    printf("Callback timer %lu call publisher %lu pub_num %d\n", (unsigned long) timer, (unsigned long) &context_ptr->node->publisher[context_ptr->pub_index[i]], context_ptr->pub_num);
+  }
+
+  now = rclc_now(&support);
+  printf("Timer %lu %ld %ld\n", (unsigned long) &context_ptr->node->timer[context_ptr->timer_index], pub_msg.frame_id, now);
 }
 
-void node2_subscriber1_callback(const void * msgin)
-{
+void node_subscriber_callback(const void * msgin, void * context)
+{ 
   if (msgin == NULL) {
     printf("Callback: msg NULL\n");
     return;
   }
+  subscriber_callback_context_t * context_ptr = (subscriber_callback_context_t *) context;
   const custom_interfaces__msg__Message * msg = (const custom_interfaces__msg__Message *)msgin;
-  int sub_index = 0;
-  int pub_index = 0;
-  int min_run_time_ms = 5;
-  int max_run_time_ms = 10;
-  rclc_executor_semantics_t pub_semantics = semantics;
-  subscriber_callback(node2, stat2, msg, sub_index, pub_index, min_run_time_ms, max_run_time_ms, pub_semantics);
+  rcl_time_point_value_t now;
+  now = rclc_now(&support);
+  printf("Subscriber %lu %ld %ld\n", (unsigned long) &context_ptr->node->subscriber[context_ptr->sub_index], msg->frame_id, now);
+  // busy_wait_us(400);
+  now = rclc_now(&support);
+  for (int i = 0; i < context_ptr->pub_num; i++)
+  {
+    RCSOFTCHECK(rclc_publish(&context_ptr->node->publisher[context_ptr->pub_index[i]], msg, NULL, semantics));
+    printf("Callback subs call publisher %lu\n", (unsigned long) &context_ptr->node->publisher[context_ptr->pub_index[i]]);
+  }
+  if (context_ptr->pub_num > 0)
+    printf("Subscriber %lu %ld %ld\n", (unsigned long) &context_ptr->node->subscriber[context_ptr->sub_index], msg->frame_id, now);
 }
 
+void generate_topic_name(char* buffer, int node_num, int pub_num) {
+  snprintf(buffer, 10*sizeof(char), "topic%02d%02d", node_num, pub_num);
+}
+
+void initialize_callbacks_and_topics(my_node_t **nodes, int num_nodes)
+{
+  for (int i = 0; i < num_nodes; i++)
+  { 
+    int j = 0;
+    for (j = 0; j < nodes[i]->timer_num; j++)
+    {
+      nodes[i]->timer_callback[j] = NULL;
+    }
+    for (j = 0; j < nodes[i]->sub_num; j++)
+    {
+      nodes[i]->subscriber_callback[j] = &node_subscriber_callback;
+    }
+
+    nodes[i]->pub_topic_name = create_topic_name_array(nodes[i]->pub_num, &allocator_main);
+    
+    if (i == num_nodes -1)
+      return;
+    nodes[i+1]->sub_topic_name = create_topic_name_array(nodes[i+1]->sub_num, &allocator_main);  
+    // Last node doesn't publish to any node
+    my_node_t *current_node = nodes[i];
+    my_node_t *next_node = nodes[i + 1]; // Next node in the array
+
+    for (j = 0; j < next_node->sub_num; j++)
+    {
+      // Create topic name for the publisher in the next node
+      generate_topic_name(next_node->sub_topic_name[j], i + 1, j + 1);  
+      strcpy(current_node->pub_topic_name[j], next_node->sub_topic_name[j]);
+      printf("Subs %lu subscribes to pub %lu\n", (unsigned long) &next_node->subscriber[j], (unsigned long) &current_node->publisher[j]);
+    }
+
+    for (j = next_node->sub_num; j < current_node->pub_num; j++)
+    {
+      generate_topic_name(current_node->pub_topic_name[j], i + 1, j + 1);
+    }
+    
+    for (j = 0; j < current_node->sub_num + current_node->timer_num; j++)
+    {
+      // Link timer/subscriber callback to publisher in current node
+      if (j < current_node->timer_num)
+        current_node->callback[j] = (callback_t){RCLC_TIMER_WITH_CONTEXT, (void *)&current_node->timer[j]};
+      else
+        current_node->callback[j] = (callback_t){RCLC_SUBSCRIPTION_WITH_CONTEXT, (void *) &current_node->subscriber[j-current_node->timer_num]};
+    }
+  }
+}
+
+void initialize_node_entities(
+  my_node_t ** nodes, 
+  int timer_period, 
+  int num_nodes, 
+  const rosidl_message_type_support_t *  my_type_support,
+  rmw_qos_profile_t * profile,
+  const rcl_allocator_t * allocator)
+{
+  for(int i = 0; i < num_nodes; i++)
+  {
+    uint64_t * timer_timeout_ns = allocator_main.allocate(nodes[i]->timer_num * sizeof(uint64_t), allocator_main.state);
+    if (timer_timeout_ns == NULL)
+      printf("Allocate memory failed\n");
+    for (int j = 0; j < nodes[i]->timer_num; j++)
+    {
+      timer_timeout_ns[j] = RCL_MS_TO_NS(timer_period);
+    }
+    init_node_timer(nodes[i], &support, timer_timeout_ns);
+    init_node_subscriber(nodes[i], my_type_support, nodes[i]->sub_topic_name, profile);
+    init_node_publisher(nodes[i], my_type_support, nodes[i]->pub_topic_name, profile, semantics, &allocator[i]);
+    allocator_main.allocate(timer_timeout_ns, allocator_main.state);
+  }
+}
+
+void add_entities_to_executor(
+  my_node_t ** nodes,
+  rclc_executor_t * executor,
+  int num_nodes,
+  uint64_t callback_let,
+  int min_execution_time_ms,
+  int max_execution_time_ms,
+  int max_call_num_per_callback
+)
+{
+  for (int i = 0; i < num_nodes; i++)
+  {
+    int j;
+    nodes[i]->sub_context = allocator_main.allocate(nodes[i]->sub_num*sizeof(subscriber_callback_context_t), allocator_main.state);
+    nodes[i]->timer_context = allocator_main.allocate(nodes[i]->timer_num*sizeof(timer_callback_context_t), allocator_main.state);
+    int pub_num_per_cb = (nodes[i]->pub_num/(nodes[i]->sub_num + nodes[i]->timer_num)) + 1;
+    for (j = 0; j < nodes[i]->sub_num; j++)
+    {
+      nodes[i]->sub_context[j].pub_index = allocator_main.allocate(sizeof(int)*pub_num_per_cb, allocator_main.state);
+      nodes[i]->sub_context[j].sub_index = j;
+      nodes[i]->sub_context[j].node = nodes[i];
+      nodes[i]->sub_context[j].min_execution_time_ms = min_execution_time_ms;
+      nodes[i]->sub_context[j].max_execution_time_ms = max_execution_time_ms;
+      nodes[i]->sub_context[j].pub_num = 0;
+
+      for (int k = 0; k < nodes[i]->pub_num; k += nodes[i]->timer_num + nodes[i]->sub_num)
+      {
+        int pub_index = k + j + nodes[i]->timer_num;
+        if (pub_index >= nodes[i]->pub_num)
+          break;
+        nodes[i]->sub_context[j].pub_index[nodes[i]->sub_context[j].pub_num] = pub_index;
+        nodes[i]->sub_context[j].pub_num++;       
+      }
+
+      RCCHECK(rclc_executor_add_subscription_with_context(
+        &executor[i], &nodes[i]->subscriber[j], &nodes[i]->sub_msg[j], nodes[i]->subscriber_callback[j],
+        (void *) &nodes[i]->sub_context[j], ON_NEW_DATA, callback_let, (int) sizeof(custom_interfaces__msg__Message)));
+      printf("Add subscriber %lu to executor %lu\n", (unsigned long) &nodes[i]->subscriber[j], (unsigned long) &executor[i]);
+    }
+
+    for (j = 0; j < nodes[i]->timer_num; j++)
+    {
+      nodes[i]->timer_context[j].pub_index = allocator_main.allocate(sizeof(int)*pub_num_per_cb, allocator_main.state);
+      nodes[i]->timer_context[j].timer_index = j;
+      nodes[i]->timer_context[j].node = nodes[i];
+      nodes[i]->timer_context[j].min_execution_time_ms = min_execution_time_ms;
+      nodes[i]->timer_context[j].max_execution_time_ms = max_execution_time_ms;
+      nodes[i]->timer_context[j].pub_num = 0;
+
+      for (int k = 0; k < nodes[i]->pub_num; k += nodes[i]->timer_num + nodes[i]->sub_num)
+      {
+        int pub_index = k + j;
+        if (pub_index >= nodes[i]->pub_num)
+          break;
+        nodes[i]->timer_context[j].pub_index[nodes[i]->timer_context[j].pub_num] = pub_index;
+        nodes[i]->timer_context[j].pub_num++;        
+      }
+
+      RCCHECK(rclc_executor_add_timer_with_context(&executor[i], &nodes[i]->timer[j], &node_timer_callback,
+        (void *) &nodes[i]->timer_context[j], callback_let));
+      printf("Add timer %lu to executor %lu\n", (unsigned long) &nodes[i]->timer[j], (unsigned long) &executor[i]);
+    }
+
+    if (semantics == LET)
+    {
+      for (j = 0; j < nodes[i]->pub_num; j++)
+      {
+        int callback_index = j % (nodes[i]->sub_num + nodes[i]->timer_num);
+        RCCHECK(rclc_executor_add_publisher_LET(&executor[i], &nodes[i]->publisher[j], sizeof(custom_interfaces__msg__Message),
+          max_call_num_per_callback, nodes[i]->callback[callback_index].handle_ptr, nodes[i]->callback[callback_index].type));       
+        printf("Add publisher %lu to callback %lu\n", (unsigned long) &nodes[i]->publisher[j], (unsigned long) nodes[i]->callback[callback_index].handle_ptr);
+      }
+    }
+  }
+}
+
+// void init_message(custom_interfaces__msg__SequenceMsg msg, int message_size)
+// {
+//   msg.data.capacity = message_size;
+//   msg.data.data = (int64_t *) allocator_main.allocate(msg.data.capacity * sizeof(int64_t), allocator_main.state);
+//   msg.data.size = 0;
+//   for (int64_t i = 0; i < message_size; i++)
+//   {
+//     msg.data.data[i] = i;
+//     msg.data.size++;
+//   }
+// }
+
+// void destroy_message(custom_interfaces__msg__SequenceMsg msg)
+// {
+//   if (msg.data.data == NULL)
+//     return;
+//   free(msg.data.data);
+//   msg.data.data = NULL;
+// }
 /******************** MAIN PROGRAM ****************************************/
 int main(int argc, char const *argv[])
 {
-  if (argc != 2) {
-    printf("Usage: %s <config_file>\n", argv[0]);
+  if (argc != 6) {
+    printf("Usage: %s -let <bool> -ed <int> <config_file>\n", argv[0]);
     return 1;
   }
+  int experiment_duration_ms = 120000;
 
-  FILE *file = fopen(argv[1], "r");
+  semantics = LET;
+  if (strcmp(argv[1], "-let") == 0) {
+    printf("Set sematics\n");
+    if(strcmp(argv[2], "true") == 0)
+    {
+      semantics = LET;
+      printf("set semantics to LET\n");
+    }
+    else
+    {
+      semantics = RCLCPP_EXECUTOR;
+      printf("set semantics to RCLCPP_EXECUTOR\n");
+    }
+  }
+
+  if (strcmp(argv[3], "-ed") == 0) {
+    experiment_duration_ms = atoi(argv[4]);
+  }
+
+  FILE *file = fopen(argv[5], "r");
   if (!file) {
-    printf("Error: Could not open file %s\n", argv[1]);
+    printf("Error: Could not open file %s\n", argv[3]);
     return 1;
   }
 
-  int num_nodes, executor_period, message_size, callback_let;
+  int num_nodes, executor_period, message_size, callback_let, timer_period;
   fscanf(file, "nodes: %d\n", &num_nodes);
   fscanf(file, "executor_period: %d\n", &executor_period);
+  fscanf(file, "timer_period: %d\n", &timer_period);
   fscanf(file, "message_size: %d\n", &message_size);
   fscanf(file, "callback_let: %d\n", &callback_let);
+  printf("TimerPeriod %d\n", timer_period);
+  printf("CallbackLET %d\n", callback_let);
+  printf("MessageSize %zu\n", sizeof(custom_interfaces__msg__Message));
+  printf("ExPeriod %d\n", executor_period);
+  rcl_allocator_state_t alloc_main_state = {0,0};
+  allocator_main.state = &alloc_main_state;
+  allocator_main.allocate = main_allocate;
+  allocator_main.deallocate = main_deallocate;
+  allocator_main.reallocate = main_reallocate;
+  allocator_main.zero_allocate = main_zero_allocate;
 
-  my_node_t * nodes = malloc(num_nodes*sizeof(my_node_t));
+  rcl_allocator_t allocator_support;
+  rcl_allocator_state_t alloc_support_state = {0,0};
+  allocator_support.state = &alloc_support_state;
+  allocator_support.allocate = support_allocate;
+  allocator_support.deallocate = support_deallocate;
+  allocator_support.reallocate = support_reallocate;
+  allocator_support.zero_allocate = support_zero_allocate;
+
+  my_node_t ** nodes = allocator_main.allocate(num_nodes*sizeof(my_node_t *), allocator_main.state);
 
   for (int i = 0; i < num_nodes; i++) {
     int node_id, pub_num, sub_num, timer_num;
     fscanf(file, "%d: %d %d %d\n", &node_id, &pub_num, &sub_num, &timer_num);
-    nodes[i] = create_node(timer_num, pub_num, sub_num);
+    nodes[i] = create_node(timer_num, pub_num, sub_num, &allocator_main);
+    if(nodes[i] == NULL)
+    {
+      printf("Create node failed\n");
+      return 0;
+    }
   }
 
   fclose(file);
 
-  rcl_allocator_t allocator = rcl_get_default_allocator();
-  node1 = create_node(NODE1_TIMER_NUMBER, NODE1_PUBLISHER_NUMBER, NODE1_SUBSCRIBER_NUMBER, 2);
-  node2 = create_node(NODE2_TIMER_NUMBER, NODE2_PUBLISHER_NUMBER, NODE2_SUBSCRIBER_NUMBER, 1);
-  node3 = create_node(NODE3_TIMER_NUMBER, NODE3_PUBLISHER_NUMBER, NODE3_SUBSCRIBER_NUMBER, 0);
-  node4 = create_node(NODE4_TIMER_NUMBER, NODE4_PUBLISHER_NUMBER, NODE4_SUBSCRIBER_NUMBER, 0);
-
-  node1->timer_callback[0] = &node1_timer1_callback;
-  node1->timer_callback[1] = &node1_timer2_callback;
-
-  node2->timer_callback[0] = &node2_timer1_callback;
-  node2->subscriber_callback[0] = &node2_subscriber1_callback;
-  node2->subscriber_callback[1] = &node2_subscriber2_callback;
-
-  node3->subscriber_callback[0] = &node3_subscriber1_callback;
-  node3->subscriber_callback[1] = &node3_subscriber2_callback;
-  node3->subscriber_callback[2] = &node3_subscriber3_callback;
-  node3->subscriber_callback[3] = &node3_subscriber4_callback;
-
-  node4->subscriber_callback[0] = &node4_subscriber1_callback;
-  node4->subscriber_callback[1] = &node4_subscriber2_callback;
-  node4->subscriber_callback[2] = &node4_subscriber3_callback;
-  node4->subscriber_callback[3] = &node4_subscriber4_callback;
-
   srand(time(NULL));
   exit_flag = false;
-  semantics = (let) ? LET : RCLCPP_EXECUTOR;
-  const uint64_t node1_timer_timeout_ns[NODE1_TIMER_NUMBER] = {RCL_MS_TO_NS(200), RCL_MS_TO_NS(420)};
-  const uint64_t node2_timer_timeout_ns[NODE2_TIMER_NUMBER] = {RCL_MS_TO_NS(160)};
-
+  
   // create init_options
-  RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator_support));
+// Assuming `nodes` is an array or similar container of pointers to nodes.
+  for (int i = 0; i < num_nodes; i++) {
+    char node_name[100];  // Assuming the node name won't exceed 99 characters.
+    snprintf(node_name, sizeof(node_name), "node_%d", i + 1);  // Convert integer to string as part of node name.
 
-  // create rcl_node
-  init_node(node1, &support, "node_1");
-  init_node(node2, &support, "node_2");
-  init_node(node3, &support, "node_3");
-  init_node(node4, &support, "node_4");
-
-  char ** node1_pub_topic_name = create_topic_name_array(NODE1_PUBLISHER_NUMBER);
-  char ** node2_pub_topic_name = create_topic_name_array(NODE2_PUBLISHER_NUMBER);
-  char ** node3_pub_topic_name = create_topic_name_array(NODE3_PUBLISHER_NUMBER);
-  char ** node4_pub_topic_name = create_topic_name_array(NODE4_PUBLISHER_NUMBER);
-
-  char ** node1_sub_topic_name = create_topic_name_array(NODE1_SUBSCRIBER_NUMBER);
-  char ** node2_sub_topic_name = create_topic_name_array(NODE2_SUBSCRIBER_NUMBER);
-  char ** node3_sub_topic_name = create_topic_name_array(NODE3_SUBSCRIBER_NUMBER);
-  char ** node4_sub_topic_name = create_topic_name_array(NODE4_SUBSCRIBER_NUMBER);
-
-
-  sprintf(node1_pub_topic_name[0], "topic01");        
-  sprintf(node2_sub_topic_name[0], "topic01");
-  node1->callback[0] = (callback_t) {RCLC_TIMER, (void *) &node1->timer[0]};
-
-  sprintf(node1_pub_topic_name[1], "topic02");        
-  sprintf(node2_sub_topic_name[1], "topic02");
-  node1->callback[1] = (callback_t) {RCLC_TIMER, (void *) &node1->timer[1]};
-
-  sprintf(node2_pub_topic_name[0], "topic03");
-  sprintf(node3_sub_topic_name[0], "topic03");
-  node2->callback[0] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node2->subscriber[0]};
-  
-  sprintf(node2_pub_topic_name[1], "topic04");
-  sprintf(node3_sub_topic_name[1], "topic04");
-  node2->callback[1] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node2->subscriber[1]};
-
-  sprintf(node2_pub_topic_name[2], "topic05");
-  sprintf(node3_sub_topic_name[2], "topic05");
-  node2->callback[2] = (callback_t) {RCLC_TIMER, (void *) &node2->timer[0]};
-
-  sprintf(node2_pub_topic_name[3], "topic06");
-  sprintf(node3_sub_topic_name[3], "topic06");
-  node2->callback[3] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node2->subscriber[1]};
-  
-  sprintf(node3_pub_topic_name[0], "topic07");
-  sprintf(node4_sub_topic_name[0], "topic07");
-  node3->callback[0] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node3->subscriber[0]};
-  
-  sprintf(node3_pub_topic_name[1], "topic08");
-  sprintf(node4_sub_topic_name[1], "topic08");
-  node3->callback[1] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node3->subscriber[1]};
-  
-  sprintf(node3_pub_topic_name[2], "topic09");
-  sprintf(node4_sub_topic_name[2], "topic09");
-  node3->callback[2] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node3->subscriber[2]};
-  
-  sprintf(node3_pub_topic_name[3], "topic10");
-  sprintf(node4_sub_topic_name[3], "topic10");
-  node3->callback[3] = (callback_t) {RCLC_SUBSCRIPTION, (void *) &node3->subscriber[3]};
-
+    init_node(nodes[i], &support, node_name);
+  }
+  initialize_callbacks_and_topics(nodes, num_nodes);
   const rosidl_message_type_support_t * my_type_support =
     ROSIDL_GET_MSG_TYPE_SUPPORT(custom_interfaces, msg, Message);  
   
   // Setting the DDS QoS profile to have buffer depth = 1
   rmw_qos_profile_t profile = rmw_qos_profile_default;
   profile.depth = 1;
-  // Init node 1
-  init_node_timer(node1, &support, node1_timer_timeout_ns);
-  init_node_publisher(node1, my_type_support, node1_pub_topic_name, &profile, semantics);
 
-  // Init node 2
-  init_node_timer(node2, &support, node2_timer_timeout_ns);
-  init_node_subscriber(node2, my_type_support, node2_sub_topic_name, &profile);
-  init_node_publisher(node2, my_type_support, node2_pub_topic_name, &profile, semantics);
+  rcl_allocator_t * allocator = allocator_main.allocate(num_nodes*sizeof(rcl_allocator_t), allocator_main.state);
+  rcl_allocator_state_t * alloc_state = allocator_main.allocate(num_nodes*sizeof(rcl_allocator_state_t), allocator_main.state);
+  if (allocator == NULL || alloc_state == NULL)
+    printf("Fail to allocate memory for allocator\n");
 
-  // Init node 3
-  init_node_subscriber(node3, my_type_support, node3_sub_topic_name, &profile);
-  init_node_publisher(node3, my_type_support, node3_pub_topic_name, &profile, semantics);
+  for (int i = 0; i < num_nodes; i++)
+  {
+    alloc_state[i].max_memory_size = 0;
+    alloc_state[i].current_memory_size = 0;
+    allocator[i].state = &alloc_state[i];
+    allocator[i].allocate = executor_allocate;
+    allocator[i].deallocate = executor_deallocate;
+    allocator[i].reallocate = executor_reallocate;
+    allocator[i].zero_allocate = executor_zero_allocate;
+  } 
 
-  // Init node 4
-  init_node_subscriber(node4, my_type_support, node4_sub_topic_name, &profile);
+  initialize_node_entities(nodes, timer_period, num_nodes, my_type_support, &profile, allocator);
 
   ////////////////////////////////////////////////////////////////////////////
   // Configuration of RCL Executor
   ////////////////////////////////////////////////////////////////////////////
-  const uint64_t timeout_ns = 0.2*executor_period_input;
+  uint64_t timeout_ns = 0;
+  if(semantics == LET)
+  {
+    timeout_ns = 0;
+  }
+  else
+  {
+    timeout_ns = RCL_MS_TO_NS(timer_period)*2;
+    printf("Timeout %d\n", timeout_ns);
+  }
   
-  const int num_executor = 4;
   
-  rclc_executor_t * executor = malloc(num_executor*sizeof(rclc_executor_t));
+  rclc_executor_t * executor = allocator_main.allocate(num_nodes*sizeof(rclc_executor_t), allocator_main.state);
   if(executor == NULL)
     printf("Fail to allocate memory for executor\n");
 
-  rclc_executor_semantics_t * executor_semantics = malloc(num_executor*sizeof(rclc_executor_semantics_t));
-  if(executor_semantics == NULL)
-    printf("Fail to allocate memory for executor semantics\n");
-  
-  rcutils_time_point_value_t * callback_let_timer1 = create_time_array(NODE1_TIMER_NUMBER);
-  rcutils_time_point_value_t * callback_let_subscriber1 = create_time_array(NODE1_SUBSCRIBER_NUMBER);
-  rcutils_time_point_value_t * callback_let_timer2 = create_time_array(NODE2_TIMER_NUMBER);
-  rcutils_time_point_value_t * callback_let_subscriber2 = create_time_array(NODE2_SUBSCRIBER_NUMBER);
-  rcutils_time_point_value_t * callback_let_timer3 = create_time_array(NODE3_TIMER_NUMBER);
-  rcutils_time_point_value_t * callback_let_subscriber3 = create_time_array(NODE3_SUBSCRIBER_NUMBER);
-  rcutils_time_point_value_t * callback_let_timer4 = create_time_array(NODE4_TIMER_NUMBER);
-  rcutils_time_point_value_t * callback_let_subscriber4 = create_time_array(NODE4_SUBSCRIBER_NUMBER);
+  unsigned int num_handles = 4; // max number of handles
+  int min_execution_time_ms = 1;
+  int max_execution_time_ms = 2;
 
-  callback_let_timer1[0] = RCUTILS_MS_TO_NS(8);
-  callback_let_timer1[1] = RCUTILS_MS_TO_NS(8);
-
-  callback_let_subscriber2[0] = RCUTILS_MS_TO_NS(70);
-  callback_let_subscriber2[1] = RCUTILS_MS_TO_NS(70);
-  callback_let_timer2[0] = RCUTILS_MS_TO_NS(70);
-
-  callback_let_subscriber3[0] = RCUTILS_MS_TO_NS(160);
-  callback_let_subscriber3[1] = RCUTILS_MS_TO_NS(160);
-  callback_let_subscriber3[2] = RCUTILS_MS_TO_NS(160);
-  callback_let_subscriber3[3] = RCUTILS_MS_TO_NS(160);
-
-  callback_let_subscriber4[0] = RCUTILS_MS_TO_NS(5);
-  callback_let_subscriber4[1] = RCUTILS_MS_TO_NS(5);
-  callback_let_subscriber4[2] = RCUTILS_MS_TO_NS(5);
-  callback_let_subscriber4[3] = RCUTILS_MS_TO_NS(5);
-
-  unsigned int num_handles = 4;
-  
-  rcutils_time_point_value_t * executor_period = create_time_array(num_executor);
-  executor_period[0] = RCUTILS_MS_TO_NS(10);
-  executor_period[1] = RCUTILS_MS_TO_NS(20);
-  executor_period[2] = RCUTILS_MS_TO_NS(50);
-  executor_period[3] = RCUTILS_MS_TO_NS(10);
-
-  executor_semantics[0] = semantics;
-  executor_semantics[1] = semantics;
-  executor_semantics[2] = semantics;
-  executor_semantics[3] = semantics;
-
-  const int max_number_per_callback = 2; // Max number of calls per publisher per callback
-  const int num_let_handles = 4; // max number of let handles per executor
-  const int max_intermediate_handles = 20; // max number of intermediate handles per executor
+  const int max_call_num_per_callback = 1; // Max number of calls per publisher per callback
+  int num_let_handles = 1; // max number of let handles per callback
 
   int i;
-  for (i = 0; i < num_executor; i++)
-  {
-    executor[i] = rclc_executor_get_zero_initialized_executor();
-    RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator)); 
-    RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, max_intermediate_handles, CANCEL_NEXT_PERIOD));
-    RCCHECK(rclc_executor_set_semantics(&executor[i], executor_semantics[i]));
-    RCCHECK(rclc_executor_set_period(&executor[i], executor_period[i]));
-    RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
-    printf("ExecutorID Executor%d %lu\n", i+1, (unsigned long) &executor[i]);
-  }
-
-  for (i = 0; i < NODE1_TIMER_NUMBER; i++)
-  {
-    RCCHECK(rclc_executor_add_timer(&executor[0], &node1->timer[i], callback_let_timer1[i]));
-  }
-  for (i = 0; i < NODE2_SUBSCRIBER_NUMBER; i++)
-  {
-    RCCHECK(rclc_executor_add_subscription(
-      &executor[1], &node2->subscriber[i], &node2->sub_msg[i], node2->subscriber_callback[i],
-      ON_NEW_DATA, callback_let_subscriber2[i], (int) sizeof(custom_interfaces__msg__Message)));
-  }
-  for (i = 0; i < NODE2_TIMER_NUMBER; i++)
-  {
-    RCCHECK(rclc_executor_add_timer(&executor[1], &node2->timer[i], callback_let_timer2[i]));
-  }
-  for (i = 0; i < NODE3_SUBSCRIBER_NUMBER; i++)
-  {
-    RCCHECK(rclc_executor_add_subscription(
-      &executor[2], &node3->subscriber[i], &node3->sub_msg[i], node3->subscriber_callback[i],
-      ON_NEW_DATA, callback_let_subscriber3[i], (int) sizeof(custom_interfaces__msg__Message)));
-  }
-  for (i = 0; i < NODE4_SUBSCRIBER_NUMBER; i++)
-  {
-    RCCHECK(rclc_executor_add_subscription(
-      &executor[3], &node4->subscriber[i], &node4->sub_msg[i], node4->subscriber_callback[i],
-      ON_NEW_DATA, callback_let_subscriber4[i], (int) sizeof(custom_interfaces__msg__Message)));
-  }
-
-  if (let)
-  {
-    for (i = 0; i < NODE1_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor[0], &node1->publisher[i], sizeof(custom_interfaces__msg__Message),
-        max_number_per_callback, node1->callback[i].handle_ptr, node1->callback[i].type));
-    }
-    for (i = 0; i < NODE2_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor[1], &node2->publisher[i], sizeof(custom_interfaces__msg__Message),
-        max_number_per_callback, node2->callback[i].handle_ptr, node2->callback[i].type));
-    }
-    for (i = 0; i < NODE3_PUBLISHER_NUMBER; i++)
-    {
-      RCCHECK(rclc_executor_add_publisher_LET(&executor[2], &node3->publisher[i], sizeof(custom_interfaces__msg__Message),
-        max_number_per_callback, node3->callback[i].handle_ptr, node3->callback[i].type));
-    }
-  }
-
   int sub_count = 1;
   int timer_count = 1;
   int pub_count = 1;
+  for (i = 0; i < num_nodes; i++)
+  {
+    num_handles = nodes[i]->timer_num + nodes[i]->sub_num;
+    executor[i] = rclc_executor_get_zero_initialized_executor();
+    RCCHECK(rclc_executor_init(&executor[i], &support.context, num_handles, &allocator[i])); 
+    RCCHECK(rclc_executor_set_semantics(&executor[i], semantics));
+    RCCHECK(rclc_executor_set_period(&executor[i], RCUTILS_MS_TO_NS(executor_period)));
+    RCCHECK(rclc_executor_set_timeout(&executor[i],timeout_ns));
+    printf("ExecutorID Executor%d %lu\n", i+1, (unsigned long) &executor[i]);
+    print_id(nodes[i], &sub_count, &pub_count, &timer_count);
+    if (semantics == LET)
+    {
+      num_let_handles = nodes[i]->pub_num;
+      RCCHECK(rclc_executor_let_init(&executor[i], num_let_handles, CANCEL_NEXT_PERIOD));
+    }
+  }
 
-  print_id(node1, &sub_count, &pub_count, &timer_count);
-  print_id(node2, &sub_count, &pub_count, &timer_count);
-  print_id(node3, &sub_count, &pub_count, &timer_count);
-  print_id(node4, &sub_count, &pub_count, &timer_count);
+  add_entities_to_executor(nodes, executor, num_nodes, RCL_MS_TO_NS(callback_let),
+      min_execution_time_ms, max_execution_time_ms, max_call_num_per_callback);
 
   ////////////////////////////////////////////////////////////////////////////
   // Configuration of Linux threads
   ////////////////////////////////////////////////////////////////////////////
-  pthread_t thread1 = 0;
-  pthread_t thread2 = 0;
-  pthread_t thread3 = 0;
-  pthread_t thread4 = 0;
+  
+  pthread_t * threads = allocator_main.allocate(num_nodes*sizeof(pthread_t), allocator_main.state);
+  struct arg_spin_period * ex_args = allocator_main.allocate(num_nodes*sizeof(struct arg_spin_period), allocator_main.state);
   int policy = SCHED_FIFO;
   rcl_time_point_value_t now = rclc_now(&support);
   printf("StartTime %ld\n", now);
-
-  if (executor_period_input > 0)
+  for (i = 0; i < num_nodes; i++)
   {
-      struct arg_spin_period ex1 = {executor_period[0], &executor[0], &support};
-      struct arg_spin_period ex2 = {executor_period[1], &executor[1], &support};
-      struct arg_spin_period ex3 = {executor_period[2], &executor[2], &support};
-      struct arg_spin_period ex4 = {executor_period[3], &executor[3], &support};
-      thread_create(&thread1, policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex1);
-      sleep_ms(2);
-      thread_create(&thread2, policy, 48, 0, rclc_executor_spin_period_with_exit_wrapper, &ex2);
-      sleep_ms(2);
-      thread_create(&thread3, policy, 47, 0, rclc_executor_spin_period_with_exit_wrapper, &ex3);
-      sleep_ms(2);
-      thread_create(&thread4, policy, 46, 1, rclc_executor_spin_period_with_exit_wrapper, &ex4);
-  }
-  else
-  {
-      thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[0]);
-      thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[1]);
-      thread_create(&thread1, policy, 49, 0, rclc_executor_spin_wrapper, &executor[2]);
-      thread_create(&thread1, policy, 49, 1, rclc_executor_spin_wrapper, &executor[3]);
+    if (semantics == LET)
+    {
+      ex_args[i].period = RCL_MS_TO_NS(executor_period);
+      ex_args[i].executor = &executor[i];
+      ex_args[i].support = &support;
+      thread_create(&threads[i], policy, 49, 0, rclc_executor_spin_period_with_exit_wrapper, &ex_args[i]);
+    }
+    else
+    {
+      thread_create(&threads[i], policy, 49, 0, rclc_executor_spin_wrapper, &executor[i]);
+    }
   }
 
-  sleep_ms(experiment_duration);
+  sleep_ms(experiment_duration_ms);
   exit_flag = true;
-
+  printf("Stop experiment\n");
   // Wait for threads to finish
-  pthread_join(thread1, NULL);
-  pthread_join(thread2, NULL);
-  pthread_join(thread3, NULL);
-  pthread_join(thread4, NULL);
+  for (i = 0; i < num_nodes; i++)
+  {
+    pthread_join(threads[i], NULL);
+  }
 
+  // for (i = 0; i < num_nodes; i++)
+  // {
+  //   printf("Node%d\n", i);
+  //   printf("OverheadTotalInput %lu %ld\n", (unsigned long) &executor[i], executor[i].input_overhead);
+  //   printf("OverheadTotalOutput %lu %ld\n", (unsigned long) &executor[i], executor[i].output_overhead);
+  //   printf("OverheadTotalOverhead %lu %ld\n", (unsigned long) &executor[i], executor[i].total_overhead);
+  //   for (int j = 0; j < nodes[i]->pub_num; j++)
+  //   {
+  //     printf("OverheadTotalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].overhead);
+  //     printf("OverheadTotalInternalPublish %lu %ld\n", (unsigned long) &nodes[i]->publisher[j], nodes[i]->publisher[j].internal_overhead);
+  //   }
+  // }
+
+  // clean up 
+  allocator_main.deallocate(threads, allocator_main.state);
+  allocator_main.deallocate(ex_args, allocator_main.state);
+  for (i = 0; i < num_nodes; i++)
+  {
+    if (nodes[i]->sub_context != NULL)
+    {
+      for (int j = 0; j < nodes[i]->sub_num; j++)
+      {
+        allocator_main.deallocate(nodes[i]->sub_context[j].pub_index, allocator_main.state);
+      }
+      allocator_main.deallocate(nodes[i]->sub_context, allocator_main.state);
+      nodes[i]->sub_context = NULL;
+    }
+    if (nodes[i]->timer_context != NULL)
+    {
+      for (int j = 0; j < nodes[i]->timer_num; j++)
+      {
+        allocator_main.deallocate(nodes[i]->timer_context[j].pub_index, allocator_main.state);
+      }
+      allocator_main.deallocate(nodes[i]->timer_context, allocator_main.state);
+      nodes[i]->timer_context = NULL;
+    }
+    destroy_topic_name_array(nodes[i]->pub_topic_name, nodes[i]->pub_num, &allocator_main);
+    destroy_topic_name_array(nodes[i]->sub_topic_name, nodes[i]->sub_num, &allocator_main);
+    RCCHECK(rclc_executor_let_fini(&executor[i]));
+    RCCHECK(rclc_executor_fini(&executor[i]));
+    destroy_node(nodes[i], &allocator_main);
+  }
+
+  RCCHECK(rclc_support_fini(&support));  
+  for (int i = 0; i < num_nodes; i++)
+  {
+    printf("Memory Executor %lu max size %zu current size %zu\n", (unsigned long) &executor[i], alloc_state[i].max_memory_size, alloc_state[i].current_memory_size);
+  }
+  printf("Memory Main max size %zu current size %zu\n", alloc_main_state.max_memory_size, alloc_main_state.current_memory_size);
+  printf("Memory Support max size %zu current size %zu\n", alloc_support_state.max_memory_size, alloc_support_state.current_memory_size);
+  allocator_main.deallocate(executor, allocator_main.state);
+  allocator_main.deallocate(nodes, allocator_main.state);
   return 0;
 }

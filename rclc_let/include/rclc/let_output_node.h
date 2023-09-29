@@ -57,7 +57,7 @@ typedef struct
   int max_msg_per_period;
   rcl_subscription_t * subscriber_arr;
   rclc_array_t data_arr;
-  rclc_publisher_t publisher; // TO DO: change to rcl_publisher_t
+  rcl_publisher_t publisher; // TO DO: change to rcl_publisher_t
   rclc_callback_let_info_t * callback_info;
 } rclc_let_output_t;
 
@@ -99,7 +99,6 @@ rcl_ret_t
 rclc_let_output_node_init(
   rclc_let_output_node_t * let_output_node,
   const size_t max_number_of_let_handles,
-  const size_t max_intermediate_handles,
   rcl_allocator_t * allocator);
 
 rcl_ret_t

@@ -94,13 +94,8 @@ rclc_publisher_init(
 
     publisher->let_publisher->let_publishers = NULL;
     publisher->let_publisher->executor_index = NULL;
-    publisher->let_publisher->qos_profile = qos_profile;
     publisher->let_publisher->type_support = type_support;
     publisher->let_publisher->node = node;
-    publisher->let_publisher->topic_name = allocator->allocate(strlen(topic_name) + 1, allocator->state);
-    if (publisher->let_publisher->topic_name == NULL)
-      return RCL_RET_BAD_ALLOC;
-    strcpy(publisher->let_publisher->topic_name, topic_name);
   }
   return rc;
 }
@@ -187,8 +182,6 @@ rclc_publisher_let_fini(rclc_publisher_t * publisher)
   {
     if (publisher->let_publisher->let_publishers != NULL)
       publisher->allocator->deallocate(publisher->let_publisher->let_publishers, publisher->allocator->state);
-    if (publisher->let_publisher->topic_name != NULL)
-      publisher->allocator->deallocate(publisher->let_publisher->topic_name, publisher->allocator->state);
     publisher->allocator->deallocate(publisher->let_publisher, publisher->allocator->state);
     publisher->let_publisher = NULL;
   }  

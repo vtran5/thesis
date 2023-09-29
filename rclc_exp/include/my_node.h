@@ -3,9 +3,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "utilities.h"
-#include <rclc/buffer.h>
 rclc_support_t support;
-
+custom_interfaces__msg__Message pub_msg;
 typedef struct 
 {
   rclc_executor_handle_type_t type;
@@ -27,11 +26,13 @@ typedef struct
   callback_t * callback; // callbacks that calls the publishers
   rcl_subscription_t * subscriber;
   custom_interfaces__msg__Message * sub_msg;
+  char** pub_topic_name;
+  char** sub_topic_name;
   subscriber_callback_context_t * sub_context;
   timer_callback_context_t * timer_context;
-  void (**subscriber_callback)(const void *);
+  void (**subscriber_callback)(const void *, void *);
   rcl_timer_t * timer;
-  void (**timer_callback)(rcl_timer_t * timer, int64_t last_call_time);
+  void (**timer_callback)(rcl_timer_t *, void *);
 } my_node_t;
 
 struct subscriber_callback_context_t
@@ -217,6 +218,7 @@ void init_node_publisher(
   }
 }
 
+
 void init_node_timer(
   my_node_t * node,
   rclc_support_t * support,
@@ -392,7 +394,6 @@ void timer_callback(
   rclc_executor_semantics_t pub_semantics)
 {
   char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -438,7 +439,6 @@ void timer_callback_print(
   int max_run_time_ms,
   rclc_executor_semantics_t pub_semantics)
 {
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -466,7 +466,7 @@ void subscriber_callback_print(
   if (pub_index >= 0)
   {
     RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
-    printf("Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);    
+    printf("Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);     
   }
 }
 
@@ -482,7 +482,6 @@ void timer_callback_error(
   rclc_executor_semantics_t pub_semantics)
 {
   char temp[1000] = "";
-  custom_interfaces__msg__Message pub_msg;
   rcl_time_point_value_t now = rclc_now(&support);
   pub_msg.frame_id = node->count[timer_index]++;
   pub_msg.stamp = now;
@@ -520,4 +519,163 @@ void subscriber_callback_error(
     sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
     strcat(stat,temp);     
   }
+}
+
+// void timer_callback_us(
+//   my_node_t * node, 
+//   char * stat, 
+//   int timer_index, 
+//   int pub_index, 
+//   uint64_t min_run_time_us,
+//   uint64_t max_run_time_us,
+//   rclc_executor_semantics_t pub_semantics)
+// {
+//   char temp[1000] = "";
+//   rcl_time_point_value_t now = rclc_now(&support);
+//   pub_msg.frame_id = node->count[timer_index]++;
+//   pub_msg.stamp = now;
+//   sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+//   strcat(stat,temp);
+//   busy_wait_random_us(min_run_time_us, max_run_time_us);
+//   RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], &pub_msg, NULL, pub_semantics));
+//   now = rclc_now(&support);
+//   sprintf(temp, "Timer %lu %ld %ld\n", (unsigned long) &node->timer[timer_index], pub_msg.frame_id, now);
+//   strcat(stat,temp);
+// }
+
+// void subscriber_callback_us(
+//   my_node_t * node, 
+//   char * stat,
+//   const custom_interfaces__msg__Message * msg,
+//   int sub_index,
+//   int pub_index,
+//   uint64_t min_run_time_us,
+//   uint64_t max_run_time_us,
+//   rclc_executor_semantics_t pub_semantics)
+// {
+//   char temp[1000] = "";  
+//   rcl_time_point_value_t now;
+//   now = rclc_now(&support);
+//   sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+//   strcat(stat,temp);
+//   busy_wait_random_us(min_run_time_us, max_run_time_us);
+//   now = rclc_now(&support);
+//   if (pub_index >= 0)
+//   {
+//     RCSOFTCHECK(rclc_publish(&node->publisher[pub_index], msg, NULL, pub_semantics));
+//     sprintf(temp, "Subscriber %lu %ld %ld\n", (unsigned long) &node->subscriber[sub_index], msg->frame_id, now);
+//     strcat(stat,temp);     
+//   }
+// }
+
+typedef struct {
+  size_t current_memory_size;
+  size_t max_memory_size;
+} rcl_allocator_state_t;
+
+void *my_allocate(size_t size, void *state) {
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = size;
+    alloc_state->current_memory_size += size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(ptr + 1);
+}
+
+void *main_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void *support_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void *executor_allocate(size_t size, void *state) {
+    void * ptr = my_allocate(size, state);
+    return ptr;
+}
+
+void my_deallocate(void *pointer, void *state) {
+    if (!pointer) return;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)pointer - 1;
+    alloc_state->current_memory_size -= *ptr;
+    free(ptr);
+}
+
+void main_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void support_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void executor_deallocate(void *pointer, void *state) {
+    my_deallocate(pointer, state);
+}
+
+void *my_reallocate(void *pointer, size_t size, void *state) {
+    if (!pointer) return my_allocate(size, state);
+    size_t *old_ptr = (size_t *)pointer - 1;
+    size_t old_size = *old_ptr;
+    size_t *new_ptr = (size_t *)realloc(old_ptr, size + sizeof(size_t));
+    if (!new_ptr) return NULL;
+    *new_ptr = size;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    alloc_state->current_memory_size += size - old_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    return (void *)(new_ptr + 1);
+}
+
+void *main_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *support_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *executor_reallocate(void *pointer, size_t size, void *state) {
+    void * ptr = my_reallocate(pointer, size, state);
+    return ptr;
+}
+
+void *my_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    size_t total_size = number_of_elements * size_of_element;
+    rcl_allocator_state_t *alloc_state = (rcl_allocator_state_t *)state;
+    size_t *ptr = (size_t *)malloc(total_size + sizeof(size_t));
+    if (!ptr) return NULL;
+    *ptr = total_size; // Storing the total size
+    alloc_state->current_memory_size += total_size;
+    if (alloc_state->current_memory_size > alloc_state->max_memory_size) {
+        alloc_state->max_memory_size = alloc_state->current_memory_size;
+    }
+    void *user_ptr = (void *)(ptr + 1);
+    memset(user_ptr, 0, total_size); // Set all bytes to zero
+    return user_ptr;
+}
+
+void *main_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
+}
+
+void *support_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
+}
+
+void *executor_zero_allocate(size_t number_of_elements, size_t size_of_element, void *state) {
+    void * ptr = my_zero_allocate(number_of_elements, size_of_element, state);
+    return ptr;
 }

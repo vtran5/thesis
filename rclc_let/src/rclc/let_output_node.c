@@ -32,6 +32,7 @@ rcl_ret_t _rclc_output_handle_zero_init(rclc_let_output_t * output)
 	output->initialized = false;
 	output->subscriber_arr = NULL;
 	output->callback_info = NULL;
+	output->publisher = rcl_get_zero_initialized_publisher();
 	return RCL_RET_OK;
 }
 
@@ -59,17 +60,21 @@ rcl_ret_t _rclc_output_handle_init(
 
 		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &output->handle.publisher->let_publisher->let_publishers, num_period_per_let*sizeof(rcl_publisher_t)),
 									 (unsigned long) output);
-
-		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &intermediate_topic, strlen(output->handle.publisher->let_publisher->topic_name)+ 13),
+		const char * original_topic_name = rcl_publisher_get_topic_name(&output->handle.publisher->rcl_publisher);
+		CHECK_RCL_RET(rclc_allocate(allocator, (void **) &intermediate_topic, strlen(original_topic_name)+ 13),
 									 (unsigned long) output);
 
 		rcl_publisher_options_t option = rcl_publisher_get_default_options();
-		option.qos = *output->handle.publisher->let_publisher->qos_profile;
+		rmw_qos_profile_t profile = rmw_qos_profile_default;
+    profile.depth = 1;
+		option.qos = profile;
 
+		const rcl_publisher_options_t * original_pub_option = rcl_publisher_get_options(&output->handle.publisher->rcl_publisher);
+		const rmw_qos_profile_t * original_pub_qos = rcl_publisher_get_actual_qos(&output->handle.publisher->rcl_publisher);
 		for(int i = 0; i < num_period_per_let; i++)
 		{
 			// Initialize the publisher to the intermediate topic, one for each period of its callback's LET
-			CHECK_RCL_RET(_rclc_create_intermediate_topic(&intermediate_topic, output->handle.publisher->let_publisher->topic_name, i),
+			CHECK_RCL_RET(_rclc_create_intermediate_topic(&intermediate_topic, original_topic_name, i),
 										(unsigned long) output);
 
 			output->handle.publisher->let_publisher->let_publishers[i] = rcl_get_zero_initialized_publisher();
@@ -85,7 +90,7 @@ rcl_ret_t _rclc_output_handle_init(
 				output->handle.publisher->let_publisher->node,
 				output->handle.publisher->let_publisher->type_support,
 				intermediate_topic,
-				output->handle.publisher->let_publisher->qos_profile),
+				&profile),
 				(unsigned long) output);
 			
 			output->data_consumed[i] = true;
@@ -98,12 +103,11 @@ rcl_ret_t _rclc_output_handle_init(
 										(unsigned long) output);
 
 		// Initialize the intermediate publisher to the original topic
-		CHECK_RCL_RET(rclc_publisher_init(&output->publisher, 
+		CHECK_RCL_RET(rcl_publisher_init(&output->publisher, 
 				handle.publisher->let_publisher->node, 
 				handle.publisher->let_publisher->type_support,
-				handle.publisher->let_publisher->topic_name,
-				handle.publisher->let_publisher->qos_profile,
-				RCLCPP_EXECUTOR, allocator),
+				original_topic_name,
+				original_pub_option),
 				(unsigned long) output);
 
 		// Disconnect the original publisher to the original topic
@@ -124,6 +128,16 @@ rcl_ret_t _rclc_output_handle_fini(
 	switch(output->handle.type)
 	{
 	case RCLC_PUBLISHER:	
+		const rcl_publisher_options_t * original_pub_option = rcl_publisher_get_options(&output->handle.publisher->let_publisher->let_publishers[0]);
+		const char * original_topic_name = rcl_publisher_get_topic_name(&output->publisher);
+		// Re-initialize the original publisher
+		CHECK_RCL_RET(rcl_publisher_init(&output->handle.publisher->rcl_publisher, 
+				output->handle.publisher->let_publisher->node, 
+				output->handle.publisher->let_publisher->type_support,
+				original_topic_name,
+				original_pub_option),
+				(unsigned long) output);	
+
 		for(int i = 0; i < num_period_per_let; i++)
 		{
 			CHECK_RCL_RET(rcl_publisher_fini(&output->handle.publisher->let_publisher->let_publishers[i], 
@@ -133,19 +147,9 @@ rcl_ret_t _rclc_output_handle_fini(
 										 (unsigned long) output);
 		}
 		CHECK_RCL_RET(rclc_fini_array(&output->data_arr), (unsigned long) output);
-		// Initialize the intermediate publisher to the original topic
-		CHECK_RCL_RET(rclc_publisher_fini(&output->publisher, output->handle.publisher->let_publisher->node), 
+		// Finalize the intermediate publisher
+		CHECK_RCL_RET(rcl_publisher_fini(&output->publisher, output->handle.publisher->let_publisher->node), 
 										 (unsigned long) output); 
-
-		// Re-initialize the original publisher
-		rcl_publisher_options_t option = rcl_publisher_get_default_options();
-  	option.qos = *output->handle.publisher->let_publisher->qos_profile;
-		CHECK_RCL_RET(rcl_publisher_init(&output->handle.publisher->rcl_publisher, 
-				output->handle.publisher->let_publisher->node, 
-				output->handle.publisher->let_publisher->type_support,
-				output->handle.publisher->let_publisher->topic_name,
-				&option),
-				(unsigned long) output);	
 
 		allocator->deallocate(output->subscriber_arr, allocator->state);
 		output->subscriber_arr = NULL;
@@ -166,14 +170,12 @@ rcl_ret_t
 rclc_let_output_node_init(
 	rclc_let_output_node_t * let_output_node,
 	const size_t max_number_of_let_handles,
-	const size_t max_intermediate_handles,
 	rcl_allocator_t * allocator)
 {
 	let_output_node->allocator = allocator;
 	CHECK_RCL_RET(rclc_support_init(&let_output_node->support, 0, NULL, allocator), 
 									(unsigned long) let_output_node);
 	let_output_node->max_output_handles = max_number_of_let_handles;
-	let_output_node->max_intermediate_handles = max_intermediate_handles;
 	let_output_node->num_intermediate_handles = 0;
 	let_output_node->index = 0;
 
@@ -324,7 +326,7 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 			return;
 		}
 
-		VOID_CHECK_RCL_RET(rcl_publish(&output->publisher.rcl_publisher, msgin, NULL), 
+		VOID_CHECK_RCL_RET(rcl_publish(&output->publisher, msgin, NULL), 
 												(unsigned long) output->handle.publisher);
 		output->data_consumed[subscriber_period_id] = true;
 		VOID_CHECK_RCL_RET(rcutils_steady_time_now(&now), (unsigned long) output->handle.publisher);
@@ -340,7 +342,7 @@ void _rclc_let_data_subscriber_callback(const void * msgin, void * context, bool
 				// if the overrun callback finish executing, publish the data
 				if (output->callback_info->overrun_status == HANDLING_ERROR)
 				{
-					VOID_CHECK_RCL_RET(rcl_publish(&output->publisher.rcl_publisher, msgin, NULL), 
+					VOID_CHECK_RCL_RET(rcl_publish(&output->publisher, msgin, NULL), 
 															(unsigned long) output);
 					output->data_consumed[subscriber_period_id] = true;
 					VOID_CHECK_RCL_RET(rcutils_steady_time_now(&now), (unsigned long) output->handle.publisher);

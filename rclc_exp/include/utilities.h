@@ -25,7 +25,7 @@ struct arg_spin {
   rclc_executor_t * executor;
   rclc_support_t * support;
 };
-
+void thread_create_with_name(pthread_t *thread_id, int policy, int priority, int cpu_id, void *(*function)(void *), void * arg, const char * name);
 /**
  *  pthread_create-compatible wrapper function of rclc_executor_spin.
  *

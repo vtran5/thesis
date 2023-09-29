@@ -2569,7 +2569,6 @@ rcl_ret_t
 rclc_executor_let_init(
   rclc_executor_t * executor,
   const size_t number_of_let_handles,
-  const size_t max_intermediate_handles,
   rclc_executor_let_overrun_option_t option)
 {
   RCL_CHECK_FOR_NULL_WITH_MSG(executor, "executor is NULL", return RCL_RET_INVALID_ARGUMENT);
@@ -2592,7 +2591,7 @@ rclc_executor_let_init(
   }
 
   CHECK_RCL_RET(rclc_let_output_node_init(&executor->let_executor->let_output_node,
-      number_of_let_handles, max_intermediate_handles, executor->allocator), (unsigned long) executor);
+      number_of_let_handles, executor->allocator), (unsigned long) executor);
   return ret;
 }
 
